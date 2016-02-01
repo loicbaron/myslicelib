@@ -35,6 +35,7 @@ class SfaAm(SfaApi):
 
 
         # self.Status
+        # self.CreateSliver (v2)
         # self.Allocate
         # self.Provision
         # self.PerformOperationalAction

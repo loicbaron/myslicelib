@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     print Registry.version()
     print AM.version()
+    print AM.list('resource')
     #print AM.GetVersion()
     exit
     with open (cert, "r") as myfile:
