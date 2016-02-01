@@ -83,6 +83,7 @@ class Api(object):
 
     def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
         self.url = url
+        self.version = self.version()
 
         if not certfile:
             certfile = self.certificate(pkey, email, hrn)
@@ -101,4 +102,12 @@ class Api(object):
             return getattr(self.serverproxy, name)(*args, **kwds)
 
         return func
+    
+    def version(self):
+        try:
+            result = self.GetVersion()
+        except Exception, e:
+            return False
+        return result
+
 
