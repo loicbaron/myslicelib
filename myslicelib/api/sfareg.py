@@ -10,8 +10,11 @@ class SfaReg(SfaApi):
         return result
 
     def get(obj_type, hrn):
-        result = self.Resolve(hrn, self.credential, {})
-        #result = filter_records(obj_type, result)
+        try:
+            result = self.Resolve(hrn, self.credential, {})
+            #result = filter_records(obj_type, result)
+        except Exception, e:
+            return False
         return result
 
     def user(hrn):
