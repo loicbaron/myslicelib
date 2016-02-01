@@ -1,5 +1,7 @@
 from myslicelib.api.planetlab import Api
+
 from myslicelib.model import Entities
+
 import logging
 
 class Query(object):
@@ -39,8 +41,8 @@ class Query(object):
         try:
             self.cls = getattr(module, c)
         except AttributeError as e:
-            print e
-            print "%s entity not found" % (entity.__name__)
+            logging.error(e)
+            logging.error("%s entity not found" % (entity.__name__))
             exit(1)
 
 
@@ -56,40 +58,40 @@ class Query(object):
         self.r = None
 
 
-   
+
     def filter(self, key, value):
         self.f[key] = value
         return self
-    
+
     def order(self, order):
         return self.sort(order)
 
     def sort(self, sort):
         return self.filter('-SORT', sort)
-    
+
     def offset(self, offset):
         if offset > 0:
             return self.filter('-OFFSET', offset)
         return self
-        
+
     def limit(self, limit):
         return self.filter('-LIMIT', limit)
-    
+
     def gt(self, key, value):
         return self.filter('>' + key, value)
-    
+
     def gte(self, key, value):
         return self.filter(']' + key, value)
-    
+
     def lt(self, key, value):
         return self.filter('<' + key, value)
-    
+
     def lte(self, key, value):
         return self.filter('[' + key, value)
 
     def find(self):
         return self.execute()
-    
+
     def execute(self):
 
         es = Entities()

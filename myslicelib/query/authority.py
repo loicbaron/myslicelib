@@ -1,4 +1,4 @@
 from myslicelib.query import Query
 
-class ResourceQuery(Query):
+class AuthorityQuery(Query):
     raise NotImplementedError("Not yet implemented")

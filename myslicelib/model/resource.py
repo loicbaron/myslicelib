@@ -1,5 +1,5 @@
 from myslicelib.model import Entity
 
-class Testbed(Entity):
+class Resource(Entity):
     pass
 

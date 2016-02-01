@@ -12,9 +12,6 @@ class Entity(object):
         else :
             raise AttributeError
 
-    def load(self):
-        raise NotImplementedError('Not implemented')
-
     def save(self):
         raise NotImplementedError('Not implemented')
 

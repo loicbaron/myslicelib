@@ -1,5 +1,5 @@
 from myslicelib.model import Entity
 
-class Testbed(Entity):
+class Slice(Entity):
     pass
 

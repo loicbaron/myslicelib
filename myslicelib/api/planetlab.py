@@ -6,13 +6,12 @@ This API class maps to the MyPLC API of PlanetLab
 @author: Ciro Scognamiglio <ciro.scognamiglio@lip6.fr>
 '''
 
-import xmlrpclib
+import xmlrpc
 import csv
 import urllib
 
 import logging
 
-from urlparse import urlparse
 
 class Api(object):
 
@@ -41,7 +40,7 @@ class Api(object):
         }
         try :
             logging.debug("Using API on %s" % self.url)
-            self.api = xmlrpclib.ServerProxy(self.url, allow_none=True)
+            self.api = xmlrpc.ServerProxy(self.url, allow_none=True)
         except TypeError :
             logging.error("Invalid configuration")
             exit(1)
