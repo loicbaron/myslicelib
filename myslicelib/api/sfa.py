@@ -83,7 +83,6 @@ class Api(object):
 
     def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
         self.url = url
-        self.version = self.version()
 
         if not certfile:
             certfile = self.certificate(pkey, email, hrn)
@@ -107,6 +106,7 @@ class Api(object):
         try:
             result = self.GetVersion()
         except Exception, e:
+            print e
             return False
         return result
 

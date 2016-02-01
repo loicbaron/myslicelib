@@ -3,23 +3,25 @@
 '''
 DISCLAIMER: this is a file to test during development, needs to be removed
 '''
-from myslicelib.api.sfa import Api
+from myslicelib.api.sfareg import SfaReg
+from myslicelib.api.sfaam import SfaAm
 
 if __name__ == '__main__':
 
-    path = "/Users/moray/Sites/upmc/"
-    pkey = path + "cscognamiglio_onelab.pkey"
-    hrn = "onelab.upmc.cscognamiglio"
-    email = "cscognamiglio@gmail.com"
-    cert = path + "cscognamiglio_onelab.cert"
+    path = "/root/.sfi/"
+    pkey = path + "onelab.upmc.loic_baron.pkey"
+    hrn = "onelab.upmc.loic_baron"
+    email = "loic.baron@lip6.fr"
+    cert = path + "onelab.upmc.loic_baron.sscert"
     url_am = "http://sfa3.planet-lab.eu:12346"
     #url = "https://nitlab.inf.uth.gr:8001/RPC2"
     url_registry = "http://portal.onelab.eu:12345"
-    url_registry = "http://sfa3.planet-lab.eu:12345"
-    Registry = Api(url=url_registry, pkey=pkey, certfile=cert)
-    AM = Api(url=url_am, pkey=pkey, certfile=cert)
+    Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert)
+    AM = SfaAm(url=url_am, pkey=pkey, certfile=cert)
 
-    print AM.GetVersion()
+    print Registry.version()
+    print AM.version()
+    #print AM.GetVersion()
     exit
     with open (cert, "r") as myfile:
         data = myfile.read()
