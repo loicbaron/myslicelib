@@ -85,10 +85,11 @@ class Api(object):
         self.url = url
 
         if not certfile:
-            certfile = self.certificate(pkey, email, hrn)
+            certfile = self.sign_certificate(pkey, email, hrn) #
         else:
             certfile = certfile
 
+        self.certificate = certfile.read()
         self.verbose = verbose
         self.timeout = timeout
 

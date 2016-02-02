@@ -15,13 +15,22 @@ if __name__ == '__main__':
     cert = path + "onelab.upmc.loic_baron.sscert"
     url_am = "http://sfa3.planet-lab.eu:12346"
     #url = "https://nitlab.inf.uth.gr:8001/RPC2"
-    url_registry = "http://portal.onelab.eu:12345"
+    url_registry = "http://dev.myslice.info:12345"
     Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert)
     AM = SfaAm(url=url_am, pkey=pkey, certfile=cert)
+    
+    print Registry.version() + '\n'
+    print Registry.get(hrn) + '\n'
+    print Registry.list() + '\n'
+    print Registry.list("onelab.upmc") + '\n'
 
-    print Registry.version()
-    print AM.version()
-    print AM.list('resource')
+    user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['xxxx']}
+
+    print Registry.create(user_dict, 'user') + '\n'
+    print Registry.remove('onelab.upmc.aaaa', user_dict, 'user') + '\n'
+
+    print AM.version() + '\n'
+    print AM.list('resource') + '\n'
     #print AM.GetVersion()
     exit
     with open (cert, "r") as myfile:
