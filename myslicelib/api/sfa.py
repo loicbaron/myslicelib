@@ -4,7 +4,7 @@ from httplib import HTTPSConnection
 
 from myslicelib.util.certificate import Keypair, Certificate
 
-##
+###
 # ServerException, ExceptionUnmarshaller
 #
 # Used to convert server exception strings back to an exception.
@@ -88,8 +88,7 @@ class Api(object):
             certfile = self.sign_certificate(pkey, email, hrn) #
         else:
             certfile = certfile
-
-        self.certificate = certfile.read()
+         
         self.verbose = verbose
         self.timeout = timeout
 

@@ -18,7 +18,7 @@ class SfaAm(SfaApi):
     
     def list(self, obj_type, hrn=None):
         try:
-            api_options = {}
+            api_options = {'rspec_type': 'GENI', 'rspec_version': '3'}
             if hrn is None:
                 result = self.ListResources([self.user_credential], api_options)
             else:
