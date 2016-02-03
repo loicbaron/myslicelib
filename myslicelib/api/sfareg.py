@@ -9,7 +9,7 @@ class SfaReg(SfaApi):
         try:
             result = self.Resolve(hrn, self.user_credential, {})
             #result = filter_records(obj_type, result)
-        except Exception, e:
+        except Exception(e):
             return False
         return result
     
@@ -21,7 +21,7 @@ class SfaReg(SfaApi):
                 hrn = self.version()['hrn']
             result = self.List(hrn, self.user_credential, {})
             #result = filter_records(obj_type, result)
-        except Exception, e:
+        except Exception(e):
             return False
         return result
     

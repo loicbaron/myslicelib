@@ -1,8 +1,8 @@
-import xmlrpclib
+import xmlrpc.client as xmlrpc
 import ssl
-from httplib import HTTPSConnection
+from http.client import HTTPSConnection
 
-from myslicelib.util.certificate import Keypair, Certificate
+#from myslicelib.util.certificate import Keypair, Certificate
 
 ##
 # ServerException, ExceptionUnmarshaller
@@ -13,19 +13,19 @@ from myslicelib.util.certificate import Keypair, Certificate
 class ServerException(Exception):
     pass
 
-class ExceptionUnmarshaller(xmlrpclib.Unmarshaller):
+class ExceptionUnmarshaller(xmlrpc.Unmarshaller):
 
     def close(self):
         try:
-            return xmlrpclib.Unmarshaller.close(self)
-        except xmlrpclib.Fault, e:
+            return xmlrpc.Unmarshaller.close(self)
+        except xmlrpc.Fault(e):
             raise ServerException(e.faultString)
 
 
-class XMLRPCTransport(xmlrpclib.Transport):
+class XMLRPCTransport(xmlrpc.Transport):
 
     def __init__(self, key_file=None, cert_file=None, timeout=None):
-        xmlrpclib.Transport.__init__(self)
+        xmlrpc.Transport.__init__(self)
         self.timeout = timeout
         self.key_file = key_file
         self.cert_file = cert_file
@@ -66,28 +66,28 @@ class XMLRPCTransport(xmlrpclib.Transport):
 
     def getparser(self):
         unmarshaller = ExceptionUnmarshaller()
-        parser = xmlrpclib.ExpatParser(unmarshaller)
+        parser = xmlrpc.ExpatParser(unmarshaller)
         return parser, unmarshaller
 
-class XMLRPCServerProxy(xmlrpclib.ServerProxy):
+class XMLRPCServerProxy(xmlrpc.ServerProxy):
 
     def __init__(self, url, transport, allow_none=True, verbose=False):
         self.url = url
-        xmlrpclib.ServerProxy.__init__(self, url, transport, allow_none=allow_none, verbose=verbose)
+        xmlrpc.ServerProxy.__init__(self, url, transport, allow_none=allow_none, verbose=verbose)
 
 
     def __getattr__(self, attr):
-        return xmlrpclib.ServerProxy.__getattr__(self, attr)
+        return xmlrpc.ServerProxy.__getattr__(self, attr)
 
 class Api(object):
 
     def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
         self.url = url
 
-        if not certfile:
-            certfile = self.sign_certificate(pkey, email, hrn) #
-        else:
-            certfile = certfile
+        #if not certfile:
+        #    certfile = self.sign_certificate(pkey, email, hrn) #
+        #else:
+        #    certfile = certfile
 
         self.certificate = certfile.read()
         self.verbose = verbose
@@ -106,8 +106,8 @@ class Api(object):
     def version(self):
         try:
             result = self.GetVersion()
-        except Exception, e:
-            print e
+        except Exception(e):
+            print(e)
             return False
         return result
 
