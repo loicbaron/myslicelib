@@ -43,11 +43,14 @@ class SfaReg(SfaApi):
         return self.GetCredential(self.user_credential, hrn, obj_type)
 
     # look up to see the upper has the credential
-    def traceup_credential(self, hrn, obj_type, cred):
-        if hrn and cred is not None:
+    def traceup_credential(self, hrn, obj_type):
+        #if hrn is not None:
+        try:
             cred = self.get_credential(hrn, obj_type)
-            
-        return False 
+             return cred
+        except Exception:
+            upper_hrn = '.'.join(hrn.split('.')[:-1])
+            return self.traceup_credential(upper_hrn, obj_type)
 
     # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
@@ -66,21 +69,22 @@ class SfaReg(SfaApi):
         if obj_type == 'user' and record_dict['hrn'] == self.hrn:
                 cred = self.user_credential
         # other possiblities needs to be added later 
-        elif obj_type == 'slice':
-                
+        elif obj_type == 'slice':    
             # get credential of the slice object
+            '''
             hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+            
             cred = self.get_credential(hrn, obj_type)
+            '''
             # if it doesn't succeed try to get an authority credential of an upper authority till the root
-
-
-
+            cred = self.traceup_credential(record_dict['hrn'], obj_type)
 
         else:
             # get credential of the authority above the object
             auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            cred = self.get_credential(auth_hrn, obj_type)
+            cred = self.get_credential(auth_hrn, 'authority')
             # if it doesn't succeed try to get an authority credential of an upper authority till the root
+
 
 
         return self.Update(record_dict, cred)
