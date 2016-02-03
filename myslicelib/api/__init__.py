@@ -2,29 +2,10 @@
 Base API Class
 
 '''
-from myslicelib.util.url import validateUrl
-
-class Endpoint(object):
-    """
-    An endpoint specifies a remote API endpoint.
-    type is the type of endpoint, e.g. AM, Reg
-    protocol specifies the protocol, default is SFA
-    url is the remote url
-    """
-
-    def __init__(self, type="AM", protocol="SFA", url=None):
-        self.type = type
-        self.protocol = protocol
-        if not url or not validateUrl(url):
-            raise ValueError("URL not valid")
-        else:
-            self.url = url
-
-
-
-    def __str__(self):
-        return self.url
-
+from myslicelib.util import Endpoint, Credential
+from myslicelib.api.sfaam import SfaAm
+from myslicelib.api.sfareg import SfaReg
+#from myslicelib.util.certificate import Keypair, Certificate
 
 class Api(object):
     """
@@ -46,18 +27,23 @@ class Api(object):
 
     """
 
-    def __init__(self, endpoints: Endpoint) -> None:
+    def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
         self.endpoints = []
         for endpoint in endpoints:
-            self.endpoints.append
+            if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
+                self.endpoints.append( SfaAm(endpoint, credential) )
+            elif (endpoint.protocol == "SFA") and (endpoint.type == "Reg"):
+                self.endpoints.append( SfaReg(endpoint, credential) )
+            else:
+                raise ValueError
 
     def version(self) -> dict:
         result = { "MySlice Lib API" : { "version" : "1.0" } }
         for e in self.endpoints:
-            result[e.type + " API"] = {
-                "type" : e.type,
-                "protocol" : e.protocol,
-                "url" : e.url
+            result[e.endpoint.type + " API"] = {
+                "type" : e.endpoint.type,
+                "protocol" : e.endpoint.protocol,
+                "url" : e.endpoint.url
             }
         return result
 
