@@ -54,10 +54,15 @@ class SfaReg(SfaApi):
 
     # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
-        auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-        auth_cred = self.get_credential(auth_hrn, 'authority') #
-        record_dict["type"] = obj_type
-        return self.Register(record_dict, auth_cred)
+        try:
+            auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+            auth_cred = self.get_credential(auth_hrn, 'authority') #
+            record_dict["type"] = obj_type
+            return self.Register(record_dict, auth_cred)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return False
 
     def delete(self, hrn, obj_type):
         auth_hrn = '.'.join(hrn.split('.')[:-1])
@@ -66,27 +71,31 @@ class SfaReg(SfaApi):
 
     # hrn is requester
     def update(self, record_dict, obj_type):
-        if obj_type == 'user' and record_dict['hrn'] == self.hrn:
-                cred = self.user_credential
-        # other possiblities needs to be added later 
-        elif obj_type == 'slice':    
-            # get credential of the slice object
-            '''
-            hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            
-            cred = self.get_credential(hrn, obj_type)
-            '''
-            # if it doesn't succeed try to get an authority credential of an upper authority till the root
-            cred = self.traceup_credential(record_dict['hrn'], obj_type)
+        try:
+            if obj_type == 'user' and record_dict['hrn'] == self.hrn:
+                    cred = self.user_credential
+            # other possiblities needs to be added later 
+            elif obj_type == 'slice':    
+                # get credential of the slice object
+                '''
+                hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+                
+                cred = self.get_credential(hrn, obj_type)
+                '''
+                # if it doesn't succeed try to get an authority credential of an upper authority till the root
+                cred = self.traceup_credential(record_dict['hrn'], obj_type)
 
-        else:
-            # get credential of the authority above the object
-            auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            cred = self.get_credential(auth_hrn, 'authority')
-            # if it doesn't succeed try to get an authority credential of an upper authority till the root
+            else:
+                # get credential of the authority above the object
+                auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+                cred = self.get_credential(auth_hrn, 'authority')
+                # if it doesn't succeed try to get an authority credential of an upper authority till the root
 
-
-
-        return self.Update(record_dict, cred)
+            record_dict["type"] = obj_type
+            return self.Update(record_dict, cred)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return False
 
     # self.CreateGid
