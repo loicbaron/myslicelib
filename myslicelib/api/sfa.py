@@ -18,7 +18,7 @@ class ExceptionUnmarshaller(xmlrpc.Unmarshaller):
     def close(self):
         try:
             return xmlrpc.Unmarshaller.close(self)
-        except xmlrpc.Fault(e):
+        except xmlrpc.Fault as e:
             raise ServerException(e.faultString)
 
 
@@ -89,7 +89,6 @@ class Api(object):
         #else:
         #    certfile = certfile
 
-        self.certificate = certfile.read()
         self.verbose = verbose
         self.timeout = timeout
 
@@ -106,7 +105,7 @@ class Api(object):
     def version(self):
         try:
             result = self.GetVersion()
-        except Exception(e):
+        except Exception as e:
             print(e)
             return False
         return result
