@@ -21,28 +21,29 @@ if __name__ == '__main__':
     AM = SfaAm(url=url_am, pkey=pkey, certfile=cert)
     Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert, hrn=hrn) 
 
-    print(Registry.version() + '\n')
-    print(Registry.get(hrn) + '\n')
-    print(Registry.list() + '\n')
-    print(Registry.list("onelab.upmc") + '\n')
+    print(Registry.version())
+    print(Registry.get(hrn))
+    #print(Registry.list())
+    #print(Registry.list("onelab.upmc"))
 
     user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
 
     '''
     test_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbb@onelab.eu','type':'user'}
 
-    print(Registry.create(user_dict, 'user') + '\n')
-    print(Registry.remove('onelab.upmc.aaaa', user_dict, 'user') + '\n')
+    print(Registry.create(user_dict, 'user'))
+    print(Registry.remove('onelab.upmc.aaaa', user_dict, 'user'))
 
-    print(AM.version() + '\n')
-    print(AM.list('resource') + '\n')
-    print(AM.get(type='slice',hrn='onelab.upmc.openlabdemo') + '\n')
+    print(AM.version())
+    print(AM.list('resource'))
+    print(AM.get(type='slice',hrn='onelab.upmc.openlabdemo'))
     '''
-    print Registry.create(user_dict, 'user')
-    #print Registry.delete('onelab.upmc.aaaa', 'user')
+    #print(Registry.create(user_dict, 'user'))
+    #print(Registry.delete('onelab.upmc.aaaa', 'user'))
     user_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbbb@onelab.eu'}    
-    print Registry.update(user_dict,'user')
-    print Registry.get('onelab.upmc.aaaa')
+    print('UPDATE ---')
+    print(Registry.update(user_dict,'user'))
+    print(Registry.get('onelab.upmc.aaaa'))
 
     #print(AM.version())
     #print(AM.list('resource'))
