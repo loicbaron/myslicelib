@@ -55,11 +55,11 @@ class SfaReg(SfaApi):
             auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
             auth_cred = self.get_credential(auth_hrn, 'authority') #
             record_dict["type"] = obj_type
+            return self.Register(record_dict, auth_cred)
         except Exception as e:
             import traceback
             traceback.print_exc()
             return False
-        return self.Register(record_dict, auth_cred)
 
     def delete(self, hrn, obj_type):
         auth_hrn = '.'.join(hrn.split('.')[:-1])
