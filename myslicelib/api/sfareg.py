@@ -45,23 +45,18 @@ class SfaReg(SfaApi):
     # look up to see the upper has the credential
     def traceup_credential(self, hrn, obj_type):
         #if hrn is not None:
-        try:
-            cred = self.get_credential(hrn, obj_type)
-             return cred
-        except Exception:
-            upper_hrn = '.'.join(hrn.split('.')[:-1])
-            return self.traceup_credential(upper_hrn, obj_type)
+            try:
+                cred = self.get_credential(hrn, obj_type)
+                return cred
+            except Exception as e:
+                upper_hrn = '.'.join(hrn.split('.')[:-1])
+                return self.traceup_credential(upper_hrn, obj_type)
 
     # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
-        try:
-            auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            auth_cred = self.get_credential(auth_hrn, 'authority') #
-            record_dict["type"] = obj_type
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return False
+        auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+        auth_cred = self.get_credential(auth_hrn, 'authority') #
+        record_dict["type"] = obj_type
         return self.Register(record_dict, auth_cred)
 
     def delete(self, hrn, obj_type):
