@@ -15,7 +15,7 @@ class SfaReg(SfaApi):
         try:
             result = self.Resolve(hrn, self.user_credential, {})
             #result = filter_records(obj_type, result)
-        except Exception(e):
+        except Exception as e:
             import traceback
             traceback.print_exc()
             return False
@@ -29,7 +29,7 @@ class SfaReg(SfaApi):
                 hrn = self.version()['hrn']
             result = self.List(hrn, self.user_credential, {})
             #result = filter_records(obj_type, result)
-        except Exception(e):
+        except Exception as e:
             return False
         return result
     
@@ -51,10 +51,15 @@ class SfaReg(SfaApi):
 
     # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
-        auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-        auth_cred = self.get_credential(auth_hrn, 'authority') #
-        record_dict["type"] = obj_type
-        return self.Register(record_dict, auth_cred)
+        try:
+            auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+            auth_cred = self.get_credential(auth_hrn, 'authority') #
+            record_dict["type"] = obj_type
+            return self.Register(record_dict, auth_cred)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return False
 
     def delete(self, hrn, obj_type):
         auth_hrn = '.'.join(hrn.split('.')[:-1])
