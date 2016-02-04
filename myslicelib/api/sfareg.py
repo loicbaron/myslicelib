@@ -100,4 +100,12 @@ class SfaReg(SfaApi):
             traceback.print_exc()
             return False
 
+    def filter_records(type, records):
+        filtered_records = []
+        for record in records:
+            if (record['type'] == type) or (type == "all"):
+                filtered_records.append(record)
+        return filtered_records
+
+
     # self.CreateGid

@@ -34,7 +34,7 @@ class SfaAm(SfaApi):
             dict_result = xmltodict.parse(result['value'])
             result['parsed'] = dict_result
 
-        except Exception(e):
+        except Exception as e:
             return False
         return result
     
@@ -51,16 +51,9 @@ class SfaAm(SfaApi):
                     result = self.ListResources([urn], self.slice_credential, api_options)
                 else:
                     raise NotImplementedError('Not implemented')
-        except Exception(e):
+        except Exception as e:
             return False
         return result
-
-    def filter_records(type, records):
-        filtered_records = []
-        for record in records:
-            if (record['type'] == type) or (type == "all"):
-                filtered_records.append(record)
-        return filtered_records
 
 class Xrn:
 
