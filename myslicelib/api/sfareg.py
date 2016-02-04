@@ -90,4 +90,12 @@ class SfaReg(SfaApi):
 
         return self.Update(record_dict, cred)
 
+    def filter_records(type, records):
+        filtered_records = []
+        for record in records:
+            if (record['type'] == type) or (type == "all"):
+                filtered_records.append(record)
+        return filtered_records
+
+
     # self.CreateGid
