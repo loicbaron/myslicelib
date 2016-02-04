@@ -83,7 +83,7 @@ class Api(object):
 
     def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
         self.url = url
-
+        self.api_options = {}
         #if not certfile:
         #    certfile = self.sign_certificate(pkey, email, hrn) #
         #else:

@@ -1,5 +1,9 @@
 import xmltodict
+import uuid
+
 from myslicelib.api.sfa import Api as SfaApi
+
+def unique_call_id(): return uuid.uuid4().urn
 
 def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
 
@@ -18,16 +22,20 @@ class SfaAm(SfaApi):
 
     def get(self, obj_type, hrn):
         try:
-            api_options = {}
-            if obj_type == 'resource':
-                result = self.ListResources([self.user_credential], api_options)
-                # filter and return the resource
+            if obj_type == 'lease':
+                self.api_options['list_leases']='all'
+            if obj_type == 'resource' or obj_type == 'lease':
+                result = self.ListResources([self.user_credential], self.api_options)
+                # filter and return the resource or the lease
             elif obj_type == 'slice':
-                if version['geni_api'] == 2:
-                    api_options['geni_slice_urn'] = hrn_to_urn(hrn)
-                    result = server.ListResources([object_cred], api_options)
-
-                result = self.Describe([urn], self.slice_credential, api_options)
+                self.api_options['list_leases']='all'
+                if self.version()['geni_api'] == 2:
+                    self.api_options['geni_slice_urn'] = hrn_to_urn(hrn)
+                    result = server.ListResources([object_cred], self.api_options)
+                elif self.version()['geni_api']==3:
+                    result = self.Describe([urn], self.slice_credential, self.api_options)
+                else:
+                    raise NotImplementedError('geni_ api version not supported')
             else:
                 raise NotImplementedError('Not implemented')
 
@@ -40,20 +48,82 @@ class SfaAm(SfaApi):
     
     def list(self, obj_type, hrn=None):
         try:
-            api_options = {'rspec_type': 'GENI', 'rspec_version': '3'}
+            self.api_options = {'rspec_type': 'GENI', 'rspec_version': '3'}
+            if obj_type == 'lease':
+                self.api_options['list_leases'] = 'all'
+            # All resource or lease
             if hrn is None:
-                result = self.ListResources([self.user_credential], api_options)
+                result = self.ListResources([self.user_credential], self.api_options)
+            # resource or lease within a slice
             else:
-                if self.version()['geni_api']==3:
-                    result = self.Describe([urn], self.slice_credential, api_options)
-                elif self.version()['geni_api']==2:
-                    api_options['geni_slice_urn'] = hrn_to_urn(hrn, 'slice')
-                    result = self.ListResources([urn], self.slice_credential, api_options)
-                else:
-                    raise NotImplementedError('Not implemented')
+               return self.get(obj_type, hrn) 
+
+            dict_result = xmltodict.parse(result['value'])
+            result['parsed'] = dict_result
+
         except Exception as e:
             return False
         return result
+
+    def create(self, record_dict, obj_type):
+        return self.update(record_dict, obj_type)
+
+    def delete(self, obj_type, hrn):
+        # self.Delete
+        try:
+            if obj_type == 'slice':
+                result = server.Delete([urn] ,[self.slice_credential], self.api_options)
+        except Exception as e:
+            return False
+        return result
+
+    def update(self, record_dict, obj_type):
+        try:
+            if obj_type == 'slice':
+                # if update only expiration date
+                # self.Renew
+                if 'expiration_date' in record_dict:
+                    d = record_dict['expiration_date']
+                    date = d.isoformat("T") + "Z"
+                    result = server.Renew([urn] ,[object_cred], date, api_options)
+                else:
+                    self.api_options['call_id'] = unique_call_id()
+                    api_options['sfa_users'] = record_dict['users']
+                    api_options['geni_users'] = record_dict['users']
+
+                    if type(record_dict['parsed']) is dict:
+                        rspec = xmltodict.unparse(record_dict['parsed'])
+                    else:
+                        raise TypeError('parsed rspec has to be a dict') 
+                    # self.CreateSliver (v2)
+                    if self.version()['geni_api'] == 2:
+                        result = server.CreateSliver([urn] ,[object_cred], rspec, api_options)
+                    # v3
+                    # self.Allocate
+                    # self.Provision
+                    elif self.version()['geni_api'] == 3:
+                        result = server.Allocate(urn ,[object_cred], rspec, api_options)
+                        result = server.Provision([urn] ,[object_cred], api_options)
+                    else:
+                        raise NotImplementedError('geni_ api version not supported')
+
+                    dict_result = xmltodict.parse(result['value'])
+                    result['parsed'] = dict_result
+            else:
+                raise NotImplementedError('Not implemented')
+
+        except Exception as e:
+            return False
+        return result
+
+    def execute(self, obj_type, hrn, action):
+        if action.lower() == 'shutdown':
+            result = server.Shutdown(urn ,[object_cred], api_options)
+        else:
+            if self.version()['geni_api'] == 3:
+                result = server.PerformOperationalAction([urn] ,[object_cred], action, api_options)
+            else:
+                raise NotImplementedError('This AM version does not support PerformOperationalAction')
 
 class Xrn:
 
