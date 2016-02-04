@@ -79,6 +79,12 @@ class XMLRPCServerProxy(xmlrpc.ServerProxy):
     def __getattr__(self, attr):
         return xmlrpc.ServerProxy.__getattr__(self, attr)
 
+class SfaError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 class Api(object):
 
     def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):

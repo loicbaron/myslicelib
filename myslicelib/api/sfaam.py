@@ -1,7 +1,9 @@
+import traceback
 import xmltodict
 import uuid
 
 from myslicelib.api.sfa import Api as SfaApi
+from myslicelib.api.sfa import SfaError
 
 def unique_call_id(): return uuid.uuid4().urn
 
@@ -19,9 +21,14 @@ def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
 # self.Delete
 
 class SfaAm(SfaApi):
+    def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None, reg=None):
+        super(SfaAm, self).__init__(url, pkey, email, hrn, certfile, verbose, timeout)
+        self.user_credential = reg.user_credential
+        
 
-    def get(self, obj_type, hrn):
+    def get(self, hrn, obj_type):
         try:
+            self.api_options = {'rspec_type': 'GENI', 'rspec_version': '3'}
             if obj_type == 'lease':
                 self.api_options['list_leases']='all'
             if obj_type == 'resource' or obj_type == 'lease':
@@ -39,41 +46,52 @@ class SfaAm(SfaApi):
             else:
                 raise NotImplementedError('Not implemented')
 
-            dict_result = xmltodict.parse(result['value'])
-            result['parsed'] = dict_result
+            if result['code']['geni_code'] == 0:
+                dict_result = xmltodict.parse(result['value'])
+                result['parsed'] = dict_result
+            else:
+                raise SfaError(result) 
 
         except Exception as e:
+            traceback.print_exc()
             return False
         return result
     
-    def list(self, obj_type, hrn=None):
+    def list(self, obj_type):
         try:
+            if obj_type == 'slice':
+                raise NotImplementedError('List slices has to be sent to Registry not to AM')
+
             self.api_options = {'rspec_type': 'GENI', 'rspec_version': '3'}
             if obj_type == 'lease':
                 self.api_options['list_leases'] = 'all'
             # All resource or lease
-            if hrn is None:
+            if obj_type == 'resource' or obj_type == 'lease':
                 result = self.ListResources([self.user_credential], self.api_options)
-            # resource or lease within a slice
             else:
-               return self.get(obj_type, hrn) 
+               raise NotImplementedError('Not implemented')
 
-            dict_result = xmltodict.parse(result['value'])
-            result['parsed'] = dict_result
+            if result['code']['geni_code'] == 0:
+                dict_result = xmltodict.parse(result['value'])
+                result['parsed'] = dict_result
+            else:
+                raise SfaError(result) 
 
         except Exception as e:
+            traceback.print_exc()
             return False
         return result
 
     def create(self, record_dict, obj_type):
         return self.update(record_dict, obj_type)
 
-    def delete(self, obj_type, hrn):
+    def delete(self, hrn, obj_type):
         # self.Delete
         try:
             if obj_type == 'slice':
                 result = server.Delete([urn] ,[self.slice_credential], self.api_options)
         except Exception as e:
+            traceback.print_exc()
             return False
         return result
 
@@ -83,8 +101,7 @@ class SfaAm(SfaApi):
                 # if update only expiration date
                 # self.Renew
                 if 'expiration_date' in record_dict:
-                    d = record_dict['expiration_date']
-                    date = d.isoformat("T") + "Z"
+                    date = record_dict['expiration_date']
                     result = server.Renew([urn] ,[object_cred], date, api_options)
                 else:
                     self.api_options['call_id'] = unique_call_id()
@@ -107,16 +124,20 @@ class SfaAm(SfaApi):
                     else:
                         raise NotImplementedError('geni_ api version not supported')
 
-                    dict_result = xmltodict.parse(result['value'])
-                    result['parsed'] = dict_result
+                    if result['code']['geni_code'] == 0:
+                        dict_result = xmltodict.parse(result['value'])
+                        result['parsed'] = dict_result
+                    else:
+                        raise SfaError(result) 
             else:
                 raise NotImplementedError('Not implemented')
 
         except Exception as e:
+            traceback.print_exc()
             return False
         return result
 
-    def execute(self, obj_type, hrn, action):
+    def execute(self, hrn, action, obj_type):
         if action.lower() == 'shutdown':
             result = server.Shutdown(urn ,[object_cred], api_options)
         else:
@@ -124,6 +145,7 @@ class SfaAm(SfaApi):
                 result = server.PerformOperationalAction([urn] ,[object_cred], action, api_options)
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')
+        return result
 
 class Xrn:
 
