@@ -44,55 +44,57 @@ class SfaReg(SfaApi):
 
     # look up to see the upper has the credential
     def traceup_credential(self, hrn, obj_type):
-        #if hrn is not None:
-            try:
-                cred = self.get_credential(hrn, obj_type)
-                return cred
-            except Exception as e:
-                upper_hrn = '.'.join(hrn.split('.')[:-1])
+        try:
+            upper_hrn = '.'.join(hrn.split('.')[:-1])
+            cred = self.get_credential(upper_hrn, obj_type)
+            return cred
+        except Exception as e:
+            # go to upper level until reach the root level
+            if upper_hrn:
                 return self.traceup_credential(upper_hrn, obj_type)
+            return False
 
     # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
         try:
             auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            auth_cred = self.get_credential(auth_hrn, 'authority') #
-            record_dict["type"] = obj_type
-            return self.Register(record_dict, auth_cred)
+            auth_cred = self.traceup_credential(auth_hrn, 'authority')
+            if auth_cred:
+                record_dict["type"] = obj_type
+                return self.Register(record_dict, auth_cred)
+            return False
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return False
+    
+    def delete(self, hrn, obj_type):
+        try:
+            auth_hrn = '.'.join(hrn.split('.')[:-1])
+            auth_cred = self.traceup_credential(auth_hrn, 'authority')
+            if auth_cred:
+                return self.Remove(hrn, auth_cred, obj_type)
+            return False
         except Exception as e:
             import traceback
             traceback.print_exc()
             return False
 
-    def delete(self, hrn, obj_type):
-        auth_hrn = '.'.join(hrn.split('.')[:-1])
-        auth_cred = self.get_credential(auth_hrn, 'authority')
-        return self.Remove(hrn, auth_cred, obj_type)
-
-    # hrn is requester
     def update(self, record_dict, obj_type):
         try:
             if obj_type == 'user' and record_dict['hrn'] == self.hrn:
-                    cred = self.user_credential
-            # other possiblities needs to be added later 
+                cred = self.user_credential
             elif obj_type == 'slice':    
                 # get credential of the slice object
-                '''
-                hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-                
-                cred = self.get_credential(hrn, obj_type)
-                '''
                 # if it doesn't succeed try to get an authority credential of an upper authority till the root
                 cred = self.traceup_credential(record_dict['hrn'], obj_type)
-
             else:
-                # get credential of the authority above the object
                 auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-                cred = self.get_credential(auth_hrn, 'authority')
-                # if it doesn't succeed try to get an authority credential of an upper authority till the root
-
-            record_dict["type"] = obj_type
-            return self.Update(record_dict, cred)
+                cred = self.traceup_credential(auth_hrn, 'authority')
+            if cred:
+                record_dict["type"] = obj_type
+                return self.Update(record_dict, cred)
+            return False
         except Exception as e:
             import traceback
             traceback.print_exc()
