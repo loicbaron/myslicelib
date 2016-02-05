@@ -1,4 +1,5 @@
 from myslicelib.util.url import validateUrl
+from myslicelib.util.certificate import Keypair, Certificate
 
 class Endpoint(object):
     """
@@ -38,11 +39,11 @@ class Credential(object):
         # else:
         self.certificate = certificate
 
-    # def sign_certificate(self):
-    #     keypair = Keypair(filename = self.pkey.encode('latin1'))
-    #     self_signed = Certificate(subject = self.hrn)
-    #     self_signed.set_pubkey(keypair)
-    #     self_signed.set_issuer(keypair, subject = self.hrn.encode('latin1'))
-    #     self_signed.set_data('email:' + self.email, 'subjectAltName')
-    #     self_signed.sign()
-    #     return self_signed.save_to_string()
+    def sign_certificate(self):
+        keypair = Keypair(filename = self.private_key.encode('latin1'))
+        self_signed = Certificate(subject = self.hrn)
+        self_signed.set_pubkey(keypair)
+        self_signed.set_issuer(keypair, subject = self.hrn.encode('latin1'))
+        self_signed.set_data('email:' + self.email, 'subjectAltName')
+        self_signed.sign()
+        return self_signed.save_to_string()

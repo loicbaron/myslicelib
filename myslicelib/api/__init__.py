@@ -28,29 +28,47 @@ class Api(object):
     """
 
     def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
-        self.endpoints = []
+        self.registry = None # at least one registry endpoint must be present
+        self.ams = [] # one or plus am must be present, this depends on the am to be present
+
+        # search for the registry
+        for endpoint in endpoints:
+            if (endpoint.protocol == "SFA") and (endpoint.type == "Reg"):
+                self.registry = SfaReg(endpoint, credential)
+                break
+
+        if not self.registry:
+            raise ValueError("At least a Registry must be specified")
+
+        # search for the AMs
         for endpoint in endpoints:
             if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
-                self.endpoints.append( SfaAm(endpoint, credential) )
-            elif (endpoint.protocol == "SFA") and (endpoint.type == "Reg"):
-                self.endpoints.append( SfaReg(endpoint, credential) )
-            else:
-                raise ValueError
+                self.ams.append( SfaAm(endpoint, self.registry) )
 
     def version(self) -> dict:
-        result = { "MySlice Lib API" : { "version" : "1.0" } }
-        for e in self.endpoints:
-            result[e.endpoint.type + " API"] = {
-                "type" : e.endpoint.type,
-                "protocol" : e.endpoint.protocol,
-                "url" : e.endpoint.url
+        result = {
+                "MySlice Lib API" : {
+                    "version" : "1.0"
+                },
+                "Registry" : {
+                    "protocol" : self.registry.endpoint.protocol,
+                    "url" : self.registry.endpoint.url,
+                    "version" : self.registry.version()
+                }
             }
+        # for e in self.endpoints:
+        #     result[e.endpoint.type + " API"] = {
+        #         "type" : e.endpoint.type,
+        #         "protocol" : e.endpoint.protocol,
+        #         "url" : e.endpoint.url,
+        #         "protocol_version" : e.version()['version']
+        #     }
         return result
 
     def get(self):
         raise NotImplementedError('Not implemented')
 
-    def update(self):
+    def update(self, type, object, id, endpoint):
         raise NotImplementedError('Not implemented')
 
     def delete(self):

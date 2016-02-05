@@ -2,8 +2,7 @@ from myslicelib.api.sfa import Api as SfaApi
 
 class SfaReg(SfaApi):
      
-    def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
-        super(SfaReg, self).__init__(url, pkey, email, hrn, certfile, verbose, timeout)
+    def self_credential(self):
         with open (certfile, "r") as myfile:
             certificate = myfile.read()
         self.user_credential = self.GetSelfCredential(certificate, hrn, 'user')
