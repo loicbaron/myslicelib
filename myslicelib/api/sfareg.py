@@ -40,7 +40,10 @@ class SfaReg(SfaApi):
         return self.list('user', hrn)
 
     def get_credential(self, hrn, obj_type):
-        return self.GetCredential(self.user_credential, hrn, obj_type)
+        try:
+            return self.GetCredential(self.user_credential, hrn, obj_type)
+        except Exception as e:
+            return self.traceup_credential(hrn,obj_type)
 
     # look up to see the upper has the credential
     def traceup_credential(self, hrn, obj_type):
