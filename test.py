@@ -28,24 +28,28 @@ if __name__ == '__main__':
     #print(Registry.list())
     #print(Registry.list("onelab.upmc"))
 
-    #user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
+    #print(AM.version())
+    #print(AM.list('resource')) 
+    #print(AM.get(type='slice',hrn='onelab.upmc.openlabdemo'))
 
-    '''
-    test_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbb@onelab.eu','type':'user'}
-
+    print("=====normal test=======")
+    user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
+    test_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbb@onelab.eu'}
     print(Registry.create(user_dict, 'user'))
-    print(Registry.remove('onelab.upmc.aaaa', user_dict, 'user'))
-
-    print(AM.version())
-    print(AM.list('resource'))
-    print(AM.get(type='slice',hrn='onelab.upmc.openlabdemo'))
-    '''
-    #print(Registry.create(user_dict, 'user'))
-    #print(Registry.delete('onelab.upmc.aaaa', 'user'))
-    #user_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbbb@onelab.eu'}    
-    #print(Registry.update(user_dict,'user'))
-    #print(Registry.get('onelab.upmc.aaaa'))
-
+    print(Registry.delete('onelab.upmc.aaaa', 'user'))
+    user_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbbb@onelab.eu'}    
+    print(Registry.get('onelab.upmc.aaaa'))
+    print(Registry.update(user_dict,'user'))
+    
+    print("=====root authority test=======")
+    user_dict = {'hrn':'onelab.inria.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
+    test_dict = {'hrn':'onelab.inria.aaaa','email':'bbbb@onelab.eu'}
+    print(Registry.create(user_dict, 'user'))
+    print(Registry.update(test_dict, 'user'))
+    print(Registry.get('onelab.inria.aaaa'))
+    print(Registry.delete('onelab.inria.aaaa', 'user'))
+   
+    ''' 
     print("===== version =====")
     print(AM.version())
     print("===== list slice =====")
@@ -91,7 +95,7 @@ if __name__ == '__main__':
     print("===== delete hrn slice =====")
     print(AM.delete('onelab.upmc.mobicom.exper_mobicom','slice'))
     #print(AM.GetVersion())
-    
+    '''
     exit
     with open (cert, "r") as myfile:
         data = myfile.read()

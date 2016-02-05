@@ -4,6 +4,7 @@ import uuid
 
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
+from myslicelib.util import Endpoint
 
 def unique_call_id(): return uuid.uuid4().urn
 
@@ -21,9 +22,10 @@ def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
 # self.Delete
 
 class SfaAm(SfaApi):
-    def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None, reg=None):
-        super(SfaAm, self).__init__(url, pkey, email, hrn, certfile, verbose, timeout)
-        self.user_credential = reg.user_credential
+
+    def __init__(self,  endpoint: Endpoint, registry: Endpoint) -> None:
+        super(SfaAm, self).__init__(endpoint, registry.credential)
+        self.user_credential = registry.credential
 
     def get(self, hrn, obj_type):
         try:

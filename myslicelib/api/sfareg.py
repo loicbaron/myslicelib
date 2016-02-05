@@ -1,13 +1,11 @@
 from myslicelib.api.sfa import Api as SfaApi
 
-
 class SfaReg(SfaApi):
-    def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
-        super(SfaReg, self).__init__(url, pkey, email, hrn, certfile, verbose, timeout)
-        self.hrn = hrn
+     
+    def self_credential(self):
         with open (certfile, "r") as myfile:
             certificate = myfile.read()
-        self.user_credential = self.GetSelfCredential(certificate, self.hrn, 'user')
+        self.user_credential = self.GetSelfCredential(certificate, hrn, 'user')
          
         #{'user':'xxxx','authorities':{'onelab':'xxx','onelab.upmc'},'slices':{'slice_x':'xxx','slice_y':'xxx'}}
     
@@ -43,7 +41,7 @@ class SfaReg(SfaApi):
         try:
             return self.GetCredential(self.user_credential, hrn, obj_type)
         except Exception as e:
-            return self.traceup_credential(hrn,obj_type)
+            return self.traceup_credential(hrn, obj_type)
 
     # look up to see the upper has the credential
     def traceup_credential(self, hrn, obj_type):
@@ -61,7 +59,7 @@ class SfaReg(SfaApi):
     def create(self, record_dict, obj_type):
         try:
             auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            auth_cred = self.traceup_credential(auth_hrn, 'authority')
+            auth_cred = self.get_credential(auth_hrn, 'authority')
             if auth_cred:
                 record_dict["type"] = obj_type
                 return self.Register(record_dict, auth_cred)
@@ -74,7 +72,7 @@ class SfaReg(SfaApi):
     def delete(self, hrn, obj_type):
         try:
             auth_hrn = '.'.join(hrn.split('.')[:-1])
-            auth_cred = self.traceup_credential(auth_hrn, 'authority')
+            auth_cred = self.get_credential(auth_hrn, 'authority')
             if auth_cred:
                 return self.Remove(hrn, auth_cred, obj_type)
             return False
@@ -90,10 +88,11 @@ class SfaReg(SfaApi):
             elif obj_type == 'slice':    
                 # get credential of the slice object
                 # if it doesn't succeed try to get an authority credential of an upper authority till the root
-                cred = self.traceup_credential(record_dict['hrn'], obj_type)
+                auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+                cred = self.get_credential(record_dict['hrn'], 'slice')
             else:
                 auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-                cred = self.traceup_credential(auth_hrn, 'authority')
+                cred = self.get_credential(auth_hrn, 'authority')
             if cred:
                 record_dict["type"] = obj_type
                 return self.Update(record_dict, cred)
@@ -103,6 +102,7 @@ class SfaReg(SfaApi):
             traceback.print_exc()
             return False
 
+    @staticmethod
     def filter_records(type, records):
         filtered_records = []
         for record in records:

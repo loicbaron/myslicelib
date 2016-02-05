@@ -2,118 +2,73 @@ import xmlrpc.client as xmlrpc
 import ssl
 from http.client import HTTPSConnection
 
-#from myslicelib.util.certificate import Keypair, Certificate
+from xmlrpc import client as xmlrpcclient
+import ssl
+from http.client import HTTPSConnection
+from myslicelib.util import Endpoint, Credential
 
-###
-# ServerException, ExceptionUnmarshaller
+# class XMLRPCTransport(object):
 #
-# Used to convert server exception strings back to an exception.
-#    from usenet, Raghuram Devarakonda
-
-class ServerException(Exception):
-    pass
-
-class ExceptionUnmarshaller(xmlrpc.Unmarshaller):
-
-    def close(self):
-        try:
-            return xmlrpc.Unmarshaller.close(self)
-        except xmlrpc.Fault as e:
-            raise ServerException(e.faultString)
-
-
-class XMLRPCTransport(xmlrpc.Transport):
-
-    def __init__(self, key_file=None, cert_file=None, timeout=None):
-        xmlrpc.Transport.__init__(self)
-        self.timeout = timeout
-        self.key_file = key_file
-        self.cert_file = cert_file
-
-    def make_connection(self, host):
-        # create a HTTPS connection object from a host descriptor
-        # host may be a string, or a (host, x509-dict) tuple
-        host, extra_headers, x509 = self.get_host_info(host)
-
-        # Using a self signed certificate
-        # https://www.python.org/dev/peps/pep-0476/
-        if hasattr(ssl, '_create_unverified_context'):
-            conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file,
-                               context=ssl._create_unverified_context())
-        else:
-            conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file)
-
-        # Some logic to deal with timeouts. It appears that some (or all) versions
-        # of python don't set the timeout after the socket is created. We'll do it
-        # ourselves by forcing the connection to connect, finding the socket, and
-        # calling settimeout() on it. (tested with python 2.6)
-        if self.timeout:
-            if hasattr(conn, 'set_timeout'):
-                conn.set_timeout(self.timeout)
-
-            if hasattr(conn, "_conn"):
-                # HTTPS is a wrapper around HTTPSConnection
-                real_conn = conn._conn
-            else:
-                real_conn = conn
-
-            conn.connect()
-
-            if hasattr(real_conn, "sock") and hasattr(real_conn.sock, "settimeout"):
-                real_conn.sock.settimeout(float(self.timeout))
-
-        return conn
-
-    def getparser(self):
-        unmarshaller = ExceptionUnmarshaller()
-        parser = xmlrpc.ExpatParser(unmarshaller)
-        return parser, unmarshaller
-
-class XMLRPCServerProxy(xmlrpc.ServerProxy):
-
-    def __init__(self, url, transport, allow_none=True, verbose=False):
-        self.url = url
-        xmlrpc.ServerProxy.__init__(self, url, transport, allow_none=allow_none, verbose=verbose)
-
-
-    def __getattr__(self, attr):
-        return xmlrpc.ServerProxy.__getattr__(self, attr)
-
-class SfaError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
+#     def __init__(self, credential):
+#         xmlrpc.client.Transport.__init__(self)
+#         #self.timeout = timeout
+#         self.key_file = credential.pkey
+#         self.cert_file = credential.certificate
+#
+#     def make_connection(self, host):
+#         # create a HTTPS connection object from a host descriptor
+#         # host may be a string, or a (host, x509-dict) tuple
+#         host, extra_headers, x509 = self.get_host_info(host)
+#
+#         # Using a self signed certificate
+#         # https://www.python.org/dev/peps/pep-0476/
+#         if hasattr(ssl, '_create_unverified_context'):
+#             conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file,
+#                                context=ssl._create_unverified_context())
+#         else:
+#             conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file)
+#
+#         return conn
 
 class Api(object):
 
-    def __init__(self, url, pkey, email=None, hrn=None, certfile=None, verbose=False, timeout=None):
-        self.url = url
-        self.api_options = {}
-        #if not certfile:
-        #    certfile = self.sign_certificate(pkey, email, hrn) #
-        #else:
-        #    certfile = certfile
+    def __init__(self, endpoint: Endpoint, credential: Credential) -> None:
+        self.endpoint = endpoint
+        self.credential = credential
 
-        self.verbose = verbose
-        self.timeout = timeout
+        if hasattr(ssl, '_create_unverified_context'):
+            context = ssl._create_unverified_context()
+        else:
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 
-        transport = XMLRPCTransport(pkey, certfile, timeout)
-        self.serverproxy = XMLRPCServerProxy(url, transport, allow_none=True, verbose=verbose)
+        try:
+            context.load_cert_chain(
+                    self.credential.sign_certificate(),
+                    keyfile=self.credential.private_key,
+                    password=None
+            )
 
-    def __getattr__(self, name):
+        except ssl.SSLError as e:
+            exit("Problem with certificate and/or key")
 
-        def func(*args, **kwds):
-            return getattr(self.serverproxy, name)(*args, **kwds)
+        self.proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
 
-        return func
-    
+
     def version(self):
         try:
-            result = self.GetVersion()
+            result = self.proxy.GetVersion()
         except Exception as e:
             print(e)
             return False
         return result
+
+
+class SfaError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
