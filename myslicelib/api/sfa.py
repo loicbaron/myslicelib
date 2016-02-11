@@ -32,7 +32,7 @@ from myslicelib.util import Endpoint, Credential
 
 class Api(object):
 
-    def __init__(self, endpoint: Endpoint, credential: Credential) -> None:
+    def __init__(self, endpoint=None, credential=None):
         self.endpoint = endpoint
         self.credential = credential
 
@@ -43,16 +43,15 @@ class Api(object):
 
         try:
             context.load_cert_chain(
-                    self.credential.sign_certificate(),
+                    self.credential.certificate,
                     keyfile=self.credential.private_key,
                     password=None
             )
 
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
-
+            
         self.proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
-
 
     def version(self):
         try:

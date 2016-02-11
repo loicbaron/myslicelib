@@ -7,21 +7,28 @@ import datetime
 import xmltodict
 from myslicelib.api.sfareg import SfaReg
 from myslicelib.api.sfaam import SfaAm
+from myslicelib.util import Endpoint, Credential
 
 if __name__ == '__main__':
 
     path = "/root/.sfi/"
     pkey = path + "onelab.upmc.loic_baron.pkey"
+    cert = path + "onelab.upmc.loic_baron.sscert"
+    
     hrn = "onelab.upmc.loic_baron"
     email = "loic.baron@lip6.fr"
-    cert = path + "onelab.upmc.loic_baron.sscert"
     url_am = "http://sfa3.planet-lab.eu:12346"
     #url = "https://nitlab.inf.uth.gr:8001/RPC2"
     #url_registry = "http://dev.myslice.info:12345"
-    url_registry = "http://portal.onelab.eu:12345"  
+    url_registry = "https://portal.onelab.eu:6080"  
 
-    Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert, hrn=hrn) 
-    AM = SfaAm(url=url_am, pkey=pkey, certfile=cert, reg=Registry)
+    endpoint = Endpoint(url=url_registry)
+    credential = Credential(email=email, hrn=hrn, private_key=pkey, certificate=cert)
+    Registry = SfaReg(endpoint, credential)
+    #AM = SfaAm()
+
+    #Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert, hrn=hrn) 
+    #AM = SfaAm(url=url_am, pkey=pkey, certfile=cert, reg=Registry)
 
     #print(Registry.version())
     #print(Registry.get(hrn))
@@ -36,10 +43,9 @@ if __name__ == '__main__':
     user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
     test_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbb@onelab.eu'}
     print(Registry.create(user_dict, 'user'))
-    print(Registry.delete('onelab.upmc.aaaa', 'user'))
-    user_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbbb@onelab.eu'}    
+    print(Registry.update(test_dict,'user'))
     print(Registry.get('onelab.upmc.aaaa'))
-    print(Registry.update(user_dict,'user'))
+    print(Registry.delete('onelab.upmc.aaaa', 'user'))
     
     print("=====root authority test=======")
     user_dict = {'hrn':'onelab.inria.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
@@ -48,8 +54,9 @@ if __name__ == '__main__':
     print(Registry.update(test_dict, 'user'))
     print(Registry.get('onelab.inria.aaaa'))
     print(Registry.delete('onelab.inria.aaaa', 'user'))
-   
-    ''' 
+
+     
+    '''
     print("===== version =====")
     print(AM.version())
     print("===== list slice =====")
@@ -95,7 +102,7 @@ if __name__ == '__main__':
     print("===== delete hrn slice =====")
     print(AM.delete('onelab.upmc.mobicom.exper_mobicom','slice'))
     #print(AM.GetVersion())
-    '''
+    
     exit
     with open (cert, "r") as myfile:
         data = myfile.read()
@@ -106,6 +113,7 @@ if __name__ == '__main__':
         'geni_rspec_version': {'type': 'GENI', 'version': '3'},
         'list_leases': 'all'
     }
+    '''
     #print AM.ListResources([credentials], api_options)
 
     # {'output': '', 'geni_api': 3, 'code': {'am_type': 'sfa', 'geni_code': 0, 'am_code': None}, 'value': rspec }
