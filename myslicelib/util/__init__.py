@@ -1,5 +1,6 @@
+from OpenSSL import crypto, SSL
 from myslicelib.util.url import validateUrl
-from myslicelib.util.certificate import Keypair, Certificate
+# from myslicelib.util.certificate import Keypair, Certificate
 
 class Endpoint(object):
     """
@@ -34,10 +35,37 @@ class Credential(object):
         self.hrn = hrn
         self.private_key = private_key
 
-        # if not certfile:
-        #     self.certificate = self.sign_certificate() #
-        # else:
-        self.certificate = certificate
+        if not certificate:
+            self.certificate = self.create_self_signed_cert()
+        else:
+            self.certificate = certificate
+
+    def create_self_signed_cert(self):
+
+        # create a key pair
+        k = crypto.PKey()
+        k.generate_key(crypto.TYPE_RSA, 1024)
+
+        # create a self-signed cert
+        cert = crypto.X509()
+        cert.get_subject().C = "FR"
+        cert.get_subject().ST = "Paris"
+        cert.get_subject().L = "Paris"
+        cert.get_subject().O = "Onelab"
+        # cert.get_subject().OU = ""
+        cert.get_subject().CN = self.hrn.encode('latin1')
+        cert.set_serial_number(1000)
+        cert.gmtime_adj_notBefore(0)
+        cert.gmtime_adj_notAfter(10*365*24*60*60)
+        cert.set_issuer(cert.get_subject())
+        cert.set_pubkey(k)
+        cert.sign(k, 'sha1')
+
+        #crypto.X509Extension (name, critical, value)
+        return crypto.dump_certificate(crypto.FILETYPE_PEM, cert)
+
+        # open(self.private_key, "wt").write(
+        #     crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
 
     def sign_certificate(self):
         keypair = Keypair(filename = self.private_key.encode('latin1'))
