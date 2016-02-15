@@ -7,29 +7,6 @@ import ssl
 from http.client import HTTPSConnection
 from myslicelib.util import Endpoint, Credential
 
-# class XMLRPCTransport(object):
-#
-#     def __init__(self, credential):
-#         xmlrpc.client.Transport.__init__(self)
-#         #self.timeout = timeout
-#         self.key_file = credential.pkey
-#         self.cert_file = credential.certificate
-#
-#     def make_connection(self, host):
-#         # create a HTTPS connection object from a host descriptor
-#         # host may be a string, or a (host, x509-dict) tuple
-#         host, extra_headers, x509 = self.get_host_info(host)
-#
-#         # Using a self signed certificate
-#         # https://www.python.org/dev/peps/pep-0476/
-#         if hasattr(ssl, '_create_unverified_context'):
-#             conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file,
-#                                context=ssl._create_unverified_context())
-#         else:
-#             conn = HTTPSConnection(host, None, key_file=self.key_file, cert_file=self.cert_file)
-#
-#         return conn
-
 class Api(object):
 
     def __init__(self, endpoint: Endpoint, credential: Credential) -> None:
@@ -43,7 +20,7 @@ class Api(object):
 
         try:
             context.load_cert_chain(
-                    self.credential.sign_certificate(),
+                    self.credential.certificate,
                     keyfile=self.credential.private_key,
                     password=None
             )
