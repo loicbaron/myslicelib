@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 
 import argparse
 import os.path
 
-from myslicelib.util.certificate import Keypair, Certificate
+# from myslicelib.util.certificate import Keypair, Certificate
+from myslicelib.util import Credential
 
 def certificate(pkey, email, hrn):
         '''
@@ -16,16 +17,9 @@ def certificate(pkey, email, hrn):
         '''
 
         if not pkey or not email or not hrn:
-            print "private key, email and hrn must be specified"
-            exit(1)
+            exit("private key, email and hrn must be specified")
         else:
-            keypair = Keypair(filename = pkey.encode('latin1'))
-            self_signed = Certificate(subject = hrn)
-            self_signed.set_pubkey(keypair)
-            self_signed.set_issuer(keypair, subject = hrn.encode('latin1'))
-            self_signed.set_data('email:' + email, 'subjectAltName')
-            self_signed.sign()
-            return self_signed.save_to_string()
+            return Credential(hrn=hrn, email=email, private_key=pkey).certificate
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MySlice console interface.')
@@ -56,7 +50,7 @@ if __name__ == '__main__':
         if os.path.isfile(args.pkey[0]):
             pkey = args.pkey[0]
         else:
-            print "private key file does not exists or is not readable"
+            print("private key file does not exists or is not readable")
             exit(1)
     else:
         pkey = None
@@ -65,13 +59,13 @@ if __name__ == '__main__':
     argument = args.argument[0]
 
     if command == 'help':
-        print "help for", argument
+        print("help for", argument)
 
     elif command == 'certificate':
 
         if argument == 'create':
-            print certificate(pkey, email, hrn)
+            print(certificate(pkey, email, hrn))
 
         else:
-            print command, argument, "not understood"
+            print(command, argument, "not understood")
             exit(1)
