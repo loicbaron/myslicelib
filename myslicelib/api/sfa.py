@@ -9,7 +9,7 @@ from myslicelib.util import Endpoint, Credential
 
 class Api(object):
 
-    def __init__(self, endpoint: Endpoint, credential: Credential) -> None:
+    def __init__(self, endpoint=None, credential=None):
         self.endpoint = endpoint
         self.credential = credential
 
@@ -27,9 +27,8 @@ class Api(object):
 
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
-
+            
         self.proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
-
 
     def version(self):
         try:

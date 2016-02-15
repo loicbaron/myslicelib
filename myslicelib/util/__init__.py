@@ -1,6 +1,6 @@
 from OpenSSL import crypto, SSL
 from myslicelib.util.url import validateUrl
-# from myslicelib.util.certificate import Keypair, Certificate
+#from myslicelib.util.certificate import Keypair, Certificate
 
 class Endpoint(object):
     """
@@ -17,9 +17,7 @@ class Endpoint(object):
             raise ValueError("URL not valid")
         else:
             self.url = url
-
-
-
+    
     def __str__(self):
         return self.url
 
