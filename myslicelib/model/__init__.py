@@ -1,3 +1,4 @@
+from typing import Set
 
 class Entity(object):
     attributes = []
@@ -15,7 +16,7 @@ class Entity(object):
     def save(self):
         raise NotImplementedError('Not implemented')
 
-class Entities(set):
+class Entities(Set[Entity]):
 
     def first(self):
         if len(self) > 0:
