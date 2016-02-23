@@ -1,11 +1,5 @@
-import xmlrpc.client as xmlrpc
-import ssl
-from http.client import HTTPSConnection
-
 from xmlrpc import client as xmlrpcclient
 import ssl
-from http.client import HTTPSConnection
-from myslicelib.util import Endpoint, Credential
 
 class Api(object):
 
