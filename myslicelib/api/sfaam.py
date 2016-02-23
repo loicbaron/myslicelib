@@ -58,7 +58,7 @@ class SfaAm(SfaApi):
                 else:
                     raise NotImplementedError('geni_api version not supported')
             else:
-                self.list(obj_type)
+                result = self.list(obj_type)
             result = self._xml_to_dict(result)
         except Exception as e:
             traceback.print_exc()
@@ -78,7 +78,7 @@ class SfaAm(SfaApi):
                 result = self.proxy.ListResources([self.registry.user_credential], api_options)
             else:
                 raise NotImplementedError('Not implemented')
-            result = self.xml_to_dict(result)
+            result = self._xml_to_dict(result)
         except Exception as e:
             traceback.print_exc()
             return False
