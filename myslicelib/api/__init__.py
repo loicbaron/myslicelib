@@ -27,6 +27,21 @@ class Api(object):
 
     """
 
+    _entities = [
+        'resource',
+        'slice',
+        'user',
+        'authority'
+    ]
+
+    _am = [
+        'resource'
+    ]
+
+    _registry = [
+
+    ]
+
     def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
         self.registry = None # at least one registry endpoint must be present
         self.ams = [] # one or plus am must be present, this depends on the am to be present
@@ -45,28 +60,60 @@ class Api(object):
             if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
                 self.ams.append( SfaAm(endpoint, self.registry) )
 
+    def __getattr__(self, entity):
+
+        def methodHandler():
+            if not entity in self._entities:
+                raise NotImplementedError("Invalid object {} or not implemented".format(entity))
+
+            self._entity = entity
+
+            return self
+
+        return methodHandler
+
+
     def version(self) -> dict:
         result = {
-                "MySlice Lib API" : {
+                "myslicelib" : {
                     "version" : "1.0"
                 },
-                "Registry" : {
+                "registry" : {
+                    "type" : "registry",
                     "protocol" : self.registry.endpoint.protocol,
                     "url" : self.registry.endpoint.url,
                     "version" : self.registry.version()
-                }
+                },
+                "ams" : []
             }
-        # for e in self.endpoints:
-        #     result[e.endpoint.type + " API"] = {
-        #         "type" : e.endpoint.type,
-        #         "protocol" : e.endpoint.protocol,
-        #         "url" : e.endpoint.url,
-        #         "protocol_version" : e.version()['version']
-        #     }
+
+        for am in self.ams:
+            result["ams"].append( {
+                "type" : am.endpoint.type,
+                "protocol" : am.endpoint.protocol,
+                "url" : am.endpoint.url,
+                "version" : am.version()
+            } )
+
         return result
 
-    def get(self):
-        raise NotImplementedError('Not implemented')
+
+    def get(self, id=None):
+        result = []
+        if self._entity in self._am:
+            for am in self.ams:
+                result.append(
+                    am.list(self._entity)
+                )
+
+        return result
+
+        # if (id) :
+        #     return self.registry.get(hrn=id, object_type=self.object_type)
+        # else :
+        #     return self.registry.list(object_type=self.object_type)
+        #
+        # raise NotImplementedError('Not implemented')
 
     def update(self, type, object, id, endpoint):
         raise NotImplementedError('Not implemented')
