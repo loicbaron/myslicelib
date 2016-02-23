@@ -1,24 +1,27 @@
+import traceback
 from myslicelib.api.sfa import Api as SfaApi
+
 
 class SfaReg(SfaApi):
 
     def __init__(self, endpoint, credential):
         super(SfaReg, self).__init__(endpoint, credential)
-        with open (self.credential.certificate, "r") as myfile:
+        with open(self.credential.certificate, "r") as myfile:
             certificate = myfile.read()
-        self.user_credential = self.proxy.GetSelfCredential(certificate, self.credential.hrn, 'user')
-        #{'user':'xxxx','authorities':{'onelab':'xxx','onelab.upmc'},'slices':{'slice_x':'xxx','slice_y':'xxx'}}
-    
+        self.user_credential = self.proxy.GetSelfCredential(
+                                        certificate,
+                                        self.credential.hrn,
+                                        'user')
+
     def get(self, hrn, obj_type=None):
         try:
             result = self.proxy.Resolve(hrn, self.user_credential, {})
-            #result = filter_records(obj_type, result)
+            # result = filter_records(obj_type, result)
         except Exception as e:
-            import traceback
             traceback.print_exc()
             return False
         return result
-    
+
     def list(self, hrn=None, obj_type=None):
         try:
             if hrn is None:
@@ -26,58 +29,49 @@ class SfaReg(SfaApi):
                 # the hrn has to match the root authority
                 hrn = self.version()['hrn']
             result = self.proxy.List(hrn, self.user_credential, {})
-            #result = filter_records(obj_type, result)
+            # result = filter_records(obj_type, result)
         except Exception as e:
             return False
         return result
-    
-    def user(self, hrn):
-        return self.get('user', hrn)
-    
-    def users(self, hrn=None):
-        return self.list('user', hrn)
 
-    def get_credential(self, hrn, obj_type):
-        try:
-            return self.proxy.GetCredential(self.user_credential, hrn, obj_type)
-        except Exception as e:
-            return self.traceup_credential(hrn, obj_type)
+    def user(self, hrn):
+        return self.get(hrn, 'user')
+
+    def users(self, hrn=None):
+        return self.list(hrn, 'user')
 
     # look up to see the upper has the credential
-    def traceup_credential(self, hrn, obj_type):
+    def get_credential(self, hrn, obj_type):
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
-            cred = self.get_credential(upper_hrn, obj_type)
-            return cred
-        except Exception as e:
-            # go to upper level until reach the root level
             if upper_hrn:
-                return self.traceup_credential(upper_hrn, obj_type)
+                if obj_type == 'slice':
+                    return self.proxy.GetCredential(self.user_credential, hrn, obj_type)
+                else:
+                    return self.proxy.GetCredential(self.user_credential, upper_hrn, obj_type)
             return False
+        except Exception as e:
+            # if Error, go to upper level until reach the root level
+            return self.get_credential(upper_hrn, obj_type)
 
-    # (self.registery() in sfi)
     def create(self, record_dict, obj_type):
         try:
-            auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-            auth_cred = self.get_credential(auth_hrn, 'authority')
+            auth_cred = self.get_credential(record_dict['hrn'], 'authority')
             if auth_cred:
                 record_dict["type"] = obj_type
                 return self.proxy.Register(record_dict, auth_cred)
             return False
         except Exception as e:
-            import traceback
             traceback.print_exc()
             return False
-    
+
     def delete(self, hrn, obj_type):
         try:
-            auth_hrn = '.'.join(hrn.split('.')[:-1])
-            auth_cred = self.get_credential(auth_hrn, 'authority')
+            auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 return self.proxy.Remove(hrn, auth_cred, obj_type)
             return False
         except Exception as e:
-            import traceback
             traceback.print_exc()
             return False
 
@@ -85,20 +79,15 @@ class SfaReg(SfaApi):
         try:
             if obj_type == 'user' and record_dict['hrn'] == self.credential.hrn:
                 cred = self.user_credential
-            elif obj_type == 'slice':    
-                # get credential of the slice object
-                # if it doesn't succeed try to get an authority credential of an upper authority till the root
-                auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
+            elif obj_type == 'slice':
                 cred = self.get_credential(record_dict['hrn'], 'slice')
             else:
-                auth_hrn = '.'.join(record_dict['hrn'].split('.')[:-1])
-                cred = self.get_credential(auth_hrn, 'authority')
+                cred = self.get_credential(record_dict['hrn'], 'authority')
             if cred:
                 record_dict["type"] = obj_type
                 return self.proxy.Update(record_dict, cred)
             return False
         except Exception as e:
-            import traceback
             traceback.print_exc()
             return False
 

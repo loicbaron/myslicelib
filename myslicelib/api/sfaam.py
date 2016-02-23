@@ -1,14 +1,15 @@
 import traceback
 import xmltodict
 import uuid
+import re
 
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
-from myslicelib.util import Endpoint
+
 
 def unique_call_id(): return uuid.uuid4().urn
 
-def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
+def hrn_to_urn(hrn, type): return Xrn(hrn, type=type).urn
 
 # self.ListResources
 # self.Status   => geni_urn + geni_slivers
@@ -21,64 +22,63 @@ def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
 # self.Shutdown
 # self.Delete
 
+
 class SfaAm(SfaApi):
 
-    def __init__(self,  endpoint: Endpoint, registry: Endpoint) -> None:
+    def __init__(self, endpoint=None, registry=None):
         super(SfaAm, self).__init__(endpoint, registry.credential)
-        self.user_credential = registry.credential
+        self.registry = registry
+
+    def _xml_to_dict(self, result):
+        if result['code']['geni_code'] == 0:
+            # there is a dictonary error while xmltodict
+            if isinstance(result['value'], dict):
+                result['parsed'] = xmltodict.parse(result['value']['geni_rspec'])
+            else:
+                dict_result = xmltodict.parse(result['value'])
+                result['parsed'] = dict_result
+        else:
+            raise SfaError(result)
+        return result
 
     def get(self, hrn, obj_type):
         try:
-            self.api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
-            if obj_type == 'lease':
-                self.api_options['list_leases']='all'
-            if obj_type == 'resource' or obj_type == 'lease':
-                result = self.ListResources([self.user_credential], self.api_options)
-                # filter and return the resource or the lease
-            elif obj_type == 'slice':
+            api_options = {}
+            api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
+
+            if obj_type == 'slice':
                 urn = hrn_to_urn(hrn, obj_type)
-                self.api_options['list_leases']='all'
+                api_options['list_leases'] = 'all'
+                self.slice_credential = self.registry.get_credential(hrn, obj_type)
                 if self.version()['geni_api'] == 2:
-                    self.api_options['geni_slice_urn'] = urn 
-                    result = server.ListResources([self.slice_credential], self.api_options)
-                elif self.version()['geni_api']==3:
-                    result = self.Describe([urn], self.slice_credential, self.api_options)
+                    api_options['geni_slice_urn'] = urn
+                    result = self.proxy.ListResources([self.slice_credential], api_options)
+                elif self.version()['geni_api'] == 3:
+                    result = self.proxy.Describe([urn], self.slice_credential, api_options)
                 else:
-                    raise NotImplementedError('geni_ api version not supported')
+                    raise NotImplementedError('geni_api version not supported')
             else:
-                raise NotImplementedError('Not implemented')
-
-            if result['code']['geni_code'] == 0:
-                dict_result = xmltodict.parse(result['value'])
-                result['parsed'] = dict_result
-            else:
-                raise SfaError(result) 
-
+                self.list(obj_type)
+            result = self._xml_to_dict(result)
         except Exception as e:
             traceback.print_exc()
             return False
         return result
-    
+
     def list(self, obj_type):
         try:
+            api_options = {}
             if obj_type == 'slice':
                 raise NotImplementedError('List slices has to be sent to Registry not to AM')
-
-            self.api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
+            api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
             if obj_type == 'lease':
-                self.api_options['list_leases'] = 'all'
+                api_options['list_leases'] = 'all'
             # All resource or lease
             if obj_type == 'resource' or obj_type == 'lease':
-                result = self.ListResources([self.user_credential], self.api_options)
+                result = self.proxy.ListResources([self.registry.user_credential], api_options)
             else:
-               raise NotImplementedError('Not implemented')
-
-            if result['code']['geni_code'] == 0:
-                dict_result = xmltodict.parse(result['value'])
-                result['parsed'] = dict_result
-            else:
-                raise SfaError(result) 
-
+                raise NotImplementedError('Not implemented')
+            result = self.xml_to_dict(result)
         except Exception as e:
             traceback.print_exc()
             return False
@@ -92,7 +92,10 @@ class SfaAm(SfaApi):
         try:
             if obj_type == 'slice':
                 urn = hrn_to_urn(hrn, obj_type)
-                result = server.Delete([urn] ,[self.slice_credential], self.api_options)
+                self.slice_credential = self.registry.get_credential(hrn, obj_type)
+                #*self.ois(server, api_options) to check server if uuid supported
+                api_options = {}
+                result = self.proxy.Delete([urn], [self.slice_credential], api_options)
         except Exception as e:
             traceback.print_exc()
             return False
@@ -101,41 +104,43 @@ class SfaAm(SfaApi):
     def update(self, record_dict, obj_type):
         try:
             if obj_type == 'slice':
-                urn = hrn_to_urn(hrn, obj_type)
+                urn = hrn_to_urn(record_dict['hrn'], obj_type)
+                self.slice_credential = self.registry.get_credential(record_dict['hrn'], obj_type)
                 # if update only expiration date
                 # self.Renew
                 if 'expiration_date' in record_dict:
                     date = record_dict['expiration_date']
-                    result = server.Renew([urn] ,[object_cred], date, api_options)
+                    result = self.proxy.Renew([urn], [object_cred], date, api_options)
                 else:
-                    self.api_options['call_id'] = unique_call_id()
+                    api_options = {}
+                    api_options['call_id'] = unique_call_id()
                     api_options['sfa_users'] = record_dict['users']
                     api_options['geni_users'] = record_dict['users']
+                    #api_options['append'] = True
 
-                    if type(record_dict['parsed']) is dict:
+                    if isinstance(record_dict['parsed'], dict):
                         rspec = xmltodict.unparse(record_dict['parsed'])
                     else:
                         raise TypeError('parsed rspec has to be a dict') 
+                    
                     # self.CreateSliver (v2)
                     if self.version()['geni_api'] == 2:
-                        result = server.CreateSliver([urn] ,[object_cred], rspec, api_options)
+                        api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '2'}
+                        result = self.proxy.CreateSliver([urn] ,[object_cred], rspec, api_options)
                     # v3
                     # self.Allocate
                     # self.Provision
                     elif self.version()['geni_api'] == 3:
-                        result = server.Allocate(urn ,[object_cred], rspec, api_options)
-                        result = server.Provision([urn] ,[object_cred], api_options)
+                        api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
+                        result = self.proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
+                        api_options['call_id'] = unique_call_id()
+                        result = self.proxy.Provision([urn], [self.slice_credential], api_options)
+                        print(result)
                     else:
-                        raise NotImplementedError('geni_ api version not supported')
-
-                    if result['code']['geni_code'] == 0:
-                        dict_result = xmltodict.parse(result['value'])
-                        result['parsed'] = dict_result
-                    else:
-                        raise SfaError(result) 
+                        raise NotImplementedError('geni_ api version not supported')                  
+                    result = self._xml_to_dict(result)
             else:
                 raise NotImplementedError('Not implemented')
-
         except Exception as e:
             traceback.print_exc()
             return False
@@ -144,13 +149,14 @@ class SfaAm(SfaApi):
     def execute(self, hrn, action, obj_type):
         urn = hrn_to_urn(hrn, obj_type)
         if action.lower() == 'shutdown':
-            result = server.Shutdown(urn ,[object_cred], api_options)
+            result = self.proxy.Shutdown(urn, [object_cred], api_options)
         else:
             if self.version()['geni_api'] == 3:
-                result = server.PerformOperationalAction([urn] ,[object_cred], action, api_options)
+                result = self.proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')
         return result
+
 
 class Xrn:
 
@@ -164,7 +170,7 @@ class Xrn:
     # e.g. hrn_split ('a\.b.c.d') -> [ 'a\.b','c','d']
     @staticmethod
     def hrn_split(hrn):
-        return [ x.replace('--sep--','\\.') for x in hrn.replace('\\.','--sep--').split('.') ]
+        return [x.replace('--sep--', '\\.') for x in hrn.replace('\\.', '--sep--').split('.')]
 
     # e.g. hrn_leaf ('a\.b.c.d') -> 'd'
     @staticmethod
@@ -180,43 +186,45 @@ class Xrn:
 
     # e.g. unescape ('a\.b') -> 'a.b'
     @staticmethod
-    def unescape(token): return token.replace('\\.','.')
+    def unescape(token): return token.replace('\\.', '.')
 
-    def __init__ (self, xrn="", type=None, id=None):
-        if not xrn: xrn = ""
+    def __init__(self, xrn="", type=None, id=None):
+        if not xrn:
+            xrn = ""
         # user has specified xrn : guess if urn or hrn
         self.id = id
         if Xrn.is_urn(xrn):
-            self.hrn=None
-            self.urn=xrn
+            self.hrn = None
+            self.urn = xrn
             if id:
                 self.urn = "%s:%s" % (self.urn, str(id))
             self.urn_to_hrn()
         else:
-            self.urn=None
-            self.hrn=xrn
-            self.type=type
+            self.urn = None
+            self.hrn = xrn
+            self.type = type
             self.hrn_to_urn()
         self._normalize()
 
     def _normalize(self):
-        if self.hrn is None: raise(SfaError, "Xrn._normalize")
-        if not hasattr(self,'leaf'): 
-            self.leaf=Xrn.hrn_split(self.hrn)[-1]
+        if self.hrn is None:
+            raise(SfaError, "Xrn._normalize")
+        if not hasattr(self, 'leaf'):
+            self.leaf = Xrn.hrn_split(self.hrn)[-1]
         # self.authority keeps a list
-        if not hasattr(self,'authority'): 
-            self.authority=Xrn.hrn_auth_list(self.hrn)
+        if not hasattr(self, 'authority'):
+            self.authority = Xrn.hrn_auth_list(self.hrn)
 
     def get_authority_hrn(self):
         self._normalize()
-        return '.'.join( self.authority )
-    
-    def get_authority_urn(self): 
+        return '.'.join(self.authority)
+
+    def get_authority_urn(self):
         self._normalize()
-        return ':'.join( [Xrn.unescape(x) for x in self.authority] )
+        return ':'.join([Xrn.unescape(x) for x in self.authority])
 
     @staticmethod
-    def is_urn (text):
+    def is_urn(text):
         return text.lower().startswith(Xrn.URN_PREFIX_lower)
 
     def hrn_to_urn(self):
@@ -245,13 +253,13 @@ class Xrn:
             name = Xrn.hrn_leaf(self.hrn)
             authority_string = self.get_authority_urn()
 
-        if self.type == None:
-            urn = "+".join(['',authority_string,Xrn.unescape(name)])
+        if self.type is None:
+            urn = "+".join(['', authority_string, Xrn.unescape(name)])
         else:
-            urn = "+".join(['',authority_string,self.type,Xrn.unescape(name)])
+            urn = "+".join(['', authority_string, self.type, Xrn.unescape(name)])
 
         if hasattr(self, 'id') and self.id:
-            urn = "%s:%s" % (urn, self.id)        
+            urn = "%s:%s" % (urn, self.id)
 
         self.urn = Xrn.URN_PREFIX + urn
 
@@ -259,13 +267,12 @@ class Xrn:
         """
         compute tuple (hrn, type) from urn
         """
-        
-#        if not self.urn or not self.urn.startswith(Xrn.URN_PREFIX):
+        # if not self.urn or not self.urn.startswith(Xrn.URN_PREFIX):
         if not Xrn.is_urn(self.urn):
             raise SfaError("Xrn.urn_to_hrn")
 
         parts = Xrn.urn_split(self.urn)
-        type=parts.pop(2)
+        type = parts.pop(2)
         # Remove the authority name (e.g. '.sa')
         if type == 'authority':
             name = parts.pop()
@@ -273,7 +280,7 @@ class Xrn:
             # or completely change how record types are generated/stored   
             if name != 'sa':
                 type = type + "+" + name
-            name =""
+            name = ""
         else:
             name = parts.pop(len(parts)-1)
         # convert parts (list) into hrn (str) by doing the following
@@ -281,15 +288,14 @@ class Xrn:
         # 2. escape dots inside parts
         # 3. replace ':' with '.' inside parts
         # 3. join parts using '.'
-        hrn = '.'.join([Xrn.escape(part).replace(':','.') for part in parts if part])
+        hrn = '.'.join([Xrn.escape(part).replace(':', '.') for part in parts if part])
         # dont replace ':' in the name section
         if name:
             parts = name.split(':')
             if len(parts) > 1:
                 self.id = ":".join(parts[1:])
-                name = parts[0]    
-            hrn += '.%s' % Xrn.escape(name) 
-
-        self.hrn=str(hrn)
-        self.type=str(type)
+                name = parts[0]
+            hrn += '.%s' % Xrn.escape(name)
+        self.hrn = str(hrn)
+        self.type = str(type)
 
