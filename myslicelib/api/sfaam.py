@@ -2,6 +2,8 @@ import traceback
 import xmltodict
 import uuid
 import re
+import xml.etree.ElementTree
+
 
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
@@ -10,6 +12,8 @@ from myslicelib.api.sfa import SfaError
 def unique_call_id(): return uuid.uuid4().urn
 
 def hrn_to_urn(hrn, type): return Xrn(hrn, type=type).urn
+
+def urn_to_hrn(urn, type): return Xrn(urn, type=type).hrn
 
 # self.ListResources
 # self.Status   => geni_urn + geni_slivers
@@ -23,20 +27,40 @@ def hrn_to_urn(hrn, type): return Xrn(hrn, type=type).urn
 # self.Delete
 
 
+
 class SfaAm(SfaApi):
 
     def __init__(self, endpoint=None, registry=None):
         super(SfaAm, self).__init__(endpoint, registry.credential)
         self.registry = registry
 
+    def _construct_resource(self, xml_string):
+        list_of_resource = []
+        respec_root = xml.etree.ElementTree.fromstring(xml_string)
+        for node in respec_root.findall('{http://www.geni.net/resources/rspec/3}node'):
+            resource = {}
+            print(node.attrib)
+            resource['hostname'] = node.attrib['component_name']
+            resource['id'] = node.attrib['component_id']
+            for element in list(node):
+                if 'location' in element.tag:
+                    resource['location'] = element.attrib
+            list_of_resource.append(resource)
+        return list_of_resource
+
     def _xml_to_dict(self, result):
         if result['code']['geni_code'] == 0:
             # there is a dictonary error while xmltodict
+
             if isinstance(result['value'], dict):
-                result['parsed'] = xmltodict.parse(result['value']['geni_rspec'])
+                #result['parsed'] = xmltodict.parse(result['value']['geni_rspec'])
+                #print(result['value']['geni_rspec'])
+                xml_string = result['value']['geni_rspec']
+                result = self._construct_resource(xml_string) 
             else:
-                dict_result = xmltodict.parse(result['value'])
-                result['parsed'] = dict_result
+                xml_string = result['value']
+                #print(xml_string)
+                result = self._construct_resource(xml_string)
         else:
             raise SfaError(result)
         return result
@@ -135,7 +159,6 @@ class SfaAm(SfaApi):
                         result = self.proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
                         api_options['call_id'] = unique_call_id()
                         result = self.proxy.Provision([urn], [self.slice_credential], api_options)
-                        print(result)
                     else:
                         raise NotImplementedError('geni_ api version not supported')                  
                     result = self._xml_to_dict(result)
