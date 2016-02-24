@@ -39,7 +39,6 @@ class SfaAm(SfaApi):
         respec_root = xml.etree.ElementTree.fromstring(xml_string)
         for node in respec_root.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {}
-            print(node.attrib)
             resource['hostname'] = node.attrib['component_name']
             resource['id'] = node.attrib['component_id']
             for element in list(node):
