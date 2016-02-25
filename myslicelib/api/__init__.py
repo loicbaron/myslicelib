@@ -103,7 +103,7 @@ class Api(object):
         if self._entity in self._am:
             for am in self.ams:
                 result.append(
-                    am.list(self._entity)
+                    am.get(self._entity)
                 )
 
         return result
