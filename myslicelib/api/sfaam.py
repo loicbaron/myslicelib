@@ -29,9 +29,9 @@ class SfaAm(SfaApi):
         self.registry = registry
 
 
-    def _parse_resource(self, xml):
+    def _parse_resource(self, xml_string):
         result = []
-        respec_root = xml.etree.ElementTree.fromstring(xml)
+        respec_root = xml.etree.ElementTree.fromstring(xml_string)
         for node in respec_root.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {
                 'hostname': node.attrib['component_name'],
@@ -43,8 +43,8 @@ class SfaAm(SfaApi):
             result.append(resource)
         return result
 
-    def _parse_slice(self, xml):
-        return self._parse_resource(xml)
+    def _parse_slice(self, xml_string):
+        return self._parse_resource(xml_string)
 
     def _lease(self, hrn=None):
         return self.proxy.ListResources([self.registry.user_credential],
@@ -91,10 +91,10 @@ class SfaAm(SfaApi):
         if result['code']['geni_code'] == 0:
             try:
                 if isinstance(result['value'], dict):
-                    xml = result['value']['geni_rspec']
+                    xml_string = result['value']['geni_rspec']
                 else:
-                    xml = result['value']
-                result = getattr(self, "_parse_" + entity)(xml)
+                    xml_string = result['value']
+                result = getattr(self, "_parse_" + entity)(xml_string)
             except Exception as e:
                 print(e)
                 exit(1)
