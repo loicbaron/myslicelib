@@ -5,7 +5,8 @@ from myslicelib.model import Entities
 class Query(object):
 
     _entities = {
-        'Resources' : 'resource'
+        'Resources' : 'resource',
+        'Slices': 'slice'
     }
 
     # def __new__(cls, *args, **kwargs):
@@ -108,8 +109,8 @@ class Query(object):
 
 
 
-    def get(self):
+    def get(self, id=None):
 
-        res = self.api.get()
+        res = self.api.get(id)
 
         print(res)
