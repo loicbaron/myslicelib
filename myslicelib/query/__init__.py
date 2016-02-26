@@ -112,5 +112,5 @@ class Query(object):
     def get(self, id=None):
 
         res = self.api.get(id)
-
-        print(res)
+        import pprint
+        pprint.pprint(res)

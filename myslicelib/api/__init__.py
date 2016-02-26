@@ -103,9 +103,7 @@ class Api(object):
         result = []
         if self._entity in self._am:
             for am in self.ams:
-                result.append(
-                    am.get(self._entity, id)
-                )
+                result = result + am.get(self._entity, id)
 
         return result
 
