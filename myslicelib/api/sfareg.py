@@ -13,91 +13,102 @@ class SfaReg(SfaApi):
                                         self.credential.hrn,
                                         'user')
 
-    def get(self, hrn, obj_type=None):
+    def _filter_records(type, result):
+        filtered_records = []
+        for record in result:
+            if (record['type'] == type) or (type == "all"):
+                filtered_records.append(record)
+        return filtered_records
+
+    def _list_entity(self, hrn):
         try:
-            result = self.proxy.Resolve(hrn, self.user_credential, {})
-            # result = filter_records(obj_type, result)
+            # attept to list the hrn first if it is an authority
+            # if hrn is not an authority, it will list all elements
+            return self.proxy.List(hrn, self.user_credential, {})
         except Exception as e:
-            traceback.print_exc()
-            return False
+            return self.proxy.List(self.version()['hrn'], self.user_credential, {})
+
+    def _get_entity(self, hrn):
+        if hrn:
+            return self.proxy.Resolve(hrn, self.user_credential, {})
+        return self.proxy.List(self.version()['hrn'], self.user_credential, {})
+
+    def get(self, entity, hrn=None, raw=False, list=False):
+        try:
+            # list all the enities
+            if list:
+                result = self._list_entity(hrn)
+            else:
+                result = self._get_entity(hrn)
+        except Exception as e:
+            print(e)
+            exit(1)
+        
+        if raw:
+            return result
+
+        # only authority can list enities
+        #result = self._filter_records(entity, result)
         return result
 
-    def list(self, hrn=None, obj_type=None):
-        try:
-            if hrn is None:
-                # Registry must advertise hrn in GetVersion
-                # the hrn has to match the root authority
-                hrn = self.version()['hrn']
-            result = self.proxy.List(hrn, self.user_credential, {})
-            # result = filter_records(obj_type, result)
-        except Exception as e:
-            return False
-        return result
-
-    def user(self, hrn):
-        return self.get(hrn, 'user')
-
-    def users(self, hrn=None):
-        return self.list(hrn, 'user')
+    # def get(self, hrn, entity=None):
+    #     try:
+    #         
+    #         # result = filter_records(entity, result)
+    #     except Exception as e:
+    #         traceback.print_exc()
+    #         return False
+    #     return result
 
     # look up to see the upper has the credential
-    def get_credential(self, hrn, obj_type):
+    def get_credential(self, hrn, entity):
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if upper_hrn:
-                if obj_type == 'slice':
-                    return self.proxy.GetCredential(self.user_credential, hrn, obj_type)
+                if entity == 'slice':
+                    return self.proxy.GetCredential(self.user_credential, hrn, entity)
                 else:
-                    return self.proxy.GetCredential(self.user_credential, upper_hrn, obj_type)
+                    return self.proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
-            return self.get_credential(upper_hrn, obj_type)
+            return self.get_credential(upper_hrn, entity)
 
-    def create(self, record_dict, obj_type):
+    def create(self, record_dict, entity):
         try:
             auth_cred = self.get_credential(record_dict['hrn'], 'authority')
             if auth_cred:
-                record_dict["type"] = obj_type
+                record_dict["type"] = entity
                 return self.proxy.Register(record_dict, auth_cred)
             return False
         except Exception as e:
             traceback.print_exc()
             return False
 
-    def delete(self, hrn, obj_type):
+    def delete(self, hrn, entity):
         try:
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
-                return self.proxy.Remove(hrn, auth_cred, obj_type)
+                return self.proxy.Remove(hrn, auth_cred, entity)
             return False
         except Exception as e:
             traceback.print_exc()
             return False
 
-    def update(self, record_dict, obj_type):
+    def update(self, record_dict, entity):
         try:
-            if obj_type == 'user' and record_dict['hrn'] == self.credential.hrn:
+            if entity == 'user' and record_dict['hrn'] == self.credential.hrn:
                 cred = self.user_credential
-            elif obj_type == 'slice':
+            elif entity == 'slice':
                 cred = self.get_credential(record_dict['hrn'], 'slice')
             else:
                 cred = self.get_credential(record_dict['hrn'], 'authority')
             if cred:
-                record_dict["type"] = obj_type
+                record_dict["type"] = entity
                 return self.proxy.Update(record_dict, cred)
             return False
         except Exception as e:
             traceback.print_exc()
             return False
-
-    @staticmethod
-    def filter_records(type, records):
-        filtered_records = []
-        for record in records:
-            if (record['type'] == type) or (type == "all"):
-                filtered_records.append(record)
-        return filtered_records
-
 
     # self.CreateGid
