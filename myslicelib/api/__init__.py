@@ -35,7 +35,8 @@ class Api(object):
     ]
 
     _am = [
-        'resource'
+        'resource',
+        'slice'
     ]
 
     _registry = [
@@ -62,7 +63,7 @@ class Api(object):
 
     def __getattr__(self, entity):
 
-        def methodHandler():
+        def method_handler():
             if not entity in self._entities:
                 raise NotImplementedError("Invalid object {} or not implemented".format(entity))
 
@@ -70,7 +71,7 @@ class Api(object):
 
             return self
 
-        return methodHandler
+        return method_handler
 
 
     def version(self) -> dict:
@@ -103,7 +104,7 @@ class Api(object):
         if self._entity in self._am:
             for am in self.ams:
                 result.append(
-                    am.get(self._entity)
+                    am.get(self._entity, id)
                 )
 
         return result
@@ -115,8 +116,8 @@ class Api(object):
         #
         # raise NotImplementedError('Not implemented')
 
-    def update(self, type, object, id, endpoint):
+    def update(self, id):
         raise NotImplementedError('Not implemented')
 
-    def delete(self):
+    def delete(self, id):
         raise NotImplementedError('Not implemented')

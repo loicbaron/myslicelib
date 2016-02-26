@@ -3,6 +3,7 @@ import xmltodict
 import xml.etree.ElementTree
 
 from myslicelib.util.sfa import hrn_to_urn
+from myslicelib.util.sfaparser import SfaParser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
 
@@ -27,24 +28,6 @@ class SfaAm(SfaApi):
     def __init__(self, endpoint=None, registry=None):
         super(SfaAm, self).__init__(endpoint, registry.credential)
         self.registry = registry
-
-
-    def _parse_resource(self, xml_string):
-        result = []
-        respec_root = xml.etree.ElementTree.fromstring(xml_string)
-        for node in respec_root.findall('{http://www.geni.net/resources/rspec/3}node'):
-            resource = {
-                'hostname': node.attrib['component_name'],
-                'id': node.attrib['component_id']
-            }
-            for element in list(node):
-                if 'location' in element.tag:
-                    resource['location'] = element.attrib
-            result.append(resource)
-        return result
-
-    def _parse_slice(self, xml_string):
-        return self._parse_resource(xml_string)
 
     def _lease(self, hrn=None):
         return self.proxy.ListResources([self.registry.user_credential],
@@ -81,7 +64,7 @@ class SfaAm(SfaApi):
         try:
             result = getattr(self, "_" + entity)(hrn)
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             exit(1)
 
         if raw:
@@ -94,7 +77,8 @@ class SfaAm(SfaApi):
                     xml_string = result['value']['geni_rspec']
                 else:
                     xml_string = result['value']
-                result = getattr(self, "_parse_" + entity)(xml_string)
+                #result = getattr(self, "_parse_" + entity)(xml_string)
+                result = SfaParser(xml_string).parse()
             except Exception as e:
                 print(e)
                 exit(1)
