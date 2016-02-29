@@ -37,7 +37,11 @@ class SfaAm(SfaApi):
                                         })
 
     def _resource(self, hrn=None):
-        return self.proxy.ListResources([self.registry.user_credential],
+        if self.version()['geni_api'] == 2:
+            cred = self.registry.user_credential
+        else:
+            cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
+        return self.proxy.ListResources([cred],
                                         {
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                                         })
