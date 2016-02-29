@@ -82,7 +82,7 @@ class SfaAm(SfaApi):
                 else:
                     xml_string = result['value']
                 #result = getattr(self, "_parse_" + entity)(xml_string)
-                result = SfaParser(xml_string).parse()
+                result = SfaParser(xml_string).parse(entity)
             except Exception as e:
                 print(e)
                 exit(1)
@@ -90,7 +90,6 @@ class SfaAm(SfaApi):
             raise SfaError(result)
 
         return result
-
 
 
     def create(self, record_dict, obj_type):
