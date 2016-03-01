@@ -56,9 +56,7 @@ class Ple(SfaParser):
                         'os':'Linux',
                         'version':self.get_planetlab_attribute(node, 'fcdistro')
                     }]})
-
             result.append(resource)
-
         return result
 
     def get_planetlab_attribute(self, node, name):

@@ -82,8 +82,8 @@ class SfaAm(SfaApi):
                     xml_string = result['value']['geni_rspec']
                 else:
                     xml_string = result['value']
-                #from pprint import pprint
-                #pprint(xml_string)
+                from pprint import pprint
+                pprint(xml_string)
                 result = Parser(xml_string).parse(entity)
             except Exception as e:
                 traceback.print_exc()

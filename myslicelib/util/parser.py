@@ -25,10 +25,15 @@ class Parser(object):
         self.rspec = xml.etree.ElementTree.fromstring(xml_rspec)
 
         el = self.rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        self.rspec_am = el.attrib['component_id'].split("+")[1].split(":")[0]
+        if el is not None:
+            self.rspec_am = el.attrib['component_id'].split("+")[1].split(":")[0]
+        else:
+            self.rspec_am = None
 
     def parse(self, entity):
         parser = None
+        if self.rspec_am is None:
+            return []
         for rs in self._rspec_ams:
             if (self.rspec_am in self._rspec_ams[rs]):
                 parser = rs

@@ -4,7 +4,7 @@ class SfaParser(object):
         return []
 
     def slice_parser(self, rspec):
-        return {'resources':self.resource_parser(rspec), 'leases':self.lease_parser(rspec)}
+        return [{'resources':self.resource_parser(rspec), 'leases':self.lease_parser(rspec)}]
 
     def lease_parser(self, rspec):
         return []
