@@ -8,54 +8,164 @@ import xmltodict
 from myslicelib.api.sfareg import SfaReg
 from myslicelib.api.sfaam import SfaAm
 from myslicelib.util import Endpoint, Credential
+from pprint import pprint
+from collections import OrderedDict
 
-if __name__ == '__main__':
 
+request_rspec = OrderedDict([(u'rspec', OrderedDict([(u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@xmlns', u'http://www.geni.net/resources/rspec/3'), (u'@xmlns:plos', u'http://www.planet-lab.org/resources/sfa/ext/plos/1'), (u'@xmlns:planetlab', u'http://www.planet-lab.org/resources/sfa/ext/planetlab/1'), (u'@type', u'request'), (u'@xsi:schemaLocation', u'http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd http://www.planet-lab.org/resources/sfa/ext/planetlab/1 http://www.planet-lab.org/resources/sfa/ext/planetlab/1/planetlab.xsd http://www.planet-lab.org/resources/sfa/ext/plos/1 http://www.planet-lab.org/resources/sfa/ext/plos/1/plos.xsd'), (u'@expires', u'2016-05-30T17:07:46Z'), (u'@generated', u'2014-05-30T16:07:46Z'), (u'node', [OrderedDict([(u'@component_manager_id', u'urn:publicid:IDN+ple+authority+cm'), (u'@component_id', u'urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no'), (u'@exclusive', u'false'), (u'@component_name', u'planetlab1.cs.uit.no'), (u'sliver_type', OrderedDict([(u'@name', u'plab-vserver')]))]), OrderedDict([(u'@component_manager_id', u'urn:publicid:IDN+ple+authority+cm'), (u'@component_id', u'urn:publicid:IDN+ple:unioslople+node+planetlab2.ifi.uio.no'), (u'@exclusive', u'false'), (u'@component_name', u'planetlab2.ifi.uio.no'), (u'sliver_type', OrderedDict([(u'@name', u'plab-vserver')]))])])]))])
+
+def test_by_loic():
     path = "/root/.sfi/"
     pkey = path + "onelab.upmc.loic_baron.pkey"
     cert = path + "onelab.upmc.loic_baron.sscert"
     
     hrn = "onelab.upmc.loic_baron"
     email = "loic.baron@lip6.fr"
-    url_am = "http://sfa3.planet-lab.eu:12346"
-    #url = "https://nitlab.inf.uth.gr:8001/RPC2"
+    url_am = "https://sfa3.planet-lab.eu:12346" 
+    url_registry = "https://portal.onelab.eu:6080"
     #url_registry = "http://dev.myslice.info:12345"
-    url_registry = "https://portal.onelab.eu:6080"  
 
-    endpoint = Endpoint(url=url_registry)
+    endpoint_registry = Endpoint(url=url_registry)
+    endpoint_am = Endpoint(url=url_am)
     credential = Credential(email=email, hrn=hrn, private_key=pkey, certificate=cert)
-    Registry = SfaReg(endpoint, credential)
-    #AM = SfaAm()
-
-    #Registry = SfaReg(url=url_registry, pkey=pkey, certfile=cert, hrn=hrn) 
-    #AM = SfaAm(url=url_am, pkey=pkey, certfile=cert, reg=Registry)
+    Registry = SfaReg(endpoint_registry, credential)
+    AM = SfaAm(endpoint_am, Registry)
 
     #print(Registry.version())
     #print(Registry.get(hrn))
-    #print(Registry.list())
-    #print(Registry.list("onelab.upmc"))
+    #pprint(Registry.list())
+    #pprint(Registry.list("onelab.upmc"))
 
-    #print(AM.version())
-    #print(AM.list('resource')) 
-    #print(AM.get(type='slice',hrn='onelab.upmc.openlabdemo'))
-
-    print("=====normal test=======")
+    print("=====user test=======")
     user_dict = {'hrn':'onelab.upmc.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
     test_dict = {'hrn':'onelab.upmc.aaaa','email':'bbbb@onelab.eu'}
     print(Registry.create(user_dict, 'user'))
     print(Registry.update(test_dict,'user'))
     print(Registry.get('onelab.upmc.aaaa'))
-    print(Registry.delete('onelab.upmc.aaaa', 'user'))
-    
-    print("=====root authority test=======")
+
+    print("=====user test(upper)=======")
     user_dict = {'hrn':'onelab.inria.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
     test_dict = {'hrn':'onelab.inria.aaaa','email':'bbbb@onelab.eu'}
     print(Registry.create(user_dict, 'user'))
     print(Registry.update(test_dict, 'user'))
     print(Registry.get('onelab.inria.aaaa'))
-    print(Registry.delete('onelab.inria.aaaa', 'user'))
 
-     
+    print("=====authority test=======")
+    auth_dict = {'hrn':'onelab.upmc.authx', 'reg-pis':[hrn]}
+    print(Registry.create(auth_dict, 'authority'))
+    auth_dict['reg-pis'] = [hrn, 'onelab.inria.aaaa', 'onelab.upmc.aaaa']
+    print(Registry.update(auth_dict, 'authority'))
+    print(Registry.get('onelab.upmc.authx'))
+
+    print("=====authority test(upper)=======")
+    auth_dict = {'hrn':'onelab.inria.authx', 'reg-pis':[hrn]}
+    print(Registry.create(auth_dict, 'authority'))
+    auth_dict['reg-pis'] = [hrn, 'onelab.inria.aaaa', 'onelab.upmc.aaaa']
+    print(Registry.update(auth_dict, 'authority'))
+    print(Registry.get('onelab.inria.authx'))
+
+    print("=====slice test=======")
+    slice_dict = {'hrn':'onelab.upmc.authx.slicex','reg-researchers':[hrn]}
+    print(Registry.create(slice_dict, 'slice'))
+    slice_dict = {'hrn':'onelab.upmc.authx.slicex','reg-researchers':[hrn,'onelab.inria.aaaa']}
+    print(Registry.update(slice_dict, 'slice'))
+    print(Registry.get('onelab.upmc.authx.slicex'))
+
+    print("=====slice test(upper)=======")
+    slice_dict = {'hrn':'onelab.inria.authx.slicex','reg-researchers':[hrn]}
+    print(Registry.create(slice_dict, 'slice'))
+    slice_dict['reg-researchers'] = [hrn,'onelab.upmc.aaaa']
+    print(Registry.update(slice_dict, 'slice'))
+    print(Registry.get('onelab.inria.authx.slicex'))
+    
+    print(Registry.user('onelab.inria.aaaa'))
+
+    print("=====get slice=======")
+    print(Registry.get('onelab.inria.authx.slicex', 'slice'))
+    
+    print("=====delete slice========")
+    print(Registry.delete('onelab.inria.authx.slicex', 'slice'))
+    print(Registry.delete('onelab.upmc.authx.slicex', 'slice'))
+
+    print("=====delete users========")
+    print(Registry.delete('onelab.inria.aaaa', 'user'))
+    print(Registry.delete('onelab.upmc.aaaa', 'user'))
+
+    print("=====delete authority=======")
+    print(Registry.delete('onelab.upmc.authx', 'authority'))
+    print(Registry.delete('onelab.inria.authx', 'authority'))
+
+    #print(Registry.get('onelab.upmc.apitest.slicex', 'slice'))
+    #print(AM.get('onelab.upmc.apitest.slicex', 'slice'))
+
+
+def test_by_quan():
+    url_am = "https://sfa3.planet-lab.eu:12346" 
+    url_registry = "https://portal.onelab.eu:6080"
+    #url_registry = "https://dev.myslice.info:12345"      
+
+    path = "/root/.sfi/"
+    pkey = path + "onelab.upmc.joshzhou16.pkey"
+    cert = path + "onelab.upmc.joshzhou16.sscert"
+
+    hrn = "onelab.upmc.joshzhou16"
+    email = "joshzhou16@gmail.com"
+
+    endpoint_registry = Endpoint(url=url_registry)
+    endpoint_am = Endpoint(url=url_am)
+    credential = Credential(email=email, hrn=hrn, private_key=pkey, certificate=cert)
+    Registry = SfaReg(endpoint_registry, credential)
+    AM = SfaAm(endpoint_am, Registry)
+    
+    
+    #print(Registry.get(hrn))
+    print("=====user test=======")
+    user_dict = {'hrn':'onelab.upmc.apitest.aaaa','email':'aaaa@onelab.eu','reg-keys':['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUrQ1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnWN1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGvTPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ==']}
+    test_dict = {'hrn':'onelab.upmc.apitest.aaaa','email':'bbbb@onelab.eu'}
+    print(Registry.create(user_dict, 'user'))
+    print(Registry.update(test_dict,'user'))
+    pprint(Registry.get('onelab.upmc.apitest.aaaa'))
+
+    print("=====slice test=======")
+    slice_dict = {'hrn':'onelab.upmc.apitest.slicex','reg-researchers':[hrn]}
+    print(Registry.create(slice_dict, 'slice'))
+    slice_dict = {'hrn':'onelab.upmc.apitest.slicex','reg-researchers':[hrn, 'onelab.upmc.apitest.aaaa']}
+    print(Registry.update(slice_dict, 'slice'))
+    pprint(Registry.get('onelab.upmc.apitest.slicex'))
+    print("=====get slice=======")
+    print(Registry.get('onelab.upmc.apitest.slicex', 'slice'))
+    
+
+    #print(AM.list())
+
+    #print("======delete slice=======")
+    #AM.delete('onelab.upmc.apitest.slicex', 'slice')
+    #print(AM.get('onelab.upmc.apitest.slicex', 'slice'))
+    #pprint(Registry.get('onelab.upmc.apitest.aaaa'))    
+    #print(Registry.delete('onelab.upmc.apitest.aaaa', 'user'))
+    #print(Registry.delete('onelab.upmc.apitest.slicex', 'slice'))
+    
+    #print(AM.get('onelab.upmc.apitest.slicex', 'resource'))
+    #record_dict = {'hrn': 'onelab.upmc.apitest.slicex', 'parsed':request_rspec, 'users': {}}#'users': [{'urn': 'urn:publicid:IDN+onelab:inria+user+aaaa', 'keys': ['ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCgJ3h7WmEytfWcL0+dboFeKTLSYWlNpCijvcQHllWoP02ZAuWl7j0kqhHzssOOLhP830W3YuGoDrg+i8c8RbTa18Ei77VuOg3Mes/9jesFrY64pEv85ULEQD4gZ8r+qjVAW2cmiIe0Pe7hKNls7Dd0MBzXr34RbMAaB+EHy2s0dU5o4mtBmwmMzpIJ62pe1flRjyqq8UVnoRZTPW1aHrr0wNKoxavCrmHs/LX3G6Y/epSMdTIRBQEJblwdxzc62kZmRTBVif0PsNAqtxHNL79bO5OAaRqKe0wL8gYza/1wckD6UBxXZmBPGA3Au7piE34CCP+JFVS5RH21dxrlO6cH JoshPAT@portablerahman.rsr.lip6.fr']}]}
+    #AM.create(record_dict, 'slice')
+    #pprint(AM.get('onelab.upmc.apitest.slicex', 'slice'))
+    #record_dict = {'hrn': 'onelab.upmc.apitest.slicey', 'parsed':request_rspec, 'users': [{'urn': 'urn:publicid:IDN+onelab:inria+user+aaaa', 'keys': []}]}
+    #AM.get('onelab.upmc.apitest.slicey', 'slice')
+
+    #AM.list('resource')
+    
+    
+
+if __name__ == '__main__':
+    #import cProfile
+    #cProfile.run('test_by_quan()')
+    test_by_quan()
+    #import timeit
+    #print(timeit.repeat("test_by_quan()", setup="from __main__ import test_by_quan", number=1, repeat=3))
+    #print(AM.version())
+    #print(AM.list('lease')) 
+    #print(AM.get(type='slice',hrn='onelab.upmc.slicex'))
+
     '''
     print("===== version =====")
     print(AM.version())
@@ -102,31 +212,6 @@ if __name__ == '__main__':
     print("===== delete hrn slice =====")
     print(AM.delete('onelab.upmc.mobicom.exper_mobicom','slice'))
     #print(AM.GetVersion())
-    
-    exit
-    with open (cert, "r") as myfile:
-        data = myfile.read()
-
-    credentials = Registry.GetSelfCredential(data, hrn, 'user')
-    
-    api_options = {
-        'geni_rspec_version': {'type': 'GENI', 'version': '3'},
-        'list_leases': 'all'
-    }
     '''
-    #print AM.ListResources([credentials], api_options)
-
-    # {'output': '', 'geni_api': 3, 'code': {'am_type': 'sfa', 'geni_code': 0, 'am_code': None}, 'value': rspec }
-
-    # resources = q('testbed.Resource').execute()
-    # print resources.first().hostname
-    # for r in resources:
-    #     print r.hostname
-    #     print r.hrn
-
-    # print "Test"
-    # auth = {'AuthMethod': 'password', 'Username': 'cscognamiglio@gmail.com', 'AuthString': 'demo'}
-    # url = 'https://test.myslice.info:7080/'
-    # api = Api(auth, url)
 
 
