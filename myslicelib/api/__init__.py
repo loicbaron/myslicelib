@@ -31,12 +31,14 @@ class Api(object):
         'resource',
         'slice',
         'user',
-        'authority'
+        'authority',
+        'lease'
     ]
 
     _am = [
         'resource',
-        'slice'
+        'slice',
+        'lease'
     ]
 
     _registry = [
@@ -103,7 +105,7 @@ class Api(object):
         result = []
         if self._entity in self._am:
             for am in self.ams:
-                result = result + am.get(self._entity, id)
+                result += am.get(self._entity, id)
 
         return result
 

@@ -1,9 +1,6 @@
 import traceback
-import xmltodict
-import xml.etree.ElementTree
-
 from myslicelib.util.sfa import hrn_to_urn
-from myslicelib.util.sfaparser import SfaParser
+from myslicelib.util.parser import Parser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
 
@@ -30,7 +27,11 @@ class SfaAm(SfaApi):
         self.registry = registry
 
     def _lease(self, hrn=None):
-        return self.proxy.ListResources([self.registry.user_credential],
+        if self.version()['geni_api'] == 2:
+            cred = self.registry.user_credential
+        else:
+            cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
+        return self.proxy.ListResources([cred],
                                         {
                                             'list_leases' : 'all',
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
@@ -81,10 +82,11 @@ class SfaAm(SfaApi):
                     xml_string = result['value']['geni_rspec']
                 else:
                     xml_string = result['value']
-                #result = getattr(self, "_parse_" + entity)(xml_string)
-                result = SfaParser(xml_string).parse(entity)
+                #from pprint import pprint
+                #pprint(xml_string)
+                result = Parser(xml_string).parse(entity)
             except Exception as e:
-                print(e)
+                traceback.print_exc()
                 exit(1)
         else:
             raise SfaError(result)

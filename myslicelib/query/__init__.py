@@ -6,7 +6,8 @@ class Query(object):
 
     _entities = {
         'Resources' : 'resource',
-        'Slices': 'slice'
+        'Slices': 'slice',
+        'Leases': 'lease',
     }
 
     # def __new__(cls, *args, **kwargs):

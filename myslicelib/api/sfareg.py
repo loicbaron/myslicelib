@@ -33,7 +33,7 @@ class SfaReg(SfaApi):
             return self.proxy.Resolve(hrn, self.user_credential, {})
         return self.proxy.List(self.version()['hrn'], self.user_credential, {})
 
-    def get(self, entity, hrn=None, raw=False, list=False):
+    def get(self, hrn=None, entity=None, raw=False, list=False):
         try:
             # list all the enities
             if list:
@@ -44,7 +44,7 @@ class SfaReg(SfaApi):
             print(e)
             exit(1)
         
-        if raw:
+        if raw or not entity:
             return result
 
         # only authority can list enities

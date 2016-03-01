@@ -1,22 +1,35 @@
+from myslicelib.util.sfaparser import SfaParser
 
-def parser(rspec, entity):
-    result = []
-    el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-    testbed = el.attrib['component_id'].split("+")[1]
-    if ':' in testbed:
-        testbed = testbed.split(":")[1]
+class Iotlab(SfaParser):
 
-    if entity == 'lease':
+    def lease_parser(self, rspec):
+        result = []
+        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
+        testbed = el.attrib['component_id'].split("+")[1]
+        if ':' in testbed:
+            testbed = testbed.split(":")[1]
+
         for lease in rspec.findall('{http://www.geni.net/resources/rspec/3}lease'):
             lease = {
                 'slice_id': lease.attrib['slice_id'],
                 'start_time': lease.attrib['start_time'],
-                'duration': lease.attrib['duration'],
-                'nodes': [],
+                'duration': int(lease.attrib['duration']) * 60,
+                'end_time': int(lease.attrib['start_time']) + \
+                            int(lease.attrib['duration']),
+
+                'nodes': [node.attrib['component_id'] for node in list(lease)],
             }
-        # XXX TODO: nodes ID in lease
-        resource.append(lease)
-    else:
+            result.append(lease)
+        return result
+
+
+    def resource_parser(self, rspec):
+        result = []
+        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
+        testbed = el.attrib['component_id'].split("+")[1]
+        if ':' in testbed:
+            testbed = testbed.split(":")[1]
+
         for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {
                 'type' : 'node',
@@ -40,7 +53,7 @@ def parser(rspec, entity):
                     resource['available'] = element.attrib['now']
 
             result.append(resource)
-    return result
+        return result
 
 #  <node component_manager_id="urn:publicid:IDN+iotlab+authority+sa" component_id="urn:publicid:IDN+iotlab+node+m3-83.lille.iot-lab.info" exclusive="true" component_name="m3-83.lille.iot-lab.info">
 #    <hardware_type name="m3:at86rf231"/>

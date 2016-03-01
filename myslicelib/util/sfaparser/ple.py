@@ -1,68 +1,71 @@
+from myslicelib.util.sfaparser import SfaParser
 
-def parser(rspec):
-    result = []
-    el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-    testbed = el.attrib['component_id'].split("+")[1]
-    if ':' in testbed:
-        testbed = testbed.split(":")[1]
+class Ple(SfaParser):
 
-    for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
-        resource = {
-            'type' : 'node',
-            'id': node.attrib['component_id'],
-            'name': node.attrib['component_name'],
-            'exclusive': node.attrib['exclusive'],
-            'hardware_types': [],
-            'interfaces': [],
-            'sliver_types': [],
-            'testbed':testbed,
-            'technologies':['Virtual Machines','Distributed Systems','Internet','Wired'],
-        }
+    def resource_parser(self, rspec):
+        result = []
+        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
+        testbed = el.attrib['component_id'].split("+")[1]
+        if ':' in testbed:
+            testbed = testbed.split(":")[1]
 
-        #    'sliver_types': [
-        #        {
-        #        'name':'plab-vserver',
-        #        'disk_images':[
-        #            {
-        #            'name':'Fedora 22',
-        #            'os':'Linux',
-        #            'version':'22',
-        #            'description':'',
-        #            #'url':'',
-        #            }
-        #        ]
-        #        }
-        #    ],
+        for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
+            resource = {
+                'type' : 'node',
+                'id': node.attrib['component_id'],
+                'name': node.attrib['component_name'],
+                'exclusive': node.attrib['exclusive'],
+                'hardware_types': [],
+                'interfaces': [],
+                'sliver_types': [],
+                'testbed':testbed,
+                'technologies':['Virtual Machines','Distributed Systems','Internet','Wired'],
+            }
 
-        for element in list(node):
-            if 'hardware_type' in element.tag:
-                resource['hardware_types'].append(element.attrib['name'])
-            if 'location' in element.tag:
-                resource['location'] = element.attrib
-                if not 'country' in resource['location'] or resource['location']['country']=='unknown' or resource['location']['country']==None:
-                    resource['location']['country'] = get_planetlab_attribute(node,'country')
+            #    'sliver_types': [
+            #        {
+            #        'name':'plab-vserver',
+            #        'disk_images':[
+            #            {
+            #            'name':'Fedora 22',
+            #            'os':'Linux',
+            #            'version':'22',
+            #            'description':'',
+            #            #'url':'',
+            #            }
+            #        ]
+            #        }
+            #    ],
 
-            if 'interface' in element.tag:
-                resource['interfaces'].append(element.attrib['component_id'])
-            if 'available' in element.tag:
-                resource['available'] = element.attrib['now']
+            for element in list(node):
+                if 'hardware_type' in element.tag:
+                    resource['hardware_types'].append(element.attrib['name'])
+                if 'location' in element.tag:
+                    resource['location'] = element.attrib
+                    if not 'country' in resource['location'] or resource['location']['country']=='unknown' or resource['location']['country']==None:
+                        resource['location']['country'] = self.get_planetlab_attribute(node,'country')
 
-            if 'sliver_type' in element.tag:
-                resource['sliver_types'].append({'name':element.attrib['name'],'disk_images':[{
-                    'name':'Fedora '+get_planetlab_attribute(node, 'fcdistro'),
-                    'os':'Linux',
-                    'version':get_planetlab_attribute(node, 'fcdistro')
-                }]})
+                if 'interface' in element.tag:
+                    resource['interfaces'].append(element.attrib['component_id'])
+                if 'available' in element.tag:
+                    resource['available'] = element.attrib['now']
 
-        result.append(resource)
+                if 'sliver_type' in element.tag:
+                    resource['sliver_types'].append({'name':element.attrib['name'],'disk_images':[{
+                        'name':'Fedora '+ self.get_planetlab_attribute(node, 'fcdistro'),
+                        'os':'Linux',
+                        'version':self.get_planetlab_attribute(node, 'fcdistro')
+                    }]})
 
-    return result
+            result.append(resource)
 
-def get_planetlab_attribute(node, name):
-    elements = node.findall('{http://www.planet-lab.org/resources/sfa/ext/planetlab/1}attribute')
-    for el in elements:
-        if el.attrib['name']==name:
-            return el.attrib['value']
+        return result
+
+    def get_planetlab_attribute(self, node, name):
+        elements = node.findall('{http://www.planet-lab.org/resources/sfa/ext/planetlab/1}attribute')
+        for el in elements:
+            if el.attrib['name']==name:
+                return el.attrib['value']
 
 
 #  <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no" exclusive="false" component_name="planetlab1.cs.uit.no">

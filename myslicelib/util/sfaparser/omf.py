@@ -1,17 +1,53 @@
+import dateutil.parser
+from myslicelib.util.sfaparser import SfaParser
 
-def parser(rspec, entity=None):
-    result = []
-    el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-    testbed = el.attrib['component_id'].split("+")[1]
-    if ':' in testbed:
-        testbed = testbed.split(":")[1]
+class Omf(SfaParser):
 
-    if entity == 'lease':
-        # XXX TODO parse leases
-        #for lease in rspec.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease'):
+    def lease_parser(self, rspec):
+        result = []
+        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
+        testbed = el.attrib['component_id'].split("+")[1]
+        if ':' in testbed:
+            testbed = testbed.split(":")[1]
+
+        leases = rspec.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease')
+
+        if not leases:
+            return result
+
+        nodes = rspec.findall('{http://www.geni.net/resources/rspec/3}node')    
+        for lease in leases:
+            dt = dateutil.parser.parse(lease.attrib['valid_from'])
+            start_time = int(dt.strftime("%s"))
+            dt = dateutil.parser.parse(lease.attrib['valid_until'])
+            end_time = int(dt.strftime("%s"))
+            duration = end_time - start_time
+            l = {            
+                'lease_id': lease.attrib['id'],
+                'start_time': start_time,
+                'end_time': end_time,
+                'duration': duration,
+                'nodes': [],
+            }        
+            for node in nodes:
+                leases_in_node = node.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease_ref')
+                if not leases_in_node:
+                    continue
+                else:
+                    for lease_in_node in leases_in_node:
+                        if l['lease_id'] == lease_in_node.attrib['id_ref']:
+                            l['nodes'].append(node.attrib['component_id'])
+            result.append(l)
         return result
 
-    else:
+    def resource_parser(self, rspec):
+        result = []
+        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
+        testbed = el.attrib['component_id'].split("+")[1]
+        if ':' in testbed:
+            testbed = testbed.split(":")[1]    
+
+
         for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {
                 'type' : 'node',
@@ -28,4 +64,18 @@ def parser(rspec, entity=None):
                 if 'location' in element.tag:
                     resource['location'] = element.attrib
             result.append(resource)
-    return result
+
+            # TODO channel?
+        return result
+
+# node
+
+#  'component_id="urn:publicid:IDN+omf:paris.fit-nitos.fr+interface+node41:if1" '
+#  'component_name="node41:if1" role="experimental"/>\n'
+#  '  </node>\n'
+# channel
+
+#  '  <ol:channel '
+#  'component_id="urn:publicid:IDN+omf:paris.fit-nitos.fr+channel+channel1" '
+#  'component_manager_id="urn:publicid:IDN+omf:paris.fit-nitos.fr+authority+cm" '
+#  'component_name="channel1" frequency="2.412GHz"/>\n'
