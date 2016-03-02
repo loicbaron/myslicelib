@@ -28,6 +28,7 @@ class Api(object):
     """
 
     _entities = [
+        'testbed',
         'resource',
         'slice',
         'user',
@@ -48,6 +49,13 @@ class Api(object):
     ]
 
     def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
+
+        if not isinstance(endpoints, list) or not all(isinstance(endpoint, Endpoint) for endpoint in endpoints):
+            raise ValueError("API needs an object of type Endpoint")
+
+        if not isinstance(credential, Credential):
+            raise ValueError("API needs an object of type Credential")
+
         self.registry = None # at least one registry endpoint must be present
         self.ams = [] # one or plus am must be present, this depends on the am to be present
 

@@ -1,20 +1,28 @@
+import logging
 from myslicelib import setup as s
 from myslicelib.api import Api
-from myslicelib.model import Entities
+from myslicelib.model import Entity
+
+def q(entity: Entity):
+    '''
+    Factory function, used to build the correct QueryEntity object
+
+    :param entity: object of class Entity
+    :return: QueryEntity
+    '''
+    e = entity.__name__
+    QueryModule = "myslicelib.query.{}".format(e.lower())
+    QueryClass = e + "Query"
+    print(QueryModule,QueryClass)
+    try:
+        module = __import__(QueryModule, fromlist=[QueryClass])
+        return getattr(module, QueryClass)(entity)
+    except ImportError:
+        logging.error("Object {} not found".format(QueryClass))
+        exit(1)
+
 
 class Query(object):
-
-    # Mapping between Object queried and the Api
-    _entities = {
-        'Resources' : 'resource',
-        'Slices': 'slice',
-        'Slice': 'slice',
-        'Leases': 'lease',
-        'Users': 'user',
-        'User': 'user',
-        'Authorities': 'authority',
-        'Authority': 'authority',
-    }
 
     # def __new__(cls, *args, **kwargs):
         # if cls is Query:
@@ -35,15 +43,12 @@ class Query(object):
         # else:
         #     return super(Query, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, entities: Entities) -> None:
+    def __init__(self, entity: Entity) -> None:
 
-        if not entities.__name__ in self._entities:
-            raise NotImplementedError("Invalid object {} or not implemented".format(entities.__name__))
+        self.entity = entity
 
-        self.entities = entities
+        self.api = getattr(Api(s.endpoints, s.credential), self.entity.__name__.lower())()
 
-
-        self.api = getattr(Api(s.endpoints, s.credential), self._entities[entities.__name__])()
 
         # self.api = Api(s.endpoints, s.credential)
         # self.api = self.api.resource()

@@ -1,4 +1,8 @@
 from myslicelib.query import Query
 
 class TestbedQuery(Query):
-    raise NotImplementedError("Not yet implemented")
+
+    def get(self, id=None):
+        res = self.api.version()
+        import pprint
+        pprint.pprint(res)
