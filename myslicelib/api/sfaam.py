@@ -1,5 +1,5 @@
 import traceback
-from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, unique_call_id
 from myslicelib.util.parser import Parser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
@@ -126,6 +126,8 @@ class SfaAm(SfaApi):
                 else:
                     api_options = {}
                     api_options['call_id'] = unique_call_id()
+                    if not 'users' in record_dict:
+                        record_dict['users'] = [self.credential.hrn]
                     api_options['sfa_users'] = record_dict['users']
                     api_options['geni_users'] = record_dict['users']
                     #api_options['append'] = True

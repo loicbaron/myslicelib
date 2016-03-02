@@ -20,13 +20,15 @@ class SfaReg(SfaApi):
                 filtered_records.append(record)
         return filtered_records
 
-    def _list_entity(self, hrn):
+    def _list_entity(self, hrn=None):
+        if hrn is None:
+            hrn = self.version()['hrn']
         try:
             # attept to list the hrn first if it is an authority
             # if hrn is not an authority, it will list all elements
-            return self.proxy.List(hrn, self.user_credential, {})
+            return self.proxy.List(hrn, self.user_credential, {'recursive':True})
         except Exception as e:
-            return self.proxy.List(self.version()['hrn'], self.user_credential, {})
+            return self.proxy.List(self.version()['hrn'], self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
         if hrn:
@@ -36,25 +38,26 @@ class SfaReg(SfaApi):
     def get(self, entity, urn=None):
         result = []
         try:
-            obj_type = None
+            hrn = None
             if urn is not None:
                 xrn = Xrn(urn)
                 obj_type = xrn.get_type()
                 hrn = urn_to_hrn(urn, entity)
-            if urn is None or obj_type == 'authority':
-                results = self._list_entity(hrn)
-                results = self._filter_records(entity, results)
-                for r in results:
-                    result.append(self._get_entity(r['hrn']))
-            else:
-                result = self._get_entity(hrn)
+                if entity == obj_type:
+                    return self._get_entity(hrn)
+            results = self._list_entity(hrn)
+            return self._filter_records(entity, results)
+            
+            #print(results)
+            #for r in results:
+            #    result.append(self._get_entity(r['hrn']))
+            #else:
+            #    result = self._get_entity(hrn)
         except Exception as e:
             traceback.print_exc()
             print(e)
             exit(1)
 
-        # only authority can list enities
-        #result = self._filter_records(entity, result)
         return result
 
     # def get(self, hrn, entity=None):
@@ -80,22 +83,31 @@ class SfaReg(SfaApi):
             # if Error, go to upper level until reach the root level
             return self.get_credential(upper_hrn, entity)
 
-    def create(self, record_dict, entity):
+    def create(self, entity, urn, record_dict):
         try:
-            auth_cred = self.get_credential(record_dict['hrn'], 'authority')
+            hrn = urn_to_hrn(urn, entity)
+            auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 record_dict["type"] = entity
-                return self.proxy.Register(record_dict, auth_cred)
-            return False
+                record_dict["hrn"] = hrn
+                result = self.proxy.Register(record_dict, auth_cred)
+                # XXX test the result either 1 or a gid
+                return self.get(entity, urn)
+            return []
         except Exception as e:
             traceback.print_exc()
-            return False
+            return []
 
     def delete(self, entity, urn):
         try:
+            hrn = urn_to_hrn(urn, entity)
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
-                return self.proxy.Remove(hrn, auth_cred, entity)
+                result = self.proxy.Remove(hrn, auth_cred, entity)
+                if result == 1:
+                    return True
+                else:
+                    raise Exception(result)
             return False
         except Exception as e:
             traceback.print_exc()
@@ -112,8 +124,11 @@ class SfaReg(SfaApi):
                 cred = self.get_credential(hrn, 'authority')
             if cred:
                 record_dict["type"] = entity
-                return self.proxy.Update(record_dict, cred)
-            return False
+                record_dict["hrn"] = hrn
+                result = self.proxy.Update(record_dict, cred)
+                # XXX test the result either 1 or a gid
+                return self.get(entity, urn)
+            raise Exception("No Credential to update this", urn)
         except Exception as e:
             traceback.print_exc()
             return False
