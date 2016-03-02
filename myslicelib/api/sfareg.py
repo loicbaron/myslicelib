@@ -91,7 +91,7 @@ class SfaReg(SfaApi):
             traceback.print_exc()
             return False
 
-    def delete(self, hrn, entity):
+    def delete(self, entity, urn):
         try:
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
@@ -101,14 +101,15 @@ class SfaReg(SfaApi):
             traceback.print_exc()
             return False
 
-    def update(self, record_dict, entity):
+    def update(self, entity, urn, record_dict):
         try:
-            if entity == 'user' and record_dict['hrn'] == self.credential.hrn:
+            hrn = urn_to_hrn(urn, entity)
+            if entity == 'user' and hrn == self.credential.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
-                cred = self.get_credential(record_dict['hrn'], 'slice')
+                cred = self.get_credential(hrn, 'slice')
             else:
-                cred = self.get_credential(record_dict['hrn'], 'authority')
+                cred = self.get_credential(hrn, 'authority')
             if cred:
                 record_dict["type"] = entity
                 return self.proxy.Update(record_dict, cred)

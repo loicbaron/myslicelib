@@ -7,7 +7,7 @@ from myslicelib import setup as s
 from myslicelib.model.resource import Resources
 from myslicelib.model.lease import Leases
 from myslicelib.model.slice import Slices
-from myslicelib.model.user import Users
+from myslicelib.model.user import Users, User
 from myslicelib.model.authority import Authorities
 from myslicelib.query import Query
 
@@ -42,10 +42,10 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc:test+slice+cloud')
 #users = Query(Users).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 #user = Query(Users).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
-authorities = Query(Authorities).get('urn:publicid:IDN+onelab:upmc+authority+sa')
+#authorities = Query(Authorities).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 #resource = Query(Resources).get()
 
-
+user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+loic_baron',{'email':'loic.baron@gmail.com'})
 
 #
 #api = Api(s.endpoints, s.credential)

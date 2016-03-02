@@ -115,6 +115,7 @@ class Api(object):
         
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
+
         return result
 
         # if (id) :
@@ -125,20 +126,25 @@ class Api(object):
         # raise NotImplementedError('Not implemented')
 
     def update(self, id, params):
+        result = []
         if self._entity in self._am:
             for am in self.ams:
                 result += am.update(self._entity, id, params)
-        elif self._entity in self._registry:
+        if self._entity in self._registry:
             exists = self.get(id)
             if not len(exists) > 0:
                 result += self.registry.create(self._entity, id, params)
             else:
                 result += self.registry.update(self._entity, id, params)
-        else:
+
+        if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
+
+        return result
 
 
     def delete(self, id):
+        result = []
         exists = self.get(id)
         if not len(exists) > 0:
             raise Exception('This object do not exist')
@@ -146,7 +152,10 @@ class Api(object):
             if self._entity in self._am:
                 for am in self.ams:
                     result += am.delete(self._entity, id)
-            elif self._entity in self._registry:
+            if self._entity in self._registry:
                 result += self.registry.delete(self._entity, id)
-            else:
+
+            if self._entity not in self._am and self._entity not in self._registry:
                 raise NotImplementedError('Not implemented')
+
+        return result

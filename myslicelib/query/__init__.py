@@ -8,9 +8,12 @@ class Query(object):
     _entities = {
         'Resources' : 'resource',
         'Slices': 'slice',
+        'Slice': 'slice',
         'Leases': 'lease',
         'Users': 'user',
+        'User': 'user',
         'Authorities': 'authority',
+        'Authority': 'authority',
     }
 
     # def __new__(cls, *args, **kwargs):
@@ -112,9 +115,18 @@ class Query(object):
     #     return self.execute()
 
 
-
     def get(self, id=None):
-
         res = self.api.get(id)
         import pprint
         pprint.pprint(res)
+
+    def update(self, id, params):
+        res = self.api.update(id, params)
+        import pprint
+        pprint.pprint(res)
+
+    def delete(self, id):
+        res = self.api.delete(id)
+        import pprint
+        pprint.pprint(res)
+
