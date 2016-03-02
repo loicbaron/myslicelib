@@ -6,10 +6,10 @@ from myslicelib.api import Api
 from myslicelib import setup as s
 from myslicelib.model.resource import Resources
 from myslicelib.model.lease import Leases
-from myslicelib.model.slice import Slices
+from myslicelib.model.slice import Slices, Slice
 from myslicelib.model.user import Users, User
 from myslicelib.model.authority import Authorities, Authority
-from myslicelib.query import Query
+from myslicelib.query import q
 
 
 s.endpoints = [
@@ -51,6 +51,8 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #authorities = Query(Authorities).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 #resource = Query(Resources).get()
 
+users = q(User).get()
+
 #user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron',{'email':'loic.baron+3@gmail.com'})
 #user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron2',{'email':'loic.baron+5@gmail.com'})
 #user = Query(User).delete('urn:publicid:IDN+onelab:upmc+user+lbaron2')
@@ -59,14 +61,22 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #authority = Query(Authority).get('urn:publicid:IDN+onelab:upmc2+authority+sa')
 #authority = Query(Authority).delete('urn:publicid:IDN+onelab:upmc2+authority+sa')
 
+
+user = q(User).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
+print(user.__dict__)
+
+authority = q(Authority).get('urn:publicid:IDN+onelab:upmc+authority+sa')
+print(authority)
+#authority.pis()
+
 # users and resources must be defined for AM
-slices = Query(Slices).update('urn:publicid:IDN+onelab:upmc+slice+toto',{})
+#slices = q(Slice).update('urn:publicid:IDN+onelab:upmc+slice+toto',{})
 #slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+slice+toto')
 #slices = Query(Slices).delete('urn:publicid:IDN+onelab:upmc+slice+toto')
 
-slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+slice+toto')
+#slices = q(Slice).get('urn:publicid:IDN+onelab:upmc+slice+toto')
 #slices = Query(Slices).get()
-slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+authority+sa')
+#slices = q(Slice).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 
 #slice = Query(Slice).update('urn:urn:publicid:IDN+onelab:upmc+slice+testing_loic')
 

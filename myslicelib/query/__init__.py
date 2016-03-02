@@ -119,11 +119,16 @@ class Query(object):
     # def find(self):
     #     return self.execute()
 
+    def id(self, id):
+        self._id = id
+        return self
 
     def get(self, id=None):
         res = self.api.get(id)
-        import pprint
-        pprint.pprint(res)
+        for el in res:
+            for prop in el:
+                setattr(self.entity, prop, el[prop])
+        return self.entity
 
     def update(self, id, params):
         res = self.api.update(id, params)

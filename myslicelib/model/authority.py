@@ -1,4 +1,6 @@
 from myslicelib.model import Entities, Entity
+from myslicelib.model.user import Users, User
+from myslicelib.query import q
 
 class Authorities(Entities):
     pass
@@ -13,26 +15,10 @@ class Authority(Entity):
     def projects(self):
         pass
 
-class User(Entity):
-
-    @property
-    def slices(self):
-        pass
-
-class Project(Entity):
-
-    @property
-    def slices(self):
-        pass
-
-class Slice(Entity):
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def users(self):
-        pass
-
-
+    def pis(self, id=None):
+        users = Users()
+        for pi in self.pis:
+            urn = hrn_to_urn(pi)
+            users.append(q(User).get(urn))
+        return users
 
