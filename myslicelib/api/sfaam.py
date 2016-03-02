@@ -1,11 +1,8 @@
 import traceback
-from myslicelib.util.sfa import hrn_to_urn
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
 from myslicelib.util.parser import Parser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
-
-
-
 
 # self.ListResources
 # self.Status   => geni_urn + geni_slivers
@@ -18,15 +15,14 @@ from myslicelib.api.sfa import SfaError
 # self.Shutdown
 # self.Delete
 
-
-
 class SfaAm(SfaApi):
 
     def __init__(self, endpoint=None, registry=None):
         super(SfaAm, self).__init__(endpoint, registry.credential)
         self.registry = registry
 
-    def _lease(self, hrn=None):
+    def _lease(self, urn=None):
+        # lease don't have urn, it has a lease_id in OMF (hash), but no id in IoT-Lab
         if self.version()['geni_api'] == 2:
             cred = self.registry.user_credential
         else:
@@ -37,7 +33,7 @@ class SfaAm(SfaApi):
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                                         })
 
-    def _resource(self, hrn=None):
+    def _resource(self, urn=None):
         if self.version()['geni_api'] == 2:
             cred = self.registry.user_credential
         else:
@@ -47,10 +43,14 @@ class SfaAm(SfaApi):
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                                         })
 
-    def _slice(self, hrn):
-        urn = hrn_to_urn(hrn, 'slice')
+    def _slice(self, urn):
+        # urn can't be None for slice
+        if urn is None:
+            raise Exception('Slice urn must be specified')
+        hrn = urn_to_hrn(urn, 'slice')
         options = {
                     'list_leases' : 'all',
+
                     'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                 }
         slice_credential = self.registry.get_credential(hrn, 'slice')
@@ -64,10 +64,10 @@ class SfaAm(SfaApi):
             raise NotImplementedError('geni_api version not supported')
 
 
-    def get(self, entity, hrn=None, raw=False):
+    def get(self, entity, urn=None, raw=False):
 
         try:
-            result = getattr(self, "_" + entity)(hrn)
+            result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             traceback.print_exc()
             exit(1)
@@ -75,7 +75,7 @@ class SfaAm(SfaApi):
         if raw:
             return result
 
-        # check gene error codes
+        # check geni error codes
         if result['code']['geni_code'] == 0:
             try:
                 if isinstance(result['value'], dict):
@@ -84,6 +84,8 @@ class SfaAm(SfaApi):
                     xml_string = result['value']
                 from pprint import pprint
                 pprint(xml_string)
+
+                # XXX if urn is not None we need to Filter - in the parser??? 
                 result = Parser(xml_string).parse(entity)
             except Exception as e:
                 traceback.print_exc()
@@ -94,15 +96,15 @@ class SfaAm(SfaApi):
         return result
 
 
-    def create(self, record_dict, obj_type):
-        return self.update(record_dict, obj_type)
+    def create(self, entity, urn, record_dict):
+        return self.update(entity, urn, record_dict)
 
-    def delete(self, hrn, obj_type):
+    def delete(self, entity, urn):
         # self.Delete
         try:
-            if obj_type == 'slice':
-                urn = hrn_to_urn(hrn, obj_type)
-                self.slice_credential = self.registry.get_credential(hrn, obj_type)
+            if entity == 'slice':
+                hrn = urn_to_hrn(urn, entity)
+                self.slice_credential = self.registry.get_credential(hrn, entity)
                 #*self.ois(server, api_options) to check server if uuid supported
                 api_options = {}
                 result = self.proxy.Delete([urn], [self.slice_credential], api_options)
@@ -111,11 +113,11 @@ class SfaAm(SfaApi):
             return False
         return result
 
-    def update(self, record_dict, obj_type):
+    def update(self, entity, urn, record_dict):
         try:
-            if obj_type == 'slice':
-                urn = hrn_to_urn(record_dict['hrn'], obj_type)
-                self.slice_credential = self.registry.get_credential(record_dict['hrn'], obj_type)
+            if entity == 'slice':
+                hrn = urn_to_hrn(urn, entity)
+                self.slice_credential = self.registry.get_credential(hrn, entity)
                 # if update only expiration date
                 # self.Renew
                 if 'expiration_date' in record_dict:
@@ -155,8 +157,7 @@ class SfaAm(SfaApi):
             return False
         return result
 
-    def execute(self, hrn, action, obj_type):
-        urn = hrn_to_urn(hrn, obj_type)
+    def execute(self, urn, action, obj_type):
         if action.lower() == 'shutdown':
             result = self.proxy.Shutdown(urn, [object_cred], api_options)
         else:

@@ -17,6 +17,22 @@ class Xrn:
     URN_PREFIX = "urn:publicid:IDN"
     URN_PREFIX_lower = "urn:publicid:idn"
 
+    @staticmethod
+    def is_urn (text):
+        return text.lower().startswith(Xrn.URN_PREFIX_lower)
+
+    @staticmethod
+    def urn_full (urn):
+        if Xrn.is_urn(urn): return urn
+        else: return Xrn.URN_PREFIX+urn
+    @staticmethod
+    def urn_meaningful (urn):
+        if Xrn.is_urn(urn): return urn[len(Xrn.URN_PREFIX):]
+        else: return urn
+    @staticmethod
+    def urn_split (urn):
+        return Xrn.urn_meaningful(urn).split('+')
+
     ########## basic tools on HRNs
     # split a HRN-like string into pieces
     # this is like split('.') except for escaped (backslashed) dots

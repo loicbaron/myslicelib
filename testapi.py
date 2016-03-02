@@ -7,6 +7,7 @@ from myslicelib import setup as s
 from myslicelib.model.resource import Resources
 from myslicelib.model.lease import Leases
 from myslicelib.model.slice import Slices
+from myslicelib.model.user import Users
 from myslicelib.query import Query
 
 
@@ -37,7 +38,8 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 
 
 #lease = Query(Leases).get()
-lease = Query(Slices).get('onelab.upmc.test.cloud')
+#lease = Query(Slices).get('urn:publicid:IDN+onelab:upmc:test+slice+cloud')
+lease = Query(Users).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 #resource = Query(Resources).get()
 
 

@@ -1,5 +1,6 @@
 import traceback
 from myslicelib.api.sfa import Api as SfaApi
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
 
 
 class SfaReg(SfaApi):
@@ -33,11 +34,17 @@ class SfaReg(SfaApi):
             return self.proxy.Resolve(hrn, self.user_credential, {})
         return self.proxy.List(self.version()['hrn'], self.user_credential, {})
 
-    def get(self, hrn=None, entity=None, raw=False, list=False):
+    def get(self, entity, urn=None):
+        result = []
         try:
-            # list all the enities
-            if list:
-                result = self._list_entity(hrn)
+            obj_type = None
+            if urn is not None:
+                hrn, obj_type = urn_to_hrn(urn, entity)
+            if urn is None or obj_type == 'authority':
+                results = self._list_entity(hrn)
+                results = self._filter_records(entity, results)
+                for r in results:
+                    result.append(self._get_entity(r['hrn']))
             else:
                 result = self._get_entity(hrn)
         except Exception as e:

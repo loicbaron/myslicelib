@@ -4,10 +4,13 @@ from myslicelib.model import Entities
 
 class Query(object):
 
+    # Mapping between Object queried and the Api
     _entities = {
         'Resources' : 'resource',
         'Slices': 'slice',
         'Leases': 'lease',
+        'Users': 'user',
+        'Authorities': 'authority',
     }
 
     # def __new__(cls, *args, **kwargs):

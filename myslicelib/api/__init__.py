@@ -42,7 +42,9 @@ class Api(object):
     ]
 
     _registry = [
-
+        'slice',
+        'user',
+        'authority'
     ]
 
     def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
@@ -101,12 +103,15 @@ class Api(object):
         return result
 
 
-    def get(self, id=None):
+    def get(self, id=None, raw=False):
         result = []
         if self._entity in self._am:
             for am in self.ams:
-                result += am.get(self._entity, id)
-
+                result += am.get(self._entity, id, raw)
+        elif self._entity in self._reg:
+            result += self.registry.get(self._entity, id)
+        else:
+            raise NotImplementedError('Not implemented')
         return result
 
         # if (id) :
@@ -116,8 +121,29 @@ class Api(object):
         #
         # raise NotImplementedError('Not implemented')
 
-    def update(self, id):
-        raise NotImplementedError('Not implemented')
+    def update(self, id, params):
+        if self._entity in self._am:
+            for am in self.ams:
+                result += am.update(self._entity, id, params)
+        elif self._entity in self._reg:
+            exists = self.get(id)
+            if not len(exists) > 0:
+                result += self.registry.create(self._entity, id, params)
+            else:
+                result += self.registry.update(self._entity, id, params)
+        else:
+            raise NotImplementedError('Not implemented')
+
 
     def delete(self, id):
-        raise NotImplementedError('Not implemented')
+        exists = self.get(id)
+        if not len(exists) > 0:
+            raise Exception('This object do not exist')
+        else:
+            if self._entity in self._am:
+                for am in self.ams:
+                    result += am.delete(self._entity, id)
+            elif self._entity in self._reg:
+                result += self.registry.delete(self._entity, id)
+            else:
+                raise NotImplementedError('Not implemented')
