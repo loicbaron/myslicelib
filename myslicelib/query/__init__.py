@@ -13,7 +13,6 @@ def q(entity: Entity):
     e = entity.__name__
     QueryModule = "myslicelib.query.{}".format(e.lower())
     QueryClass = e + "Query"
-    print(QueryModule,QueryClass)
     try:
         module = __import__(QueryModule, fromlist=[QueryClass])
         return getattr(module, QueryClass)(entity)

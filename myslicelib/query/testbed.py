@@ -4,6 +4,19 @@ from myslicelib.model.testbed import Testbed, Testbeds
 class TestbedQuery(Query):
 
     def get(self):
-        res = self.api.version()
+        testbeds = Testbeds()
+
+        result = self.api.version()
+        for el in result['ams']:
+            testbed = Testbed()
+            testbed.id = el['version']['id']
+            testbed.name = el['name']
+            testbed.api = el['protocol']
+            testbed.api_version = el['version']['version']
+            testbed.api_url = el['url']
+            testbed.api_backend = el['version']['backend']
+            testbeds.add(testbed)
+
+        return testbeds
 
 

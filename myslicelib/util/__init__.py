@@ -8,9 +8,13 @@ class Endpoint(object):
     type is the type of endpoint, e.g. AM, Reg
     protocol specifies the protocol, default is SFA
     url is the remote url
+
+    name: name of the testbed/facility (not needed)
+
     """
 
-    def __init__(self, type="AM", protocol="SFA", url=None):
+    def __init__(self, type="AM", protocol="SFA", url=None, name=None):
+        self.name = name
         self.type = type
         self.protocol = protocol
         if not url or not validateUrl(url):

@@ -27,10 +27,24 @@ class Api(object):
     def version(self):
         try:
             result = self.proxy.GetVersion()
+            if 'interface' in result and result['interface'] == 'registry':
+                return {
+                    'hostname': result['hostname'],
+                    'id': result['urn'],
+                    'version': result['sfa'],
+                    'type': 'registry',
+                    'backend': ''
+                }
+            else :
+                return {
+                    'hostname': result['value']['hostname'],
+                    'id': result['value']['urn'],
+                    'version' : result['value']['geni_api'],
+                    'type' : 'am',
+                    'backend' : result['value']['testbed']
+                }
         except Exception as e:
-            print(e)
-            return False
-        return result
+            return { 'hostname': '', 'id': '', 'version' : '', 'type' : '','backend' : '' }
 
 
 class SfaError(Exception):

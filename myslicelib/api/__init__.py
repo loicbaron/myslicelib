@@ -102,6 +102,7 @@ class Api(object):
 
         for am in self.ams:
             result["ams"].append( {
+                "name" : am.endpoint.name,
                 "type" : am.endpoint.type,
                 "protocol" : am.endpoint.protocol,
                 "url" : am.endpoint.url,
