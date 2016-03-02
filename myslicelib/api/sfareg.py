@@ -1,7 +1,6 @@
 import traceback
 from myslicelib.api.sfa import Api as SfaApi
-from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
-
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
 class SfaReg(SfaApi):
 
@@ -14,7 +13,7 @@ class SfaReg(SfaApi):
                                         self.credential.hrn,
                                         'user')
 
-    def _filter_records(type, result):
+    def _filter_records(self, type, result):
         filtered_records = []
         for record in result:
             if (record['type'] == type) or (type == "all"):
@@ -39,7 +38,9 @@ class SfaReg(SfaApi):
         try:
             obj_type = None
             if urn is not None:
-                hrn, obj_type = urn_to_hrn(urn, entity)
+                xrn = Xrn(urn)
+                obj_type = xrn.get_type()
+                hrn = urn_to_hrn(urn, entity)
             if urn is None or obj_type == 'authority':
                 results = self._list_entity(hrn)
                 results = self._filter_records(entity, results)
@@ -48,11 +49,9 @@ class SfaReg(SfaApi):
             else:
                 result = self._get_entity(hrn)
         except Exception as e:
+            traceback.print_exc()
             print(e)
             exit(1)
-        
-        if raw or not entity:
-            return result
 
         # only authority can list enities
         #result = self._filter_records(entity, result)

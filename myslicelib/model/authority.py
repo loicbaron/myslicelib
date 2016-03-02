@@ -1,4 +1,7 @@
-from myslicelib.model import Entity
+from myslicelib.model import Entities, Entity
+
+class Authorities(Entities):
+    pass
 
 class Authority(Entity):
 

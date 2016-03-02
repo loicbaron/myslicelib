@@ -75,6 +75,18 @@ class Xrn:
             self.hrn_to_urn()
         self._normalize()
 
+    def __repr__ (self):
+        result="<XRN u=%s h=%s"%(self.urn,self.hrn)
+        if hasattr(self,'leaf'): result += " leaf=%s"%self.leaf
+        if hasattr(self,'authority'): result += " auth=%s"%self.authority
+        result += ">"
+        return result
+
+    def get_urn(self): return self.urn
+    def get_hrn(self): return self.hrn
+    def get_type(self): return self.type
+    def get_hrn_type(self): return (self.hrn, self.type)
+
     def _normalize(self):
         if self.hrn is None:
             raise(SfaError, "Xrn._normalize")
