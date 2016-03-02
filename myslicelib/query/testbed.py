@@ -1,8 +1,9 @@
 from myslicelib.query import Query
+from myslicelib.model.testbed import Testbed, Testbeds
 
 class TestbedQuery(Query):
 
-    def get(self, id=None):
+    def get(self):
         res = self.api.version()
-        import pprint
-        pprint.pprint(res)
+
+
