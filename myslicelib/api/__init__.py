@@ -105,13 +105,14 @@ class Api(object):
 
     def get(self, id=None, raw=False):
         result = []
+        if self._entity in self._registry:
+            print(self._entity,' in Registry')
+            result += self.registry.get(self._entity, id)
+
         if self._entity in self._am:
             print(self._entity,' in AM')
             for am in self.ams:
                 result += am.get(self._entity, id, raw)
-        if self._entity in self._registry:
-            print(self._entity,' in Registry')
-            result += self.registry.get(self._entity, id)
         
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
@@ -126,14 +127,15 @@ class Api(object):
         # raise NotImplementedError('Not implemented')
 
     def update(self, id, params):
-        #result = []
+        result = []
+        if self._entity in self._registry:
+            result += self.registry.create(self._entity, id, params)
+            if not result:
+                result += self.registry.update(self._entity, id, params)
+
         if self._entity in self._am:
             for am in self.ams:
                 result += am.update(self._entity, id, params)
-        if self._entity in self._registry:
-            result = self.registry.create(self._entity, id, params)
-            if not result:
-                result = self.registry.update(self._entity, id, params)
 
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')

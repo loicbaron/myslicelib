@@ -13,11 +13,11 @@ from myslicelib.query import Query
 
 
 s.endpoints = [
-    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
-    Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
+    #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
     Endpoint(url="https://portal.onelab.eu:6080",type="Reg"),
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
@@ -55,9 +55,18 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron2',{'email':'loic.baron+5@gmail.com'})
 #user = Query(User).delete('urn:publicid:IDN+onelab:upmc+user+lbaron2')
 
-authority = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{})
-authority = Query(Authority).get('urn:publicid:IDN+onelab:upmc2+authority+sa')
-authority = Query(Authority).delete('urn:publicid:IDN+onelab:upmc2+authority+sa')
+#authority = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{})
+#authority = Query(Authority).get('urn:publicid:IDN+onelab:upmc2+authority+sa')
+#authority = Query(Authority).delete('urn:publicid:IDN+onelab:upmc2+authority+sa')
+
+# users and resources must be defined for AM
+slices = Query(Slices).update('urn:publicid:IDN+onelab:upmc+slice+toto',{})
+#slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+slice+toto')
+#slices = Query(Slices).delete('urn:publicid:IDN+onelab:upmc+slice+toto')
+
+slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+slice+toto')
+#slices = Query(Slices).get()
+slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 
 #slice = Query(Slice).update('urn:urn:publicid:IDN+onelab:upmc+slice+testing_loic')
 
