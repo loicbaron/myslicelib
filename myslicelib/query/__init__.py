@@ -66,13 +66,8 @@ class Query(object):
         module = __import__(CollectionModule, fromlist=[CollectionClass])
         return getattr(module, CollectionClass)()
 
-    def id(self, id):
-        self._id = id
-        return self
-
-    def get(self):
+    def make_collection(self, res):
         collection = self.collection()
-        res = self.api.get(self._id)
         for el in res:
             cl = self.entity()
             for prop in el:
@@ -80,17 +75,25 @@ class Query(object):
             collection.append(cl)
         return collection
 
+    def id(self, id):
+        self._id = id
+        return self
+
+    def get(self):
+        res = self.api.get(self._id)
+        return self.make_collection(res)
+
     def update(self, params):
         if not self._id:
             raise Exception("No element specified")
         res = self.api.update(id, params)
-        import pprint
-        pprint.pprint(res)
+        #import pprint
+        #pprint.pprint(res)
+        return self.make_collection(res)
 
     def delete(self):
         if not self._id:
             raise Exception("No element specified")
         res = self.api.delete(id)
-        import pprint
-        pprint.pprint(res)
+        return self.make_collection(res)
 
