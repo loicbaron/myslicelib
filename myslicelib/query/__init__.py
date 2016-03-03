@@ -94,14 +94,16 @@ class Query(object):
     def update(self, params):
         if not self._id:
             raise Exception("No element specified")
-        res = self.api.update(id, params)
-        #import pprint
-        #pprint.pprint(res)
-        return self.make_collection(res)
+
+        res = self.api.update(self._id, params)
+
+        return self.collection(res)
 
     def delete(self):
         if not self._id:
             raise Exception("No element specified")
-        res = self.api.delete(id)
-        return self.make_collection(res)
+
+        res = self.api.delete(self._id)
+
+        return self.collection(res)
 
