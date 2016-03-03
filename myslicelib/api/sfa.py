@@ -21,8 +21,11 @@ class Api(object):
 
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
-            
+
         self.proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
+
+        # version call
+        self.version = self.version()
 
     def version(self):
         try:
