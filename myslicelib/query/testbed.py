@@ -8,7 +8,7 @@ class TestbedQuery(Query):
 
         result = self.api.version()
         for el in result['ams']:
-            testbed = Testbed()
+            testbed = self.entity()
             testbed.id = el['version']['id']
             testbed.name = el['name']
             testbed.api = el['protocol']
