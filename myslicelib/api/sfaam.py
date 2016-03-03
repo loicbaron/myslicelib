@@ -59,7 +59,7 @@ class SfaAm(SfaApi):
             options['geni_slice_urn'] = urn
             return self._proxy.ListResources([slice_credential], options)
         elif self.version()['version'] == 3:
-            return self._proxy.Describe([urn], slice_credential, options)
+            return self._proxy.Describe([urn], [slice_credential], options)
         else:
             raise NotImplementedError('geni_api version not supported')
 
@@ -76,7 +76,7 @@ class SfaAm(SfaApi):
             return result
 
         # check geni error codes
-        if result['code']['version'] == 0:
+        if result['code']['geni_code'] == 0:
             try:
                 if isinstance(result['value'], dict):
                     xml_string = result['value']['geni_rspec']
