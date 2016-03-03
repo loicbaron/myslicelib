@@ -2,18 +2,21 @@ from typing import Set
 
 class Entity(object):
 
-    attributes = []
+    _attributes = []
 
     def __init__(self, data = None):
 
         if data :
-            self.attributes = data
+            self._attributes = data
 
     def __getattr__(self, name):
-        if name in self.attributes:
-            return self.attributes[name]
+        if name in self._attributes:
+            return self._attributes[name]
         else :
             raise AttributeError
+
+    def attributes(self):
+        return self._attributes
 
     def save(self):
         raise NotImplementedError('Not implemented')
@@ -32,6 +35,17 @@ class Entities(Set[Entity]):
             return True
         else:
             return False
+
+    def dict(self):
+        '''
+
+        :return:
+        '''
+        list = []
+        for e in self:
+            list.append(e.attributes())
+
+        return list
 
     # def filter(self, key, value):
     #     self.f[key] = value

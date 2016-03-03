@@ -23,7 +23,7 @@ class SfaAm(SfaApi):
 
     def _lease(self, urn=None):
         # lease don't have urn, it has a lease_id in OMF (hash), but no id in IoT-Lab
-        if self.version()['geni_api'] == 2:
+        if self.version()['version'] == 2:
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
@@ -34,7 +34,7 @@ class SfaAm(SfaApi):
                                         })
 
     def _resource(self, urn=None):
-        if self.version()['geni_api'] == 2:
+        if self.version()['version'] == 2:
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
@@ -55,10 +55,10 @@ class SfaAm(SfaApi):
                 }
         slice_credential = self.registry.get_credential(hrn, 'slice')
 
-        if self.version()['geni_api'] == 2:
+        if self.version()['version'] == 2:
             options['geni_slice_urn'] = urn
             return self._proxy.ListResources([slice_credential], options)
-        elif self.version()['geni_api'] == 3:
+        elif self.version()['version'] == 3:
             return self._proxy.Describe([urn], slice_credential, options)
         else:
             raise NotImplementedError('geni_api version not supported')
@@ -76,7 +76,7 @@ class SfaAm(SfaApi):
             return result
 
         # check geni error codes
-        if result['code']['geni_code'] == 0:
+        if result['code']['version'] == 0:
             try:
                 if isinstance(result['value'], dict):
                     xml_string = result['value']['geni_rspec']
@@ -138,13 +138,13 @@ class SfaAm(SfaApi):
                         raise TypeError('parsed rspec has to be a dict') 
                     
                     # self.CreateSliver (v2)
-                    if self.version()['geni_api'] == 2:
+                    if self.version()['version'] == 2:
                         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '2'}
                         result = self._proxy.CreateSliver([urn] ,[object_cred], rspec, api_options)
                     # v3
                     # self.Allocate
                     # self.Provision
-                    elif self.version()['geni_api'] == 3:
+                    elif self.version()['version'] == 3:
                         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
                         result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
                         api_options['call_id'] = unique_call_id()
@@ -163,7 +163,7 @@ class SfaAm(SfaApi):
         if action.lower() == 'shutdown':
             result = self._proxy.Shutdown(urn, [object_cred], api_options)
         else:
-            if self.version()['geni_api'] == 3:
+            if self.version()['version'] == 3:
                 result = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')

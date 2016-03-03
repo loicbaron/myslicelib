@@ -22,18 +22,18 @@ class SfaReg(SfaApi):
 
     def _list_entity(self, hrn=None):
         if hrn is None:
-            hrn = self.version()['hrn']
+            hrn = self.version()['id']
         try:
             # attept to list the hrn first if it is an authority
             # if hrn is not an authority, it will list all elements
             return self._proxy.List(hrn, self.user_credential, {'recursive':True})
         except Exception as e:
-            return self._proxy.List(self.version()['hrn'], self.user_credential, {'recursive':True})
+            return self._proxy.List(self.version()['id'], self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
         if hrn:
             return self._proxy.Resolve(hrn, self.user_credential, {})
-        return self._proxy.List(self.version()['hrn'], self.user_credential, {})
+        return self._proxy.List(self.version()['id'], self.user_credential, {})
 
     def get(self, entity, urn=None):
         result = []

@@ -8,10 +8,6 @@ class Testbed(Entity):
     _collection = "Testbeds"
 
     @property
-    def hostname(self):
-        return urlparse(self.api_url).hostname
-
-    @property
     def ip(self):
         return socket.gethostbyname(self.hostname)
 

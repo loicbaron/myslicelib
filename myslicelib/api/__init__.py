@@ -2,6 +2,7 @@
 Base API Class
 
 '''
+from urllib.parse import urlparse
 from myslicelib.util import Endpoint, Credential
 from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
@@ -92,21 +93,34 @@ class Api(object):
                     "version" : "1.0"
                 },
                 "registry" : {
-                    "type" : "registry",
-                    "protocol" : self.registry.endpoint.protocol,
                     "url" : self.registry.endpoint.url,
-                    "version" : self.registry.version()
+                    "hostname" : urlparse(self.registry.endpoint.url).hostname,
+                    "name" : self.registry.endpoint.name,
+                    "status" : self.registry.version()['status'],
+                    "api" : {
+                        "type" : "registry",
+                        "protocol" : self.registry.endpoint.protocol,
+                        "version" : self.registry.version()['version'],
+                        "backend" : self.registry.version()['backend']
+                    },
+                    "id" : self.registry.version()['id'],
                 },
                 "ams" : []
             }
 
         for am in self.ams:
             result["ams"].append( {
-                "name" : am.endpoint.name,
-                "type" : am.endpoint.type,
-                "protocol" : am.endpoint.protocol,
                 "url" : am.endpoint.url,
-                "version" : am.version()
+                "hostname" : urlparse(am.endpoint.url).hostname,
+                "name" : am.endpoint.name,
+                "status" : am.version()['status'],
+                "api" : {
+                    "type" : am.endpoint.type,
+                    "protocol" : am.endpoint.protocol,
+                    "version" : am.version()['version'],
+                    "backend" : self.registry.version()['backend']
+                },
+                "id" : am.version()['id'],
             } )
 
         return result
@@ -115,11 +129,9 @@ class Api(object):
     def get(self, id=None, raw=False):
         result = []
         if self._entity in self._registry:
-            print(self._entity,' in Registry')
             result += self.registry.get(self._entity, id)
 
         if self._entity in self._am:
-            print(self._entity,' in AM')
             for am in self.ams:
                 result += am.get(self._entity, id, raw)
         

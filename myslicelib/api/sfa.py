@@ -25,29 +25,44 @@ class Api(object):
         self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
 
         # version call
-        self._version = self.version()
+        self._version = self._version()
 
     def version(self):
+        return self._version
+
+    def _version(self):
         try:
             result = self._proxy.GetVersion()
             if 'interface' in result and result['interface'] == 'registry':
                 return {
-                    'hostname': result['hostname'],
+                    'status': {
+                        'online' : True,
+                        'message' : None
+                    },
                     'id': result['urn'],
                     'version': result['sfa'],
-                    'type': 'registry',
-                    'backend': ''
+                    'type': 'registry'
                 }
             else :
                 return {
-                    'hostname': result['value']['hostname'],
+                    'status': {
+                        'online' : True,
+                        'message' : None
+                    },
                     'id': result['value']['urn'],
                     'version' : result['value']['geni_api'],
-                    'type' : 'am',
-                    'backend' : result['value']['testbed']
+                    'type' : 'am'
                 }
         except Exception as e:
-            return { 'hostname': '', 'id': '', 'version' : '', 'type' : '','backend' : '' }
+            return {
+                'status': {
+                    'online' : False,
+                    'message' : e
+                },
+                'id': None,
+                'version' : None,
+                'type' : None
+            }
 
 
 class SfaError(Exception):
