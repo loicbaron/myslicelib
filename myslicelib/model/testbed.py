@@ -4,7 +4,8 @@ import socket
 from myslicelib.model import Entity, Entities
 
 class Testbed(Entity):
-    _name = "Testbed"
+    _class = "Testbed"
+    _collection = "Testbeds"
 
     @property
     def hostname(self):

@@ -1,7 +1,7 @@
 import logging
 from myslicelib import setup as s
 from myslicelib.api import Api
-from myslicelib.model import Entity
+from myslicelib.model import Entity, Entities
 
 def q(entity: Entity):
     '''
@@ -10,7 +10,7 @@ def q(entity: Entity):
     :param entity: object of class Entity
     :return: QueryEntity
     '''
-    e = entity._name
+    e = entity._class
     QueryModule = "myslicelib.query.{}".format(e.lower())
     QueryClass = e + "Query"
     try:
@@ -48,19 +48,37 @@ class Query(object):
 
         self.entity = entity
 
-        self.api = getattr(Api(s.endpoints, s.credential), self.entity._name.lower())()
+        self.api = getattr(Api(s.endpoints, s.credential), self.entity._class.lower())()
 
+    def collection(self):
+        '''
+        Returns the instantiated collection class corresponding to secified Entity,
+        or Entities if it is not defined
+
+        :return:
+        '''
+        CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
+        try:
+            CollectionClass = self.entity._collection
+        except AttributeError:
+            CollectionClass = 'Entities'
+
+        module = __import__(CollectionModule, fromlist=[CollectionClass])
+        return getattr(module, CollectionClass)()
 
     def id(self, id):
         self._id = id
         return self
 
     def get(self):
+        collection = self.collection()
         res = self.api.get(self._id)
         for el in res:
+            cl = self.entity()
             for prop in el:
-                setattr(self.entity, prop, el[prop])
-        return self.entity
+                setattr(cl, prop, el[prop])
+            collection.append(cl)
+        return collection
 
     def update(self, params):
         if not self._id:

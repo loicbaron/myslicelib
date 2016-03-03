@@ -4,7 +4,8 @@ class Resources(Entities):
     pass
 
 class Resource(Entity):
-    _name = "Resource"
+    _class = "Resource"
+    _collection = "Resources"
 
 #
 #

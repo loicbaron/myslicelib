@@ -6,7 +6,8 @@ class Authorities(Entities):
     pass
 
 class Authority(Entity):
-    _name = "Authority"
+    _class = "Authority"
+    _collection ="Authorities"
 
     @property
     def users(self):

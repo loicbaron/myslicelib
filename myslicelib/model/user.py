@@ -4,5 +4,6 @@ class Users(Entities):
     pass
 
 class User(Entity):
-    _name = "User"
+    _class = "User"
+    _collection = "Users"
 

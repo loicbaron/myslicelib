@@ -1,9 +1,11 @@
 from typing import Set
 
 class Entity(object):
+
     attributes = []
 
     def __init__(self, data = None):
+
         if data :
             self.attributes = data
 

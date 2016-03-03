@@ -4,4 +4,5 @@ class Leases(Entities):
     pass
 
 class Lease(Entity):
-    _name = "Lease"
+    _class = "Lease"
+    _collection = "Leases"

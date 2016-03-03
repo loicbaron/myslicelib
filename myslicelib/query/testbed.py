@@ -4,7 +4,7 @@ from myslicelib.model.testbed import Testbed, Testbeds
 class TestbedQuery(Query):
 
     def get(self):
-        testbeds = Testbeds()
+        testbeds = self.collection()
 
         result = self.api.version()
         for el in result['ams']:

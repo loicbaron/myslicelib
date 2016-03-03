@@ -4,4 +4,5 @@ class Slices(Entities):
     pass
 
 class Slice(Entity):
-    _name = "Slice"
+    _class = "Slice"
+    _collection = "Slices"
