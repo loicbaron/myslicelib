@@ -10,7 +10,7 @@ def q(entity: Entity):
     :param entity: object of class Entity
     :return: QueryEntity
     '''
-    e = entity.__name__
+    e = entity._name
     QueryModule = "myslicelib.query.{}".format(e.lower())
     QueryClass = e + "Query"
     try:
@@ -48,7 +48,7 @@ class Query(object):
 
         self.entity = entity
 
-        self.api = getattr(Api(s.endpoints, s.credential), self.entity.__name__.lower())()
+        self.api = getattr(Api(s.endpoints, s.credential), self.entity._name.lower())()
 
 
     def id(self, id):

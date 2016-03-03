@@ -4,5 +4,5 @@ class Users(Entities):
     pass
 
 class User(Entity):
-    pass
+    _name = "User"
 
