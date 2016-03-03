@@ -69,16 +69,14 @@ class Query(object):
             try:
                 CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
                 module = __import__(CollectionModule, fromlist=[CollectionClass])
-                return getattr(module, CollectionClass)()
+                collection = getattr(module, CollectionClass)()
             except ImportError:
                 logging.error("Class {} not found, using default Entities".format(CollectionClass))
 
         if (elements):
             for el in elements:
-                cl = self.entity(el)
-                # for prop in el:
-                #     setattr(cl, prop, el[prop])
-            collection.append(cl)
+                collection.add(self.entity(el))
+
 
         return collection
 
