@@ -17,7 +17,7 @@ def q(entity: Entity):
         module = __import__(QueryModule, fromlist=[QueryClass])
         return getattr(module, QueryClass)(entity)
     except ImportError:
-        logging.error("Object {} not found".format(QueryClass))
+        logging.error("Class {} not found".format(QueryClass))
         exit(1)
 
 
@@ -57,14 +57,20 @@ class Query(object):
 
         :return:
         '''
-        CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
+
         try:
             CollectionClass = self.entity._collection
         except AttributeError:
-            CollectionClass = 'Entities'
+            logging.error("Class {} not found, using default Entities".format(CollectionClass))
+            return Entities()
 
-        module = __import__(CollectionModule, fromlist=[CollectionClass])
-        return getattr(module, CollectionClass)()
+        try:
+            CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
+            module = __import__(CollectionModule, fromlist=[CollectionClass])
+            return getattr(module, CollectionClass)()
+        except ImportError:
+            logging.error("Class {} not found, using default Entities".format(CollectionClass))
+            return Entities()
 
     def id(self, id):
         self._id = id
