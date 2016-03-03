@@ -50,41 +50,46 @@ class Query(object):
 
         self.api = getattr(Api(s.endpoints, s.credential), self.entity._class.lower())()
 
-    def collection(self):
+    def collection(self, elements=None):
         '''
         Returns the instantiated collection class corresponding to secified Entity,
         or Entities if it is not defined
 
+        if elements is defined (must be a list of dictionaries) will populate the collection
+
         :return:
         '''
-
+        # the default collection
+        collection = Entities()
         try:
             CollectionClass = self.entity._collection
         except AttributeError:
             logging.error("Class {} not found, using default Entities".format(CollectionClass))
-            return Entities()
+        finally:
+            try:
+                CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
+                module = __import__(CollectionModule, fromlist=[CollectionClass])
+                return getattr(module, CollectionClass)()
+            except ImportError:
+                logging.error("Class {} not found, using default Entities".format(CollectionClass))
 
-        try:
-            CollectionModule = "myslicelib.model.{}".format(self.entity._class.lower())
-            module = __import__(CollectionModule, fromlist=[CollectionClass])
-            return getattr(module, CollectionClass)()
-        except ImportError:
-            logging.error("Class {} not found, using default Entities".format(CollectionClass))
-            return Entities()
+        if (elements):
+            for el in elements:
+                cl = self.entity(el)
+                # for prop in el:
+                #     setattr(cl, prop, el[prop])
+            collection.append(cl)
+
+        return collection
 
     def id(self, id):
         self._id = id
         return self
 
     def get(self):
-        collection = self.collection()
         res = self.api.get(self._id)
-        for el in res:
-            cl = self.entity()
-            for prop in el:
-                setattr(cl, prop, el[prop])
-            collection.append(cl)
-        return collection
+
+        return self.collection(res)
 
     def update(self, params):
         if not self._id:

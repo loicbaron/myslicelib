@@ -22,14 +22,14 @@ class Api(object):
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
 
-        self.proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
+        self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
 
         # version call
-        self.version = self.version()
+        self._version = self.version()
 
     def version(self):
         try:
-            result = self.proxy.GetVersion()
+            result = self._proxy.GetVersion()
             if 'interface' in result and result['interface'] == 'registry':
                 return {
                     'hostname': result['hostname'],

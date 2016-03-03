@@ -9,11 +9,11 @@ class Entity(object):
         if data :
             self.attributes = data
 
-    # def __getattr__(self, name):
-    #     if name in self.attributes:
-    #         return self.attributes[name]
-    #     else :
-    #         raise AttributeError
+    def __getattr__(self, name):
+        if name in self.attributes:
+            return self.attributes[name]
+        else :
+            raise AttributeError
 
     def save(self):
         raise NotImplementedError('Not implemented')

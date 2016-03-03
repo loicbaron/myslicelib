@@ -8,7 +8,7 @@ class SfaReg(SfaApi):
         super(SfaReg, self).__init__(endpoint, credential)
         with open(self.credential.certificate, "r") as myfile:
             certificate = myfile.read()
-        self.user_credential = self.proxy.GetSelfCredential(
+        self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.credential.hrn,
                                         'user')
@@ -26,14 +26,14 @@ class SfaReg(SfaApi):
         try:
             # attept to list the hrn first if it is an authority
             # if hrn is not an authority, it will list all elements
-            return self.proxy.List(hrn, self.user_credential, {'recursive':True})
+            return self._proxy.List(hrn, self.user_credential, {'recursive':True})
         except Exception as e:
-            return self.proxy.List(self.version()['hrn'], self.user_credential, {'recursive':True})
+            return self._proxy.List(self.version()['hrn'], self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
         if hrn:
-            return self.proxy.Resolve(hrn, self.user_credential, {})
-        return self.proxy.List(self.version()['hrn'], self.user_credential, {})
+            return self._proxy.Resolve(hrn, self.user_credential, {})
+        return self._proxy.List(self.version()['hrn'], self.user_credential, {})
 
     def get(self, entity, urn=None):
         result = []
@@ -75,9 +75,9 @@ class SfaReg(SfaApi):
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if upper_hrn:
                 if entity == 'slice':
-                    return self.proxy.GetCredential(self.user_credential, hrn, entity)
+                    return self._proxy.GetCredential(self.user_credential, hrn, entity)
                 else:
-                    return self.proxy.GetCredential(self.user_credential, upper_hrn, entity)
+                    return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
@@ -90,7 +90,7 @@ class SfaReg(SfaApi):
             if auth_cred:
                 record_dict["type"] = entity
                 record_dict["hrn"] = hrn
-                result = self.proxy.Register(record_dict, auth_cred)
+                result = self._proxy.Register(record_dict, auth_cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
             return []
@@ -103,7 +103,7 @@ class SfaReg(SfaApi):
             hrn = urn_to_hrn(urn, entity)
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
-                result = self.proxy.Remove(hrn, auth_cred, entity)
+                result = self._proxy.Remove(hrn, auth_cred, entity)
                 if result == 1:
                     return True
                 else:
@@ -125,7 +125,7 @@ class SfaReg(SfaApi):
             if cred:
                 record_dict["type"] = entity
                 record_dict["hrn"] = hrn
-                result = self.proxy.Update(record_dict, cred)
+                result = self._proxy.Update(record_dict, cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
             raise Exception("No Credential to update this", urn)

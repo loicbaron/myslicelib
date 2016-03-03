@@ -27,7 +27,7 @@ class SfaAm(SfaApi):
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
-        return self.proxy.ListResources([cred],
+        return self._proxy.ListResources([cred],
                                         {
                                             'list_leases' : 'all',
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
@@ -38,7 +38,7 @@ class SfaAm(SfaApi):
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
-        return self.proxy.ListResources([cred],
+        return self._proxy.ListResources([cred],
                                         {
                                             'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                                         })
@@ -57,9 +57,9 @@ class SfaAm(SfaApi):
 
         if self.version()['geni_api'] == 2:
             options['geni_slice_urn'] = urn
-            return self.proxy.ListResources([slice_credential], options)
+            return self._proxy.ListResources([slice_credential], options)
         elif self.version()['geni_api'] == 3:
-            return self.proxy.Describe([urn], slice_credential, options)
+            return self._proxy.Describe([urn], slice_credential, options)
         else:
             raise NotImplementedError('geni_api version not supported')
 
@@ -107,7 +107,7 @@ class SfaAm(SfaApi):
                 self.slice_credential = self.registry.get_credential(hrn, entity)
                 #*self.ois(server, api_options) to check server if uuid supported
                 api_options = {}
-                result = self.proxy.Delete([urn], [self.slice_credential], api_options)
+                result = self._proxy.Delete([urn], [self.slice_credential], api_options)
         except Exception as e:
             traceback.print_exc()
             return False
@@ -122,7 +122,7 @@ class SfaAm(SfaApi):
                 # self.Renew
                 if 'expiration_date' in record_dict:
                     date = record_dict['expiration_date']
-                    result = self.proxy.Renew([urn], [object_cred], date, api_options)
+                    result = self._proxy.Renew([urn], [object_cred], date, api_options)
                 else:
                     api_options = {}
                     api_options['call_id'] = unique_call_id()
@@ -140,15 +140,15 @@ class SfaAm(SfaApi):
                     # self.CreateSliver (v2)
                     if self.version()['geni_api'] == 2:
                         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '2'}
-                        result = self.proxy.CreateSliver([urn] ,[object_cred], rspec, api_options)
+                        result = self._proxy.CreateSliver([urn] ,[object_cred], rspec, api_options)
                     # v3
                     # self.Allocate
                     # self.Provision
                     elif self.version()['geni_api'] == 3:
                         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
-                        result = self.proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
+                        result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
                         api_options['call_id'] = unique_call_id()
-                        result = self.proxy.Provision([urn], [self.slice_credential], api_options)
+                        result = self._proxy.Provision([urn], [self.slice_credential], api_options)
                     else:
                         raise NotImplementedError('geni_ api version not supported')                  
                     result = self._xml_to_dict(result)
@@ -161,10 +161,10 @@ class SfaAm(SfaApi):
 
     def execute(self, urn, action, obj_type):
         if action.lower() == 'shutdown':
-            result = self.proxy.Shutdown(urn, [object_cred], api_options)
+            result = self._proxy.Shutdown(urn, [object_cred], api_options)
         else:
             if self.version()['geni_api'] == 3:
-                result = self.proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
+                result = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')
         return result
