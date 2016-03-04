@@ -13,8 +13,6 @@ class TestbedQuery(Query):
 
         result = self.api.version()
         for el in result['ams']:
-            import pprint
-            pprint.pprint(el)
             testbeds.append(el)
 
 
