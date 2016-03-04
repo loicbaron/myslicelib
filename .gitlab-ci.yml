@@ -1,5 +1,6 @@
 job0:
   script: "pip install --upgrade pip"
+  script: "apt-get -qq -y install python-openssl"
   script: "pip install -r requirements"
   script: "python3.5 setup.py install"
   script: "./testapi.py"
