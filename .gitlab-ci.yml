@@ -1,2 +1,2 @@
 job0:
-  script: "pip3 install --upgrade pip;pip3 install -r requirements;python3.5 setup.py install;./testapi_ci.py"
+  script: "pip3 install -r requirements;python3.5 setup.py install;./key_to_file.py;./testapi_ci.py"

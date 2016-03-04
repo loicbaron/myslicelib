@@ -23,13 +23,13 @@ s.endpoints = [
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
 
-path = "/root/.sfi/"
+path = "/root/"
 
 print 
-pkey = os.environ['MYSLICE_PKEY']
+pkey = path + "myslice.pkey"
 hrn = "onelab.myslice"
 email = "support@myslice.info"
-cert = os.environ['MYSLICE_CERT']
+cert = path + "myslice.cert"
 
 #pkey = path + "lbaron.pkey"
 #hrn = "onelab.upmc.lbaron"
