@@ -64,10 +64,10 @@ users = q(User).get()
 #authority = Query(Authority).delete('urn:publicid:IDN+onelab:upmc2+authority+sa')
 
 
-user = q(User).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
+user = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get()
 print(user.__dict__)
 
-authority = q(Authority).get('urn:publicid:IDN+onelab:upmc+authority+sa')
+authority = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 print(authority)
 #authority.pis()
 
