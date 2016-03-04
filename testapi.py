@@ -46,13 +46,12 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 
 #lease = Query(Leases).get()
 #slices = Query(Slices).get('urn:publicid:IDN+onelab:upmc:test+slice+cloud')
-#users = Query(Users).get('urn:publicid:IDN+onelab:upmc+authority+sa')
-#user = Query(Users).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
 #authorities = Query(Authorities).get('urn:publicid:IDN+onelab:upmc+authority+sa')
 #resource = Query(Resources).get()
 
 users = q(User).get()
-
+#users = Query(Users).get('urn:publicid:IDN+onelab:upmc+authority+sa')
+#user = Query(Users).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
 #user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron',{'email':'loic.baron+3@gmail.com'})
 #user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron2',{'email':'loic.baron+5@gmail.com'})
 #user = Query(User).delete('urn:publicid:IDN+onelab:upmc+user+lbaron2')
