@@ -1,5 +1,3 @@
-cffi
-command-not-found
 cryptography
 dateutils
 geopy
