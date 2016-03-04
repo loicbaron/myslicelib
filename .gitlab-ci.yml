@@ -1,9 +1,8 @@
 job0:
+  script: "virtualenv -p /usr/bin/python3 py3env"
+  script: "source py3env/bin/activate"
   script: "pip install --upgrade pip"
-job1:
-  script: "apt-get -qq -y install python3-openssl"
-job2:
   script: "pip install -r requirements"
-job3:
+job1:
   script: "python3.5 setup.py install"
   script: "./testapi.py"
