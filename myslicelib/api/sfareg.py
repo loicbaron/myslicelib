@@ -1,5 +1,6 @@
 import os
 import traceback
+from myslicelib.error import MysNotUrnFormatError
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
@@ -35,22 +36,25 @@ class SfaReg(SfaApi):
             return self._proxy.List(self.version()['id'], self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
-        if hrn:
-            return self._proxy.Resolve(hrn, self.user_credential, {})
-        return self._proxy.List(self.version()['id'], self.user_credential, {})
+        return self._proxy.Resolve(hrn, self.user_credential, {})
 
     def get(self, entity, urn=None):
         result = []
         try:
-            hrn = None
-            if urn is not None:
-                xrn = Xrn(urn)
-                obj_type = xrn.get_type()
+           
+            if urn is None:
+                hrn = None
+                results = self._list_entity(hrn)
+                return self._filter_records(entity, results)
+
+            xrn = Xrn(urn)
+            obj_type = xrn.get_type()
+            if obj_type in ['slice', 'user', 'authority']:
                 hrn = urn_to_hrn(urn, entity)
                 if entity == obj_type:
                     return self._get_entity(hrn)
-            results = self._list_entity(hrn)
-            return self._filter_records(entity, results)
+            else:
+                raise MysNotUrnFormatError
             
             #print(results)
             #for r in results:

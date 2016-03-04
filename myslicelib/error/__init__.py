@@ -7,3 +7,6 @@ class MysNotImplementedError(MysException):
 
 class MysNotSupportedError(MysException):
     pass
+
+class MysNotUrnFormatError(MysException):
+    pass
