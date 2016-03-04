@@ -102,5 +102,5 @@ class Query(object):
 
         res = self.api.delete(self._id)
 
-        return self.collection(res)
+        return res 
 

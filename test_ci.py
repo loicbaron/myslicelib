@@ -53,19 +53,26 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #resource = Query(Resources).get()
 
 users = q(User).get()
-#users = Query(Users).get('urn:publicid:IDN+onelab:upmc+authority+sa')
-#user = Query(Users).get('urn:publicid:IDN+onelab:upmc+user+loic_baron')
-#user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron',{'email':'loic.baron+3@gmail.com'})
-#user = Query(User).update('urn:publicid:IDN+onelab:upmc+user+lbaron2',{'email':'loic.baron+5@gmail.com'})
-#user = Query(User).delete('urn:publicid:IDN+onelab:upmc+user+lbaron2')
+print(users)
+
+users = q(User).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
+print(users)
+
+user = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get()
+print(user)
+
+user = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({'email':'loic.baron@gmail.com'})
+print(user)
+
+user = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({'email':'loic.baron+5@gmail.com'})
+print(user)
+
+user = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').delete()
+print(user)
 
 #authority = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{})
 #authority = Query(Authority).get('urn:publicid:IDN+onelab:upmc2+authority+sa')
 #authority = Query(Authority).delete('urn:publicid:IDN+onelab:upmc2+authority+sa')
-
-
-user = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get()
-print(user.__dict__)
 
 authority = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 print(authority)

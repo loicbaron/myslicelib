@@ -6,4 +6,4 @@ class Users(Entities):
 class User(Entity):
     _class = "User"
     _collection = "Users"
-
+    

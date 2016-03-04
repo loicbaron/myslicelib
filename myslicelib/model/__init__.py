@@ -9,6 +9,9 @@ class Entity(object):
         if data :
             self._attributes = data
 
+    def __repr__(self):
+        return "%s" % (self.attributes())
+
     def __getattr__(self, name):
         if name in self._attributes:
             return self._attributes[name]
