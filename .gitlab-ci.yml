@@ -1,7 +1,8 @@
 job0:
   script: "pip install --upgrade pip"
-  script: "pip install -r requirements"
 job1:
-  script: "python3.5 setup.py install"
+  script: "pip install -r requirements"
 job2:
+  script: "python3.5 setup.py install"
+job3:
   script: "./testapi.py"

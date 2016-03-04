@@ -2,7 +2,6 @@ cryptography
 dateutils
 geopy
 idna
-language-selector
 M2Crypto
 profilehooks
 pyasn1
