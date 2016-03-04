@@ -1,2 +1,29 @@
+before_script:
+	- pip install cffi
+	- pip install command-not-found
+	- pip install cryptography
+	- pip install dateutils
+	- pip install geopy
+	- pip install idna
+	- pip install language-selector
+	- pip install M2Crypto
+	- pip install profilehooks
+	- pip install pyasn1
+	- pip install pycparser
+	- pip install pycurl
+	- pip install pygobject
+	- pip install pyOpenSSL
+	- pip install python-apt
+	- pip install python-dateutil
+	- pip install pytz
+	- pip install repoze.lru
+	- pip install setuptools
+	- pip install six
+	- pip install ufw
+	- pip install unattended-upgrades
+	- pip install wheel
+	- pip install xmltodict
 job1:
-  script: "testapi.py"
+  script: "python3.5 setup.py install"
+job2:
+  script: "./testapi.py"
