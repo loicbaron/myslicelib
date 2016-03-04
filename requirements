@@ -13,7 +13,4 @@ pytz
 repoze.lru
 setuptools
 six
-ufw
-unattended-upgrades
-wheel
 xmltodict
