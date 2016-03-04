@@ -1,4 +1,4 @@
 job0:
-  script: "virtualenv -p /usr/bin/python3 py3env;source py3env/bin/activate;pip install --upgrade pip;pip install -r requirements"
+  script: "pip install virtualenv virtualenvwrapper;virtualenv -p /usr/bin/python3 py3env;source py3env/bin/activate;pip install --upgrade pip;pip install -r requirements"
 job1:
   script: "python3.5 setup.py install;./testapi.py"
