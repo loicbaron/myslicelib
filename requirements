@@ -8,7 +8,6 @@ pyasn1
 pycparser
 pycurl
 pyOpenSSL
-python-apt
 python-dateutil
 pytz
 repoze.lru
@@ -18,4 +17,3 @@ ufw
 unattended-upgrades
 wheel
 xmltodict
-
