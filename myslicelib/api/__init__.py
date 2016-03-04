@@ -101,7 +101,6 @@ class Api(object):
                         "type" : "registry",
                         "protocol" : self.registry.endpoint.protocol,
                         "version" : self.registry.version()['version'],
-                        "backend" : self.registry.version()['backend']
                     },
                     "id" : self.registry.version()['id'],
                 },
@@ -118,7 +117,6 @@ class Api(object):
                     "type" : am.endpoint.type,
                     "protocol" : am.endpoint.protocol,
                     "version" : am.version()['version'],
-                    "backend" : self.registry.version()['backend']
                 },
                 "id" : am.version()['id'],
             } )

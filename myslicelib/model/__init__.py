@@ -18,6 +18,9 @@ class Entity(object):
     def attributes(self):
         return self._attributes
 
+    def dict(self):
+        return self._attributes
+
     def save(self):
         raise NotImplementedError('Not implemented')
 
