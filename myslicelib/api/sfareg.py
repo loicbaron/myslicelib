@@ -6,8 +6,9 @@ class SfaReg(SfaApi):
 
     def __init__(self, endpoint, credential):
         super(SfaReg, self).__init__(endpoint, credential)
-        with open(self.credential.certificate, "r") as myfile:
-            certificate = myfile.read()
+        if not isinstance(credential.certificate, str):
+            with open(self.credential.certificate, "r") as myfile:
+                certificate = myfile.read()
         self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.credential.hrn,
