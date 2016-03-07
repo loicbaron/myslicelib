@@ -1,6 +1,5 @@
 #job0:
 #  script: "pip3 install -r requirements;python3.5 setup.py install;./key_to_file.py;./tests/user.py"
---- 
 before_script: 
   - "pip3 install -r requirements"
   - "python3.5 setup.py develop"
@@ -8,5 +7,3 @@ job0:
   script: 
     - ./key_to_file.py
     - ./tests/user.py
-
-	
