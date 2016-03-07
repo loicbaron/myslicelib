@@ -43,7 +43,7 @@ class SfaReg(SfaApi):
             # if hrn is not an authority, it will list all elements
             return self._proxy.List(hrn, self.user_credential, {'recursive':True})
         except Exception as e:
-            result = self._proxy.List(self.version()['id'], self.user_credential, {'recursive':True})
+            return self._proxy.List(self.version()['id'], self.user_credential, {'recursive':True})
 
 
     def _get_entity(self, hrn):
@@ -99,11 +99,10 @@ class SfaReg(SfaApi):
     def get_credential(self, hrn, entity):
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
-            if upper_hrn:
+            if hrn:
                 if entity == 'slice':
                     return self._proxy.GetCredential(self.user_credential, hrn, entity)
-                else:
-                    return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
+                return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
@@ -154,9 +153,9 @@ class SfaReg(SfaApi):
                 result = self._proxy.Update(record_dict, cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
-            raise Exception("No Credential to update this", urn)
+            raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
             traceback.print_exc()
-            return False
+            return []
 
     # self.CreateGid
