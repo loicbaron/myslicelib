@@ -8,6 +8,8 @@ from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
 #from myslicelib.util.certificate import Keypair, Certificate
 
+from myslicelib.error import MysParamsTypeError
+
 class Api(object):
     """
     This is the generic "facade" API interface to the actual API interfaces to the AM and Registry endpoints
@@ -87,6 +89,17 @@ class Api(object):
         return method_handler
 
 
+    # def version(self) -> dict:
+
+    #     self.registry.version()
+    #     for am in self.ams:
+    #         am.version()
+    #     loop = asyncio.get_event_loop()
+    #     tasks = [self.registry.version()] + [am.version() for am in self.ams]
+    #     result = loop.run_until_complete(asyncio.wait(tasks))
+    #     loop.close()
+    #     print(result)
+
     def version(self) -> dict:
         result = {
                 "myslicelib" : {
@@ -146,6 +159,8 @@ class Api(object):
         # raise NotImplementedError('Not implemented')
 
     def update(self, id, params):
+        if not isinstance(params, dict):
+            raise MysParamsTypeError('a dict is expected')
         result = []
         if self._entity in self._registry:
             result += self.registry.create(self._entity, id, params)

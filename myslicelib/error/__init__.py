@@ -8,5 +8,8 @@ class MysNotImplementedError(MysException):
 class MysNotSupportedError(MysException):
     pass
 
+class MysParamsTypeError(MysException):
+    pass
+
 class MysNotUrnFormatError(MysException):
     pass
