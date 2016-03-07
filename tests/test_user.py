@@ -2,14 +2,13 @@
 import sys
 import unittest
 
-from myslicelib.api import Api
 from myslicelib.model.user import Users, User
 from myslicelib.query import q
 
 from myslicelib.error import MysNotUrnFormatError
+from myslicelib.error import MysNotImplementedError
 
 from tests import s
-from pprint import pprint
 
 SSH_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUr\
 Q1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnW\
@@ -29,11 +28,11 @@ class TestUser(unittest.TestCase):
         self.q.id('random_urn_string')
         self.assertRaises(MysNotUrnFormatError)
 
-    def test_set_user(self):
+    def test_id_user(self):
         self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron')
         self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', self.q._id)
 
-    def test_create_user(self):
+    def test_01_create_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron@gmail.com',
                                                 })
@@ -41,7 +40,11 @@ class TestUser(unittest.TestCase):
         self.assertEqual('user', res.dict()[0]['classtype'])
         self.assertEqual('loic.baron@gmail.com', res.dict()[0]['email'])
 
-    def test_update_user(self):
+    def test_02_get_user(self):
+        res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
+        self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', res.dict()[0]['reg-urn'])
+
+    def test_03_update_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron.new@gmail.com',
                                                 'reg-keys': [SSH_KEY],
@@ -49,32 +52,33 @@ class TestUser(unittest.TestCase):
         self.assertEqual('loic.baron.new@gmail.com', res.dict()[0]['email'])
         self.assertIn(SSH_KEY, res.dict()[0]['reg-keys'])
 
-    def test_delete_user(self):
+
+    def test_04_delete_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').delete()
         self.assertTrue(res)
 
     def test_user_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+        self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', res.dict()[0]['reg-urn'])
         self.assertEqual('loic.baron@gmail.com', res.dict()[0]['email'])
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
         self.assertTrue(res)
-
+        
+    @unittest.expectedFailure
     def test_get_user_from_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
-        self.assertEqual(Users(), res)
+        with self.assertRaises(MysNotImplementedError):
+            self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 
     def test_get_user_from_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
         for user in res.dict():
             self.assertEqual('user', user['classtype'])
-            self.assertEqual('onelab.upmc.sa', user['authority'])
+            self.assertEqual('onelab.upmc', user['authority'])
 
     def test_get_user_from_root_authority(self):
         res = self.q.get()
         for user in res.dict():
             self.assertEqual('user', user['classtype'])
 
-
 if __name__ == '__main__':
-    #print(q(User).get())
     unittest.main()

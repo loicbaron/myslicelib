@@ -6,4 +6,5 @@ before_script:
 job0: 
   script: 
     - ./key_to_file.py
-    - ./tests/user.py
+    - ./tests/test_user.py
+    - ./tests/test_authority.py
