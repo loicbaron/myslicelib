@@ -53,6 +53,7 @@ class TestAuthority(unittest.TestCase):
                                                 'reg-pis': [hrn],
                                                 })
         self.assertEqual('urn:publicid:IDN+onelab:inria:authx+authority+sa', res.dict()[0]['reg-urn'])
+        self.assertIn(hrn, res.dict()[0]['reg-pis'])
         res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
         self.assertTrue(res)
         
