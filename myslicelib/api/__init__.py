@@ -228,7 +228,7 @@ class Api(object):
 
         if self._entity in self._am:
             for am in self.ams:
-                threads += [self._thread_handler(am.get, self._entity, id, raw))]
+                threads += [self._thread_handler(am.get, self._entity, id, raw)]
         
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
