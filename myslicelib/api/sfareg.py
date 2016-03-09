@@ -82,7 +82,7 @@ class SfaReg(SfaApi):
         except Exception as e:
             traceback.print_exc()
             print(e)
-            exit(1)
+            return []
 
         return result
 

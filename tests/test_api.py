@@ -7,7 +7,7 @@ from myslicelib.model.user import Users, User
 from myslicelib.model.resource import Resource
 from myslicelib.query import q
 from myslicelib.error import MysNotUrnFormatError
-
+from tests.time import timeit
 from tests import s
 
 class TestApi(unittest.TestCase):
@@ -24,5 +24,6 @@ class TestApi(unittest.TestCase):
         qr = q(Resource)
         res = qr.get()
         #print(res)
+
 if __name__ == '__main__':
     unittest.main()

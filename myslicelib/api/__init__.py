@@ -118,7 +118,6 @@ class Api(object):
     def _parallel_request(self, threads):
         try:
             for t in threads:
-                print('thread')
                 t.start()
             for t in threads:
                 t.join()
