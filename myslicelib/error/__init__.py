@@ -13,3 +13,6 @@ class MysParamsTypeError(MysException):
 
 class MysNotUrnFormatError(MysException):
     pass
+
+class MysParameterIsRequiredError(MysException):
+    pass

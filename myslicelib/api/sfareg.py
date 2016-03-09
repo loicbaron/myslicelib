@@ -21,14 +21,14 @@ class SfaReg(SfaApi):
                                         self.credential.hrn,
                                         'user')
 
-    def _filter_records(self, type, result):
-        filtered_records = []
+    def _extract_with_entity(self, entity, result):
+        filtered_entites = []
         for record in result:
-            if (record['type'] == type) or (type == "all"):
-                filtered_records.append(record)
-        return filtered_records
+            if (record['type'] == entity) or (type == "all"):
+                filtered_entites.append(record)
+        return filtered_entites
 
-    def _filter_with_hrn(self, hrn, result):
+    def _extract_with_authority(self, hrn, result):
         filtered_records = []
         for record in result:
             if record['authority'] == hrn:
@@ -54,7 +54,7 @@ class SfaReg(SfaApi):
         try:
             if urn is None:
                 results = self._list_entity(None)
-                return self._filter_records(entity, results)
+                return self._extract_with_entity(entity, results)
 
             xrn = Xrn(urn)
             urn_type = xrn.get_type()
@@ -69,8 +69,8 @@ class SfaReg(SfaApi):
                 return self._get_entity(hrn)
             elif urn_type == 'authority':
                 result = self._list_entity(hrn)
-                result = self._filter_with_hrn(hrn, result)
-                return self._filter_records(entity, result)
+                result = self._extract_with_authority(hrn, result)
+                return self._extract_with_entity(entity, result)
             else:
                 raise MysNotImplementedError
 

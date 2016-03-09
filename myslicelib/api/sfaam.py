@@ -3,6 +3,7 @@ from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, unique_call_id
 from myslicelib.util.parser import Parser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
+from myslicelib.error import MysParameterIsRequiredError
 
 # self.ListResources
 # self.Status   => geni_urn + geni_slivers
@@ -82,9 +83,8 @@ class SfaAm(SfaApi):
                     xml_string = result['value']['geni_rspec']
                 else:
                     xml_string = result['value']
-                from pprint import pprint
-                pprint(xml_string)
-
+                # from pprint import pprint
+                # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
                 result = Parser(xml_string).parse(entity)
             except Exception as e:
@@ -131,6 +131,10 @@ class SfaAm(SfaApi):
                     api_options['sfa_users'] = record_dict['users']
                     api_options['geni_users'] = record_dict['users']
                     #api_options['append'] = True
+
+                    if 'parsed' not in record_dict:
+                        raise MysParameterIsRequiredError('request respec is required')
+                    
 
                     if isinstance(record_dict['parsed'], dict):
                         rspec = xmltodict.unparse(record_dict['parsed'])
