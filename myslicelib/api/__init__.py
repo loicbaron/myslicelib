@@ -97,17 +97,28 @@ class Api(object):
     # def version(self):
     #     return self.handler()
 
-    def _thread_handler(self, call, *args):
-        if args is None:
+    def _queue_hanlder(self, call, *params):
+        if params is None:
             self._q.put(call())
-            return threading.Thread(target=call, args=())
         else:
-            self._q.put(call(*args))
-        return threading.Thread(target=call, args=(args))
+            self._q.put(call(*params))
+
+    def _thread_handler(self, call, *params):
+        if params is None:
+            return threading.Thread(target=self._queue_hanlder, args=(call))
+        return threading.Thread(target=self._queue_hanlder, args=(call, *params))
+
+        # if args is None:
+        #     self._q.put(call)
+        #     return threading.Thread(target=call, args=())
+        # else:
+        #     self._q.put(call(*args))
+        # return threading.Thread(target=call, args=(args))
 
     def _parallel_request(self, threads):
         try:
             for t in threads:
+                print('thread')
                 t.start()
             for t in threads:
                 t.join()
@@ -155,12 +166,8 @@ class Api(object):
                 },
                 "id" : am_version['id'],
             } )
-        print(result)
+
         return result
-
-
-
-
 
     # def version(self):
     #     threads = []
@@ -225,11 +232,11 @@ class Api(object):
         threads = []
         if self._entity in self._registry:
             threads += [self._thread_handler(self.registry.get, self._entity, id)]
-
+        
         if self._entity in self._am:
             for am in self.ams:
                 threads += [self._thread_handler(am.get, self._entity, id, raw)]
-        
+
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
         

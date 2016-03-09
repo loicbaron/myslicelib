@@ -17,6 +17,7 @@ class TestApi(unittest.TestCase):
 
     def test_version(self):
         res = self.api.version()
+        #print(res)
         #self.assertEqual('1.0', res['myslicelib']['version'])
     
     def test_resources(self):
