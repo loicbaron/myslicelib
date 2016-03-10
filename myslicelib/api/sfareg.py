@@ -49,28 +49,44 @@ class SfaReg(SfaApi):
     def _get_entity(self, hrn):
         return self._proxy.Resolve(hrn, self.user_credential, {})
 
-    def get(self, entity, urn=None):
-        result = []
-        try:
-            if urn is None:
-                results = self._list_entity(None)
-                return self._extract_with_entity(entity, results)
+    def _slice(self, data):
+        slices = []
+        for d in data:
+            slices.append({
+                'id': d['reg-urn'],
+                'name': d['hrn'],
+                'created': d['date_created'],
+                'updated': d['last_updated'],
+                'users': d.get('reg-researchers', []),
+                'authority': d['authority']
+            })
+        return slices
 
+    def _authority(self, data):
+        return data
+
+    def _user(self, data):
+        return data
+
+    def get(self, entity, urn=None, raw=False):
+
+        result = []
+        if urn is None:
+            result = self._list_entity()
+        else:
             xrn = Xrn(urn)
             urn_type = xrn.get_type()
 
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
-            
-            # entity is query object 
+
+            # entity is query object
             # urn_type is type of object derived from urn
             hrn = urn_to_hrn(urn, entity)
             if entity == urn_type:
-                return self._get_entity(hrn)
+                result = self._get_entity(hrn)
             elif urn_type == 'authority':
-                result = self._list_entity(hrn)
-                result = self._extract_with_authority(hrn, result)
-                return self._extract_with_entity(entity, result)
+                result = self._extract_with_authority(hrn, self._list_entity(hrn))
             else:
                 raise MysNotImplementedError
 
@@ -79,10 +95,15 @@ class SfaReg(SfaApi):
             #    result.append(self._get_entity(r['hrn']))
             #else:
             #    result = self._get_entity(hrn)
+
+        if raw:
+            return self._extract_with_entity(entity, result)
+
+        try:
+            result = getattr(self, "_" + entity)(result)
         except Exception as e:
             traceback.print_exc()
-            print(e)
-            return []
+            exit(1)
 
         return result
 
