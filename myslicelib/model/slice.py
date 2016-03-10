@@ -6,3 +6,7 @@ class Slices(Entities):
 class Slice(Entity):
     _class = "Slice"
     _collection = "Slices"
+
+    def __str__(self):
+        return self.name
+
