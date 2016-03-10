@@ -1,5 +1,6 @@
 import os
 import traceback
+import pytz
 
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
@@ -49,15 +50,29 @@ class SfaReg(SfaApi):
     def _get_entity(self, hrn):
         return self._proxy.Resolve(hrn, self.user_credential, {})
 
+    def _datetime(self, date):
+        '''
+        Datetime objects must have a timezone
+        :param date:
+        :return:
+        '''
+        return pytz.utc.localize(date)
+
     def _slice(self, data):
         slices = []
         for d in data:
+
+            # users urn
+            users = []
+            for u in d.get('reg-researchers', []):
+                users.append(hrn_to_urn(u, 'user'))
+
             slices.append({
                 'id': d['reg-urn'],
                 'name': d['hrn'],
-                'created': d['date_created'],
-                'updated': d['last_updated'],
-                'users': d.get('reg-researchers', []),
+                'created': self._datetime(d['date_created']),
+                'updated': self._datetime(d['last_updated']),
+                'users': users,
                 'authority': d['authority']
             })
         return slices

@@ -23,7 +23,7 @@ class Api(object):
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
 
-        self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, context=context)
+        self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, use_datetime=True, context=context)
 
         # version call
         self._version = self._version()
