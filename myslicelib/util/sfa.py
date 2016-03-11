@@ -7,9 +7,12 @@ import re
 
 def unique_call_id(): return uuid.uuid4().urn
 
-def hrn_to_urn(hrn, type): return Xrn(hrn, type=type).urn
-
-def urn_to_hrn(urn, type): return Xrn(urn, type=type).hrn
+# for convenience and smoother translation - we should get rid of these functions eventually 
+def get_leaf(hrn): return Xrn(hrn).get_leaf()
+def get_authority(hrn): return Xrn(hrn).get_authority_hrn()
+def urn_to_hrn(urn): xrn=Xrn(urn); return (xrn.hrn, xrn.type)
+def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
+def hrn_authfor_hrn(parenthrn, hrn): return Xrn.hrn_is_auth_for_hrn(parenthrn, hrn)
 
 class Xrn:
 
@@ -95,6 +98,10 @@ class Xrn:
         # self.authority keeps a list
         if not hasattr(self, 'authority'):
             self.authority = Xrn.hrn_auth_list(self.hrn)
+            
+    def get_leaf(self):
+        self._normalize()
+        return self.leaf
 
     def get_authority_hrn(self):
         self._normalize()

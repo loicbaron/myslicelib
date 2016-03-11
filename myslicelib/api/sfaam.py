@@ -48,7 +48,7 @@ class SfaAm(SfaApi):
         # urn can't be None for slice
         if urn is None:
             raise Exception('Slice urn must be specified')
-        hrn = urn_to_hrn(urn, 'slice')
+        hrn = urn_to_hrn(urn)[0]
         options = {
                     'list_leases' : 'all',
 
@@ -103,7 +103,7 @@ class SfaAm(SfaApi):
         # self.Delete
         try:
             if entity == 'slice':
-                hrn = urn_to_hrn(urn, entity)
+                hrn = urn_to_hrn(urn)
                 self.slice_credential = self.registry.get_credential(hrn, entity)
                 #*self.ois(server, api_options) to check server if uuid supported
                 api_options = {}
@@ -116,7 +116,7 @@ class SfaAm(SfaApi):
     def update(self, entity, urn, record_dict):
         try:
             if entity == 'slice':
-                hrn = urn_to_hrn(urn, entity)
+                hrn = urn_to_hrn(urn)
                 self.slice_credential = self.registry.get_credential(hrn, entity)
                 # if update only expiration date
                 # self.Renew
