@@ -25,7 +25,7 @@ class SfaReg(SfaApi):
     def _extract_with_entity(self, entity, result):
         filtered_entites = []
         for record in result:
-            if (record['type'] == entity) or (type == "all"):
+            if (record['type'] == entity) :
                 filtered_entites.append(record)
         return filtered_entites
 
@@ -53,10 +53,13 @@ class SfaReg(SfaApi):
     def _datetime(self, date):
         '''
         Datetime objects must have a timezone
+
         :param date:
         :return:
         '''
-        return pytz.utc.localize(date)
+        # TODO: use local timezone from server
+        tz = pytz.timezone('Europe/Paris')
+        return tz.localize(date)
 
     def _slice(self, data):
         slices = []
@@ -87,8 +90,7 @@ class SfaReg(SfaApi):
 
         result = []
         if urn is None:
-            result = self._list_entity()
-            return self._extract_with_entity(entity, result)
+            result = self._extract_with_entity(entity, self._list_entity())
         else:
             xrn = Xrn(urn)
             urn_type = xrn.get_type()
@@ -103,7 +105,6 @@ class SfaReg(SfaApi):
                 result = self._get_entity(hrn)
             elif urn_type == 'authority':
                 result = self._extract_with_authority(hrn, self._list_entity(hrn))
-                result = self._extract_with_entity(entity, result)
             else:
                 raise MysNotImplementedError
 
