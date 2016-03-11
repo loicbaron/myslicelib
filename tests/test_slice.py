@@ -54,8 +54,6 @@ class TestSlice(unittest.TestCase):
         self.assertIn(hrn, res.dict()[0]['reg-researchers'])
 
     def test_04_get_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', res.dict()[0]['reg-urn'])
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').get()
         for sli in res.dict():
             self.assertEqual('slice', sli['classtype'])

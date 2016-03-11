@@ -2,6 +2,7 @@
 import sys
 import unittest
 
+from pprint import pprint
 from myslicelib.api import Api
 from myslicelib.model.user import Users, User
 from myslicelib.model.resource import Resource
@@ -17,13 +18,18 @@ class TestApi(unittest.TestCase):
 
     def test_version(self):
         res = self.api.version()
-        #print(res)
+        #pprint(res)
         #self.assertEqual('1.0', res['myslicelib']['version'])
     
     def test_resources(self):
-        qr = q(Resource)
-        res = qr.get()
+        qr= q(Resource)
+        res = qr.get() 
         #print(res)
 
 if __name__ == '__main__':
     unittest.main()
+    # import time
+    # start_time = time.time()
+    # qr= q(Resource)
+    # res = qr.get()
+    # print(time.time()-start_time)
