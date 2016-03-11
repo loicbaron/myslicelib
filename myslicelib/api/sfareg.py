@@ -98,7 +98,7 @@ class SfaReg(SfaApi):
 
             # entity is query object
             # urn_type is type of object derived from urn
-            hrn = urn_to_hrn(urn, entity)
+            hrn = urn_to_hrn(urn)
             if entity == urn_type:
                 result = self._get_entity(hrn)
             elif urn_type == 'authority':
@@ -139,7 +139,7 @@ class SfaReg(SfaApi):
 
     def create(self, entity, urn, record_dict):
         try:
-            hrn = urn_to_hrn(urn, entity)
+            hrn = urn_to_hrn(urn)
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 record_dict["type"] = entity
@@ -154,7 +154,7 @@ class SfaReg(SfaApi):
 
     def delete(self, entity, urn):
         try:
-            hrn = urn_to_hrn(urn, entity)
+            hrn = urn_to_hrn(urn)
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 result = self._proxy.Remove(hrn, auth_cred, entity)
@@ -169,7 +169,7 @@ class SfaReg(SfaApi):
 
     def update(self, entity, urn, record_dict):
         try:
-            hrn = urn_to_hrn(urn, entity)
+            hrn = urn_to_hrn(urn)
             if entity == 'user' and hrn == self.credential.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
