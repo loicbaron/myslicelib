@@ -81,10 +81,61 @@ class SfaReg(SfaApi):
         return slices
 
     def _authority(self, data):
-        return data
+        authority = []
+
+        for d in data:
+
+            mappings = {
+
+                'slice': [],
+                'user': [],
+                'authority': [],
+
+            }
+            enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
+            
+            for entity in enitities:
+                mappings[entity['type']] += [entity['reg-urn']]
+
+            authority.append({
+
+                'id' :  d['reg-urn'],
+                'name': d['name'],
+                'certificate': d['gid'],
+                'created': self._datetime(d['date_created']),
+                'updated': self._datetime(d['last_updated']),
+                'pi_users': d['reg-pis'],
+                'users': mappings['user'],
+                'slices': mappings['slice'],
+                'projects': mappings['authority'],
+
+            })
+        return authority
 
     def _user(self, data):
-        return data
+        user = []
+
+        for d in data:
+            user.append({
+
+            'id' :  d['reg-urn'],
+            'keys': d['reg-keys'],
+            'certificate': d['gid'],
+            'created': self._datetime(d['date_created']),
+            'updated': self._datetime(d['last_updated']),
+            'authority': hrn_to_urn(d['authority'], 'authority'),
+            'pi_authorities': [ 
+                                hrn_to_urn(pi_auth, 'authority') for pi_auth in  d['reg-pi-authorities']
+                               ],
+            'slices': [
+                        hrn_to_urn(sli, 'slice') for sli in d['reg-slices']
+                    ],
+
+            })
+
+        return user
+
+
 
     def get(self, entity, urn=None, raw=False):
 
@@ -103,8 +154,8 @@ class SfaReg(SfaApi):
             hrn = urn_to_hrn(urn)
             if entity == urn_type:
                 result = self._get_entity(hrn)
-            elif urn_type == 'authority':
-                result = self._extract_with_authority(hrn, self._list_entity(hrn))
+            # elif urn_type == 'authority':
+            #     result = self._extract_with_authority(hrn, self._list_entity(hrn))
             else:
                 raise MysNotImplementedError
 
