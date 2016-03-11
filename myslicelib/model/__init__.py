@@ -1,11 +1,10 @@
 from typing import Set
 
-class Entity(object):
 
+class Entity(object):
     _attributes = []
 
     def __init__(self, data = None):
-
         if data :
             self._attributes = data
 
@@ -13,13 +12,26 @@ class Entity(object):
         return "%s" % (self.attributes())
 
     def __getattr__(self, name):
-        if name in self._attributes:
-            return self._attributes[name]
-        else :
-            raise AttributeError
+        return self.attribute(name)
+
+    def __setattr__(self, name, value):
+        self.setattribute(name, value)
 
     def attributes(self):
         return self._attributes
+
+    def attribute(self, name):
+        print(name)
+        try:
+            return self._attributes[name]
+        except KeyError :
+            raise KeyError
+
+    def setattribute(self, name, value):
+        if not hasattr(self, name):
+            self._attributes[name] = value
+        else:
+            super().__setattr__(name, value)
 
     def dict(self):
         return self._attributes
