@@ -10,7 +10,7 @@ from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
 #from myslicelib.util.certificate import Keypair, Certificate
 import concurrent.futures
-from tests import time
+
 
 from myslicelib.error import MysParamsTypeError
 
@@ -105,7 +105,6 @@ class Api(object):
     def _thread_handler(self, call, *params):
         return threading.Thread(target=self._queue_hanlder, args=(call, *params))
 
-    @time.timeit
     def _parallel_request(self, threads):
         result = []
         with self._q.mutex:
