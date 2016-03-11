@@ -28,6 +28,7 @@ class Api(object):
         # version call
         self._version = self._version()
 
+
     def version(self):
         return self._version
 

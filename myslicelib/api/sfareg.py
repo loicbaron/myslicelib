@@ -88,6 +88,7 @@ class SfaReg(SfaApi):
         result = []
         if urn is None:
             result = self._list_entity()
+            return self._extract_with_entity(entity, result)
         else:
             xrn = Xrn(urn)
             urn_type = xrn.get_type()
@@ -102,6 +103,7 @@ class SfaReg(SfaApi):
                 result = self._get_entity(hrn)
             elif urn_type == 'authority':
                 result = self._extract_with_authority(hrn, self._list_entity(hrn))
+                result = self._extract_with_entity(entity, result)
             else:
                 raise MysNotImplementedError
 
@@ -121,15 +123,6 @@ class SfaReg(SfaApi):
             exit(1)
 
         return result
-
-    # def get(self, hrn, entity=None):
-    #     try:
-    #         
-    #         # result = filter_records(entity, result)
-    #     except Exception as e:
-    #         traceback.print_exc()
-    #         return False
-    #     return result
 
     # look up to see the upper has the credential
     def get_credential(self, hrn, entity):
