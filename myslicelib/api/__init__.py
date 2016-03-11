@@ -9,6 +9,8 @@ from myslicelib.util import Endpoint, Credential
 from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
 #from myslicelib.util.certificate import Keypair, Certificate
+import concurrent.futures
+
 
 from myslicelib.error import MysParamsTypeError
 
@@ -70,6 +72,7 @@ class Api(object):
         for endpoint in endpoints:
             if (endpoint.protocol == "SFA") and (endpoint.type == "Reg"):
                 self.registry = SfaReg(endpoint, credential)
+                registry_endpoint = endpoint
                 break
 
         if not self.registry:
@@ -78,7 +81,7 @@ class Api(object):
         # search for the AMs
         for endpoint in endpoints:
             if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
-                self.ams.append( SfaAm(endpoint, self.registry) )
+                self.ams.append( SfaAm(endpoint,  SfaReg(registry_endpoint, credential)) )
 
 
     def __getattr__(self, entity):
@@ -93,10 +96,6 @@ class Api(object):
 
         return method_handler
 
-
-    # def version(self):
-    #     return self.handler()
-
     def _queue_hanlder(self, call, *params):
         if params is None:
             self._q.put(call())
@@ -104,33 +103,54 @@ class Api(object):
             self._q.put(call(*params))
 
     def _thread_handler(self, call, *params):
-        if params is None:
-            return threading.Thread(target=self._queue_hanlder, args=(call))
         return threading.Thread(target=self._queue_hanlder, args=(call, *params))
 
-        # if args is None:
-        #     self._q.put(call)
-        #     return threading.Thread(target=call, args=())
-        # else:
-        #     self._q.put(call(*args))
-        # return threading.Thread(target=call, args=(args))
-
     def _parallel_request(self, threads):
+        result = []
+        with self._q.mutex:
+            self._q.queue.clear() 
         try:
             for t in threads:
                 t.start()
             for t in threads:
-                t.join()
-            return True
+                t.join()        
+            for _ in threads:            
+                res = self._q.get(block=False)
+                if isinstance(res, list):
+                    result += res
+                else:
+                    result += [res]
+            return result
         except Exception as e:
             print(e)
+            return result
+
+
+    # def _thread_handler(self, call, *params):
+    #     return {call: params}
+
+    # @time.timeit
+    # def _parallel_request(self, threads):
+    #     result = []
+    #     with concurrent.futures.ThreadPoolExecutor() as executor:
+    #         for thread in threads:
+    #             for call, arg in thread.items():
+    #                 if arg:
+    #                     future = executor.submit(call, *arg)
+    #                 else:
+    #                     future = executor.submit(call)
+    #                 result += [future.result()]
+    #     return result
+
 
     def version(self):
         threads= [self._thread_handler(self.registry.version)] + \
                  [self._thread_handler(am.version) for am in self.ams]
 
-        if self._parallel_request(threads):
-            reg_version = self._q.get()
+        res = self._parallel_request(threads)
+
+        reg_version = res[0]
+        del res[0]
 
         result = {
                 "myslicelib" : {
@@ -151,98 +171,38 @@ class Api(object):
                 "ams" : []
             }
 
-        for am in self.ams:
-            am_version = self._q.get()      
+        for i, am in enumerate(self.ams):
             result["ams"].append( {
                 "url" : am.endpoint.url,
                 "hostname" : urlparse(am.endpoint.url).hostname,
                 "name" : am.endpoint.name,
-                "status" : am_version['status'],
+                "status" : res[i]['status'],
                 "api" : {
                     "type" : am.endpoint.type,
                     "protocol" : am.endpoint.protocol,
-                    "version" : am_version['version'],
+                    "version" : res[i]['version'],
                 },
-                "id" : am_version['id'],
+                "id" : res[i]['id'],
             } )
 
         return result
 
-    # def version(self):
-    #     threads = []
-    #     q = Queue()
-    #     t = threading.Thread(target=self.handler, args=(self.registry.version))
-    #     t.start()
-    #     threads.append(t)
-    #     for am in self.ams:
-    #         t = threading.Thread(target=self.handler, args=(am.version))
-    #         t.start()
-    #         threads.append(t)
-
-    #     num = len(threads)
-
-    #     for t in threads:
-    #         t.join()
-
-    #     res = []
-    #     for i in range(num):
-    #         res.append(q.get())
-
-    #     print(res)
-    # def version(self) -> dict:
-    #     result = {
-    #             "myslicelib" : {
-    #                 "version" : "1.0"
-    #             },
-    #             "registry" : {
-    #                 "url" : self.registry.endpoint.url,
-    #                 "hostname" : urlparse(self.registry.endpoint.url).hostname,
-    #                 "name" : self.registry.endpoint.name,
-    #                 "status" : self.registry.version()['status'],
-    #                 "api" : {
-    #                     "type" : "registry",
-    #                     "protocol" : self.registry.endpoint.protocol,
-    #                     "version" : self.registry.version()['version'],
-    #                 },
-    #                 "id" : self.registry.version()['id'],
-    #             },
-    #             "ams" : []
-    #         }
-
-    #     for am in self.ams:
-    #         result["ams"].append( {
-    #             "url" : am.endpoint.url,
-    #             "hostname" : urlparse(am.endpoint.url).hostname,
-    #             "name" : am.endpoint.name,
-    #             "status" : am.version()['status'],
-    #             "api" : {
-    #                 "type" : am.endpoint.type,
-    #                 "protocol" : am.endpoint.protocol,
-    #                 "version" : am.version()['version'],
-    #             },
-    #             "id" : am.version()['id'],
-    #         } )
-
-    #     return result
-
-
     def get(self, id=None, raw=False):
         result = []
         threads = []
-        if self._entity in self._registry:
-            threads += [self._thread_handler(self.registry.get, self._entity, id)]
         
         if self._entity in self._am:
             for am in self.ams:
                 threads += [self._thread_handler(am.get, self._entity, id, raw)]
 
+        if self._entity in self._registry:
+            threads += [self._thread_handler(self.registry.get, self._entity, id)]
+
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
-        
-        if self._parallel_request(threads):
-            for _ in threads:
-                result += self._q.get()
 
+
+        result = self._parallel_request(threads)
         return result
 
         # if (id) :
@@ -257,6 +217,7 @@ class Api(object):
             raise MysParamsTypeError('a dict is expected')
         
         result = []
+        threads = []
         if self._entity in self._registry:
             result += self.registry.create(self._entity, id, params)
             if not result:
@@ -264,7 +225,18 @@ class Api(object):
 
         if self._entity in self._am:
             for am in self.ams:
-                result += am.update(self._entity, id, params)
+                threads += [self._thread_handler(am.update, self._entity, id, params)]
+
+        result += self._parallel_request(threads)
+
+        # if self._entity in self._registry:
+        #     result += self.registry.create(self._entity, id, params)
+        #     if not result:
+        #         result += self.registry.update(self._entity, id, params)
+
+        # if self._entity in self._am:
+        #     for am in self.ams:
+        #         result += am.update(self._entity, id, params)
 
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
@@ -274,15 +246,19 @@ class Api(object):
 
     def delete(self, id):
         exists = self.get(id)
+        threads = []
+        result = True
         if not exists:
             raise Exception('This object do not exist')
         else:
             if self._entity in self._am:
                 for am in self.ams:
-                    result = am.delete(self._entity, id)
+                    threads += [self._thread_handler(am.delete, self._entity, id)]
             
             if self._entity in self._registry:
-                result = self.registry.delete(self._entity, id)
+                threads += [self._thread_handler(self.registry.delete, self._entity, id)]
+
+            result = self._parallel_request(threads)
 
             if self._entity not in self._am and self._entity not in self._registry:
                 raise NotImplementedError('Not implemented')

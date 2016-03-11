@@ -125,15 +125,6 @@ class SfaReg(SfaApi):
 
         return result
 
-    # def get(self, hrn, entity=None):
-    #     try:
-    #         
-    #         # result = filter_records(entity, result)
-    #     except Exception as e:
-    #         traceback.print_exc()
-    #         return False
-    #     return result
-
     # look up to see the upper has the credential
     def get_credential(self, hrn, entity):
         try:
