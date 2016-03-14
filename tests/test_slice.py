@@ -66,15 +66,16 @@ class TestSlice(unittest.TestCase):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
         self.assertTrue(res)
 
-    def test_slice_with_root_cred(self):
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
-                                                        'reg-researchers': [hrn],
-                                                        })
-        for sli in res:
-            self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
-        self.assertTrue(res)
+    # def test_slice_with_root_cred(self):
+    #     res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
+    #                                                     'reg-researchers': [hrn],
+    #                                                     })
+    #     self.assertEqual(res, Slices)
+    #     for sli in res:
+    #         self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
+    #         self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
+    #     res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
+    #     self.assertTrue(res)
 
     @unittest.expectedFailure
     def test_get_authority_from_user(self):

@@ -2,8 +2,7 @@ from myslicelib.query import Query
 
 class SliceQuery(Query):
 
-    def get(self):
-        res = self.api.get(self._id)
+    def _merge_dicts(self, res):
         result = {}
         for element in res:
             for k,v in element.items():
@@ -12,16 +11,19 @@ class SliceQuery(Query):
                     result[k] += v    
                 else:
                     result[k] = v
-        return self.collection([result])
+        return [result]
 
 
-    # def update(self, params):
-    #     if not self._id:
-    #         raise Exception("No element specified")
-
-    #     res = self.api.update(self._id, params)
+    def get(self):
+        res = self.api.get(self._id)
         
-    #     
-    #     pprint(result)
+        return self.collection(self._merge_dicts(res))
 
-    #     #return self.collection(res)
+
+    def update(self, params):
+        if not self._id:
+            raise Exception("No element specified")
+
+        res = self.api.update(self._id, params)
+
+        return self.collection(self._merge_dicts(res))

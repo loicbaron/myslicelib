@@ -86,7 +86,7 @@ class TestUser(unittest.TestCase):
         res = self.q.get()
         self.assertIsInstance(res, Users)
         for user in res:
-            self.assertIsNone(user.attribute('pi_authorities'))
+            self.assertIsNotNone(user.attribute('pi_authorities'))
 
 if __name__ == '__main__':
     unittest.main()
