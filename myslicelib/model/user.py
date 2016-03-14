@@ -15,7 +15,7 @@ class User(Entity):
         Authority = myslicelib.model.authority.Authority
         result = []
         for urn in self.attribute('users'):
-            result += q(User).id(urn).get()
+            result += q(Authority).id(urn).get()
         return result
 
     @authority.setter

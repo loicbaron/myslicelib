@@ -24,8 +24,17 @@ class SfaReg(SfaApi):
 
     def _extract_with_entity(self, entity, result):
         filtered_entites = []
+        
         for record in result:
-            if (record['type'] == entity) :
+            if entity == 'project':
+                if record['type'] == 'authority' and len(record['hrn'].split('.'))>2:
+                    filtered_entites.append(record)
+            
+            elif entity == 'authority':
+                if len(record['hrn'].split('.')) <3:
+                    filtered_entites.append(record)
+
+            elif record['type'] == entity:
                 filtered_entites.append(record)
         return filtered_entites
 
@@ -82,14 +91,12 @@ class SfaReg(SfaApi):
 
     def _authority(self, data):
         authority = []
-        
         for d in data:
-            mappings = {
 
+            mappings = {
                 'slice': [],
                 'user': [],
                 'authority': [],
-
             }
             ### XXX need optimatiztion with query(id = None)
             enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
@@ -99,6 +106,36 @@ class SfaReg(SfaApi):
                 mappings[entity['type']] += [entity['reg-urn']]
 
             authority.append({
+                'id' :  d.get('reg-urn'),
+                'keys': d.get('reg-keys', []),
+                'certificate': d.get('gid'),
+                'created': self._datetime(d['date_created']),
+                'updated': self._datetime(d['last_updated']),
+                'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
+                'users': mappings['user'],
+                'slices': mappings['slice'],
+                'projects': mappings['authority']
+            })
+        return authority
+
+    def _project(self, data):
+        project = []
+        
+        for d in data:
+
+            enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
+
+            mappings = {
+                'slice': [],
+                'user': [],
+            }
+
+            for entity in enitities:
+                # depend object tpye, we add this object urn to its coresponding mappings
+                if entity['type'] in mappings:
+                    mappings[entity['type']]+= [entity['reg-urn']]
+
+            project.append({
 
                 'id' :  d['reg-urn'],
                 'name': d['name'],
@@ -108,10 +145,9 @@ class SfaReg(SfaApi):
                 'pi_users': [hrn_to_urn(user, 'user') for user in d['reg-pis']],
                 'users': mappings['user'],
                 'slices': mappings['slice'],
-                'projects': mappings['authority'],
-
             })
-        return authority
+
+        return project
 
     def _user(self, data):
         user = []
@@ -119,25 +155,23 @@ class SfaReg(SfaApi):
         for d in data:
             user.append({
 
-            'id' :  d['reg-urn'],
-            'keys': d['reg-keys'],
-            'certificate': d['gid'],
-            'email': d['email'],
+            'id' :  d.get('reg-urn'),
+            'keys': d.get('reg-keys', []),
+            'certificate': d.get('gid'),
+            'email': d.get('email', ''),
             'created': self._datetime(d['date_created']),
             'updated': self._datetime(d['last_updated']),
             'authority': hrn_to_urn(d['authority'], 'authority'),
             'pi_authorities': [ 
-                                hrn_to_urn(pi_auth, 'authority') for pi_auth in  d['reg-pi-authorities']
+                                hrn_to_urn(pi_auth, 'authority') for pi_auth in d.get('reg-pi-authorities', [])
                                ],
             'slices': [
-                        hrn_to_urn(sli, 'slice') for sli in d['reg-slices']
+                        hrn_to_urn(sli, 'slice') for sli in d.get('reg-slices', [])
                     ],
 
             })
 
         return user
-
-
 
     def get(self, entity, urn=None, raw=False):
 
@@ -145,27 +179,20 @@ class SfaReg(SfaApi):
         if urn is None:
             result = self._extract_with_entity(entity, self._list_entity())
         else:
-            xrn = Xrn(urn)
-            urn_type = xrn.get_type()
+            hrn, urn_type = urn_to_hrn(urn)
 
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
 
+            if entity == 'project':
+                urn_type = 'project' if len(hrn.split('.'))> 2 else 'authority'
+
             # entity is query object
             # urn_type is type of object derived from urn
-            hrn = urn_to_hrn(urn)[0]
             if entity == urn_type:
                 result = self._get_entity(hrn)
-            # elif urn_type == 'authority':
-            #     result = self._extract_with_authority(hrn, self._list_entity(hrn))
             else:
-                raise MysNotImplementedError
-
-            #print(results)
-            #for r in results:
-            #    result.append(self._get_entity(r['hrn']))
-            #else:
-            #    result = self._get_entity(hrn)
+                raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
 
         if raw:
             return self._extract_with_entity(entity, result)

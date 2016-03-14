@@ -40,7 +40,8 @@ class Api(object):
         'slice',
         'user',
         'authority',
-        'lease'
+        'lease',
+        'project'
     ]
 
     _am = [
@@ -52,7 +53,8 @@ class Api(object):
     _registry = [
         'slice',
         'user',
-        'authority'
+        'authority',
+        'project'
     ]
 
     _q = Queue()
