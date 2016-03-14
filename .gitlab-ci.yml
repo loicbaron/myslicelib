@@ -9,4 +9,3 @@ job0:
     - ./tests/test_user.py
     - ./tests/test_authority.py
     - ./tests/test_slice.py
-    - ./tests/test_api.py
