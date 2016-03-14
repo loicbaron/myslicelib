@@ -76,15 +76,14 @@ class SfaReg(SfaApi):
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'users': users,
-                'authority': d['authority']
+                'authority': hrn_to_urn(d['authority'], 'authority'),
             })
         return slices
 
     def _authority(self, data):
         authority = []
-
+        
         for d in data:
-
             mappings = {
 
                 'slice': [],
@@ -92,9 +91,11 @@ class SfaReg(SfaApi):
                 'authority': [],
 
             }
+            ### XXX need optimatiztion with query(id = None)
             enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
-            
+
             for entity in enitities:
+                # depend object tpye, we add this object urn to its coresponding mappings
                 mappings[entity['type']] += [entity['reg-urn']]
 
             authority.append({
@@ -104,7 +105,7 @@ class SfaReg(SfaApi):
                 'certificate': d['gid'],
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
-                'pi_users': d['reg-pis'],
+                'pi_users': [hrn_to_urn(user, 'user') for user in d['reg-pis']],
                 'users': mappings['user'],
                 'slices': mappings['slice'],
                 'projects': mappings['authority'],
@@ -121,6 +122,7 @@ class SfaReg(SfaApi):
             'id' :  d['reg-urn'],
             'keys': d['reg-keys'],
             'certificate': d['gid'],
+            'email': d['email'],
             'created': self._datetime(d['date_created']),
             'updated': self._datetime(d['last_updated']),
             'authority': hrn_to_urn(d['authority'], 'authority'),
@@ -151,7 +153,7 @@ class SfaReg(SfaApi):
 
             # entity is query object
             # urn_type is type of object derived from urn
-            hrn = urn_to_hrn(urn)
+            hrn = urn_to_hrn(urn)[0]
             if entity == urn_type:
                 result = self._get_entity(hrn)
             # elif urn_type == 'authority':
@@ -191,7 +193,7 @@ class SfaReg(SfaApi):
 
     def create(self, entity, urn, record_dict):
         try:
-            hrn = urn_to_hrn(urn)
+            hrn = urn_to_hrn(urn)[0]
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 record_dict["type"] = entity
@@ -206,7 +208,7 @@ class SfaReg(SfaApi):
 
     def delete(self, entity, urn):
         try:
-            hrn = urn_to_hrn(urn)
+            hrn = urn_to_hrn(urn)[0]
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 result = self._proxy.Remove(hrn, auth_cred, entity)
@@ -221,7 +223,7 @@ class SfaReg(SfaApi):
 
     def update(self, entity, urn, record_dict):
         try:
-            hrn = urn_to_hrn(urn)
+            hrn = urn_to_hrn(urn)[0]
             if entity == 'user' and hrn == self.credential.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
