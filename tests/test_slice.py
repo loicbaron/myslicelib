@@ -3,8 +3,9 @@ import sys
 import unittest
 
 from myslicelib.model.slice import Slices, Slice
-from myslicelib.model.authority import Authority
+from myslicelib.model.authority import Authorities, Authority
 from myslicelib.query import q
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
 from myslicelib.error import MysNotUrnFormatError
 from myslicelib.error import MysNotImplementedError
@@ -33,47 +34,45 @@ class TestSlice(unittest.TestCase):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
                                                                     'name': 'apitest'
                                                                     })
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', res.dict()[0]['reg-urn'])
+        self.assertIsInstance(res, Authorities)
+        for auth in res:
+            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
 
     def test_01_create_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
                                                 'reg-researchers': [hrn],
                                                 })
         self.assertIsInstance(res, Slices)
-        self.assertEqual('slice', res.dict()[0]['classtype'])
-        self.assertIn(hrn, res.dict()[0]['reg-researchers'])
+        for sli in res:
+            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
 
     def test_02_get_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', res.dict()[0]['reg-urn'])
+        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       
+        for sli in res:
+            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', sli.id)
 
     def test_03_update_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
                                                 'reg-researchers': [hrn, 'onelab.inria.aaaa'],
                                                 })
-        self.assertIn(hrn, res.dict()[0]['reg-researchers'])
-
-    def test_04_get_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').get()
-        for sli in res.dict():
-            self.assertEqual('slice', sli['classtype'])
-            self.assertEqual('onelab.upmc.authx', sli['authority'])
-
-    def test_05_delete_slice(self):
+        for sli in res:
+            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
+    
+    def test_04_delete_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
         self.assertTrue(res)
 
-    def test_06_clear_up(self):
+    def test_05_clear_up(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
         self.assertTrue(res)
-
 
     def test_slice_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
                                                         'reg-researchers': [hrn],
                                                         })
-        self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', res.dict()[0]['reg-urn'])
-        self.assertIn(hrn, res.dict()[0]['reg-researchers'])
+        for sli in res:
+            self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
+            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
         res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
         self.assertTrue(res)
 
@@ -82,10 +81,10 @@ class TestSlice(unittest.TestCase):
         with self.assertRaises(MysNotImplementedError):
             self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
     
-    def test_get_authority_from_root_authority(self):
-        res = self.q.get()
-        for auth in res.dict():
-            self.assertEqual('slice', auth['classtype'])
+    # def test_get_authority_from_root_authority(self):
+    #     res = self.q.get()
+    #     for auth in res:
+    #         self.assertIsNone 
 
 if __name__ == '__main__':
     unittest.main()

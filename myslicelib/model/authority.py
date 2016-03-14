@@ -14,7 +14,7 @@ class Authority(Entity):
     def users(self):
         User = myslicelib.model.user.User
         result = []
-        for urn in self.attributes()['users']:
+        for urn in self.attribute('users'):
             result += q(User).id(urn).get()
         return result
 
@@ -22,13 +22,13 @@ class Authority(Entity):
     def users(self, value):
         if not isinstance(value, list):
             raise TypeError('a list needed to set')
-        self.attributes()['users'] = value
+        self.setattribute('users', value)
 
     @property
     def pi_users(self):
         User = myslicelib.model.user.User
         result = []
-        for urn in self.attributes()['pi_users']:
+        for urn in self.attribute('pi_users'):
             result += q(User).id(urn).get()
         return result
 
@@ -36,13 +36,13 @@ class Authority(Entity):
     def pi_users(self, value):
         if not isinstance(value, list):
             raise TypeError('a list needed to set')
-        self.attributes()['pi_users'] = value
+        self.setattribute('pi_users', value)
 
     @property
     def slices(self):
         Slice = myslicelib.model.slice.Slice
         result = []
-        for urn in self.attributes()['slices']:
+        for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
         return result
 
@@ -50,5 +50,5 @@ class Authority(Entity):
     def slices(self, value):
         if not isinstance(value, list):
             raise TypeError('a list needed to set')
-        self.attributes()['slices'] = value
+        self.setattribute('slices', value)
         # TOD0: SFAAM UPDATE

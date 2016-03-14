@@ -4,11 +4,13 @@ import unittest
 
 from myslicelib.model.authority import Authorities, Authority
 from myslicelib.query import q
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
 from myslicelib.error import MysNotUrnFormatError
 
 from tests import s
 from tests import hrn
+
 
 class TestAuthority(unittest.TestCase):
 
@@ -30,19 +32,23 @@ class TestAuthority(unittest.TestCase):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
                                                 'reg-pis': [hrn],
                                                 })
-        self.assertIsInstance(res, Authorities)
-        self.assertEqual('authority', res.dict()[0]['classtype'])
-        self.assertIn(hrn, res.dict()[0]['reg-pis'])
+        for auth in res:
+            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
 
     def test_02_get_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').get()
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', res.dict()[0]['reg-urn'])
+        for auth in res:
+            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
 
     def test_03_update_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
                                                 'reg-pis': ['onelab.upmc.joshzhou16', hrn],
                                                 })
-        self.assertIn('onelab.upmc.joshzhou16', res.dict()[0]['reg-pis'])
+        for auth in res:
+            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
+            self.assertIn(hrn_to_urn('onelab.upmc.joshzhou16', 'user'), auth.attribute('pi_users'))
 
     def test_04_delete_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
@@ -52,10 +58,11 @@ class TestAuthority(unittest.TestCase):
         res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').update({
                                                 'reg-pis': [hrn],
                                                 })
-        self.assertEqual('urn:publicid:IDN+onelab:inria:authx+authority+sa', res.dict()[0]['reg-urn'])
-        self.assertIn(hrn, res.dict()[0]['reg-pis'])
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
-        self.assertTrue(res)
+        for auth in res:
+            self.assertEqual('urn:publicid:IDN+onelab:inria:authx+authority+sa', auth.id)
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
+            res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
+            self.assertTrue(res)
         
     @unittest.expectedFailure
     def test_get_authority_from_slice(self):
@@ -69,9 +76,8 @@ class TestAuthority(unittest.TestCase):
 
     def test_get_authority_from_root_authority(self):
         res = self.q.get()
-        for auth in res.dict():
-            self.assertEqual('authority', auth['classtype'])
-
+        for auth in res:
+            self.assertIsNotNone(auth.attribute('pi_users'))
 
 if __name__ == '__main__':
     #print(q(User).get())

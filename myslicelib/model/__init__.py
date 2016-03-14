@@ -21,7 +21,6 @@ class Entity(object):
         return self._attributes
 
     def attribute(self, name):
-        print(name)
         try:
             return self._attributes[name]
         except KeyError :

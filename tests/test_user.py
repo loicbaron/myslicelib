@@ -37,20 +37,27 @@ class TestUser(unittest.TestCase):
                                                 'email':'loic.baron@gmail.com',
                                                 })
         self.assertIsInstance(res, Users)
-        self.assertEqual('user', res.dict()[0]['classtype'])
-        self.assertEqual('loic.baron@gmail.com', res.dict()[0]['email'])
+        for user in res:
+            self.assertEqual('loic.baron@gmail.com', user.email)
+            self.assertEqual([], user.keys)
+            self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', user.id)
 
     def test_02_get_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
-        self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', res.dict()[0]['reg-urn'])
+        for user in res:
+            self.assertEqual('loic.baron@gmail.com', user.email)
+            self.assertEqual([], user.keys)
+            self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', user.id)
 
     def test_03_update_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron.new@gmail.com',
                                                 'reg-keys': [SSH_KEY],
                                                 })
-        self.assertEqual('loic.baron.new@gmail.com', res.dict()[0]['email'])
-        self.assertIn(SSH_KEY, res.dict()[0]['reg-keys'])
+        for user in res:
+            self.assertEqual('loic.baron.new@gmail.com', user.email)
+            self.assertIn(SSH_KEY, user.keys)
+            self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', user.id)
 
 
     def test_04_delete_user(self):
@@ -59,8 +66,9 @@ class TestUser(unittest.TestCase):
 
     def test_user_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
-        self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', res.dict()[0]['reg-urn'])
-        self.assertEqual('loic.baron@gmail.com', res.dict()[0]['email'])
+        for user in res:
+            self.assertEqual('loic.baron@gmail.com', user.email)
+            self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', user.id)
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
         self.assertTrue(res)
         
@@ -69,16 +77,16 @@ class TestUser(unittest.TestCase):
         with self.assertRaises(MysNotImplementedError):
             self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 
+    @unittest.expectedFailure
     def test_get_user_from_authority(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
-        for user in res.dict():
-            self.assertEqual('user', user['classtype'])
-            self.assertEqual('onelab.upmc', user['authority'])
+        with self.assertRaises(MysNotImplementedError):
+            res = self.q.id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 
     def test_get_user_from_root_authority(self):
         res = self.q.get()
-        for user in res.dict():
-            self.assertEqual('user', user['classtype'])
+        self.assertIsInstance(res, Users)
+        for user in res:
+            self.assertIsNone(user.attribute('pi_authorities'))
 
 if __name__ == '__main__':
     unittest.main()

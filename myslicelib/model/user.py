@@ -13,8 +13,10 @@ class User(Entity):
     @property
     def authority(self):
         Authority = myslicelib.model.authority.Authority
-        urn = self.attributes()['authority']
-        return q(Authority).id(urn).get()
+        result = []
+        for urn in self.attribute('users'):
+            result += q(User).id(urn).get()
+        return result
 
     @authority.setter
     def authority(self, value):
@@ -23,7 +25,7 @@ class User(Entity):
     @property
     def pi_authorities(self):
         Authority = myslicelib.model.authority.Authority
-        pi_auths = self.attributes()['pi_authorities']
+        pi_auths = self.attribute('pi_authorities')
         # TODO parallel requests using MultiProcess     
         result = []
         for urn in pi_auths:
@@ -34,14 +36,14 @@ class User(Entity):
     def pi_authorities(self, value):
         if not isinstance(value, list):
             raise TypeError('a list needed to set')
-        self.attributes()['pi_authorities'] = value
+        self.setattribute('pi_authorities', value)
         # TODO: to really update these
 
     @property
     def slices(self):
         Slice = myslicelib.model.slice.Slice
         result = []
-        for urn in self.attributes()['slices']:
+        for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
         return result
 
@@ -49,6 +51,6 @@ class User(Entity):
     def slices(self, value):
         if not isinstance(value, list):
             raise TypeError('a list needed to set')
-        self.attributes()['slices'] = value
+        self.setattribute('slices', value)
         # TOD0: SFAAM UPDATE
 
