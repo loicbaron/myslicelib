@@ -38,7 +38,7 @@ class Entity(object):
     def save(self):
         raise NotImplementedError('Not implemented')
 
-class Entities(Set[Entity]):
+class Entities(set):
 
     def first(self):
         if len(self) > 0:
