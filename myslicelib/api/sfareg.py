@@ -3,7 +3,7 @@ import traceback
 import pytz
 
 from myslicelib.api.sfa import Api as SfaApi
-from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn 
 
 from myslicelib.error import MysNotUrnFormatError
 from myslicelib.error import MysNotImplementedError
@@ -86,6 +86,7 @@ class SfaReg(SfaApi):
                 'updated': self._datetime(d['last_updated']),
                 'users': users,
                 'authority': hrn_to_urn(d['authority'], 'authority'),
+                'project': hrn_to_urn('.'.join(d['hrn'].split('.')[:-1]), 'authority'),
             })
         return slices
 
@@ -184,12 +185,12 @@ class SfaReg(SfaApi):
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
 
-            if entity == 'project':
-                urn_type = 'project' if len(hrn.split('.'))> 2 else 'authority'
+            # if entity in ['project', 'authority']:
+            #     urn_type = 'project' if len(hrn.split('.'))> 2 else 'authority'
 
             # entity is query object
             # urn_type is type of object derived from urn
-            if entity == urn_type:
+            if entity == urn_type or entity == 'project':
                 result = self._get_entity(hrn)
             else:
                 raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
