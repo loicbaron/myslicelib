@@ -3,6 +3,7 @@ from myslicelib.api import Api
 
 class Entity(object):
     _attributes = []
+    _api = None
 
     def __init__(self, data = None):
         if data :
@@ -26,6 +27,9 @@ class Entity(object):
         try:
             return self._attributes[name]
         except KeyError :
+            print(name)
+            from pprint import pprint
+            pprint(self._attributes)
             raise KeyError
 
     def setattribute(self, name, value):
@@ -39,22 +43,16 @@ class Entity(object):
 
     def save(self):
         if not self.id:
-            # create new
-            raise NotImplementedError("")
+            self.id = None
 
-        else:
-            # update
-            pass
-
-        res = self.api.update(self.id, self.attributes())
-
-        #return self.collection(res)
+        res = self._api.update(self.id, self.attributes())
+        return res 
 
     def delete(self):
         if not self._id:
             raise Exception("No element specified")
 
-        res = self.api.delete(self._id)
+        res = self._api.delete(self._id)
 
         return res
 
@@ -83,6 +81,14 @@ class Entities(set):
             list.append(e.attributes())
 
         return list
+
+    def save(self):
+        for e in self:
+            e.save()
+
+    def delete(self):
+        for e in self:
+            e.delete()
 
     # def filter(self, key, value):
     #     self.f[key] = value
