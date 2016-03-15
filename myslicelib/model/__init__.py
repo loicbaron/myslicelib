@@ -1,5 +1,3 @@
-from typing import Set
-
 
 class Entity(object):
     _attributes = []
@@ -42,7 +40,7 @@ class Entities(set):
 
     def first(self):
         if len(self) > 0:
-            return iter(self).next()
+            return next(iter(self))
 
     def count(self):
         return len(self)
