@@ -8,5 +8,5 @@ job0:
     - ./key_to_file.py
     - ./tests/test_user.py
     - ./tests/test_authority.py
-	- ./tests/test_project.py
+	  - ./tests/test_project.py
     - ./tests/test_slice.py
