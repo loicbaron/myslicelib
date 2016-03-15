@@ -87,20 +87,3 @@ class Query(object):
         res = self.api.get(self._id)
 
         return self.collection(res)
-
-    def update(self, params):
-        if not self._id:
-            raise Exception("No element specified")
-
-        res = self.api.update(self._id, params)
-
-        return self.collection(res)
-
-    def delete(self):
-        if not self._id:
-            raise Exception("No element specified")
-
-        res = self.api.delete(self._id)
-
-        return res 
-

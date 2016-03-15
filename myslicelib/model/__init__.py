@@ -1,3 +1,5 @@
+from myslicelib import setup as s
+from myslicelib.api import Api
 
 class Entity(object):
     _attributes = []
@@ -5,6 +7,8 @@ class Entity(object):
     def __init__(self, data = None):
         if data :
             self._attributes = data
+
+        self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
 
     def __repr__(self):
         return "%s" % (self.attributes())
@@ -34,7 +38,25 @@ class Entity(object):
         return self._attributes
 
     def save(self):
-        raise NotImplementedError('Not implemented')
+        if not self.id:
+            # create new
+            raise NotImplementedError("")
+
+        else:
+            # update
+            pass
+
+        res = self.api.update(self.id, self.attributes())
+
+        #return self.collection(res)
+
+    def delete(self):
+        if not self._id:
+            raise Exception("No element specified")
+
+        res = self.api.delete(self._id)
+
+        return res
 
 class Entities(set):
 
