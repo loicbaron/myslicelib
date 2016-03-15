@@ -2,7 +2,7 @@
 import sys
 import unittest
 
-from myslicelib.model.authority import Authorities, Authority
+from myslicelib.model.authority import Authority, Authorities
 from myslicelib.query import q
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
@@ -12,7 +12,7 @@ from tests import s
 from tests import hrn
 
 
-class TestAuthority(unittest.TestCase):
+class TestProject(unittest.TestCase):
 
     def setUp(self):
         self.q = q(Authority)
@@ -25,59 +25,53 @@ class TestAuthority(unittest.TestCase):
         self.assertRaises(MysNotUrnFormatError)
 
     def test_id_authority(self):
-        self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa')
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', self.q._id)
+        self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa')
+        self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', self.q._id)
 
     def test_01_create_authority(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
+        res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
                                                 'reg-pis': [hrn],
                                                 })
+        self.assertIsInstance(res, Authorities)
         for auth in res:
-            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
+            self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
 
     def test_02_get_authority(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').get()
+        res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').get()
+        self.assertIsInstance(res, Authorities)
         for auth in res:
-            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
+            self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
 
     def test_03_update_authority(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
+        res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
                                                 'reg-pis': ['onelab.upmc.joshzhou16', hrn],
                                                 })
+        self.assertIsInstance(res, Authorities)
         for auth in res:
-            self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
+            self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
             self.assertIn(hrn_to_urn('onelab.upmc.joshzhou16', 'user'), auth.attribute('pi_users'))
 
     def test_04_delete_authority(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
+        res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
         self.assertTrue(res)
 
     def test_authority_with_root_cred(self):
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').update({
+        res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
                                                 'reg-pis': [hrn],
                                                 })
+        self.assertIsInstance(res, Authorities)
         for auth in res:
-            self.assertEqual('urn:publicid:IDN+onelab:inria:authx+authority+sa', auth.id)
+            self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
-            res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
+            res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
             self.assertTrue(res)
         
-    @unittest.expectedFailure
-    def test_get_authority_from_slice(self):
-        with self.assertRaises(MysNotImplementedError):
-            self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
-
-    @unittest.expectedFailure
-    def test_get_authority_from_user(self):
-        with self.assertRaises(MysNotImplementedError):
-            self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
-
-    def test_get_authority_from_root_authority(self):
-        res = self.q.get()
-        for auth in res:
-            self.assertIsNotNone(auth.attribute('pi_users'))
+    # def test_get_authority_from_root_authority(self):
+    #     res = self.q.get()
+    #     for auth in res:
+    #         self.assertIsNotNone(auth.attribute('pi_users'))
 
 if __name__ == '__main__':
     #print(q(User).get())
