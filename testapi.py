@@ -64,26 +64,37 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #     print(u.pi_authorities)
 #     print(u)
 
+u = q(User).id('urn:publicid:IDN+onelab:inria+user+lucia_guevgeozian_odizzio').get().first()
+
 auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 start_time = time.time()
 for auth in auths:
     print('Authority')
+    print("attributes")
     pprint(auth.attributes()) 
-    # pprint(auth.users)
-    # pprint(auth.projects)
+    #print("users")
+    #pprint(auth.users)
+    #print("projects")
+    #pprint(auth.projects)
+    print("pi_users")
+    pis = auth.pi_users
+    pis.append(u)
+    pprint(pis)
+auths.save()
+
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 # for auth in auths:
 #     print(auth.id)
 
-proj = q(Project).id('urn:publicid:IDN+onelab:upmc:apitest+authority+sa').get()
-for p in proj:
-    print('Project')
-    pprint(p.attributes())
-
-proj = q(Project).get()
-for p in proj:
-    print(p.id)
+#proj = q(Project).id('urn:publicid:IDN+onelab:upmc:apitest+authority+sa').get()
+#for p in proj:
+#    print('Project')
+#    pprint(p.attributes())
+#
+#proj = q(Project).get()
+#for p in proj:
+#    print(p.id)
 
 
 # proj = q(Project).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
