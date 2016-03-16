@@ -181,7 +181,6 @@ class SfaReg(SfaApi):
             result = self._extract_with_entity(entity, self._list_entity())
         else:
             hrn, urn_type = urn_to_hrn(urn)
-
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
 
@@ -219,30 +218,30 @@ class SfaReg(SfaApi):
             # if Error, go to upper level until reach the root level
             return self.get_credential(upper_hrn, entity)
 
-    def _user_mappings(self, record_dict):
-        mapped_dict = {                     
+    def _user_mappings(self, hrn, record_dict):
+        mapped_dict = {
+                    'hrn': hrn,
+                    'type': 'user',                 
                     'email': record_dict.get('email', ''),                   
                     'reg-keys': record_dict.get('keys', '')
         }
         return mapped_dict
 
-    def _authority_mappings(self, record_dict):
-        mapped_dict = {                     
+    def _authority_mappings(self, hrn, record_dict):
+        mapped_dict = {
+                    'hrn': hrn,
+                    'type': 'authority',                 
                     'name': record_dict.get('name', None),
                     'reg-pis': record_dict.get('pi_users', [])                   
         }
         return mapped_dict
 
-    def _project_mappings(self, record_dict):
-        mapped_dict = {                     
-                    'name': record_dict.get('name', None),
-                    'reg-pis': record_dict.get('pi_users', [])                   
-        }
-        return mapped_dict
+    def _slice_mappings(self, hrn, record_dict):
 
-    def _slice_mappings(self, record_dict):
-        mapped_dict = {                     
-                    'reg-researchers': record_dict.get('users', ),  
+        mapped_dict = {
+                    'hrn': hrn,
+                    'type': 'slice',          
+                    'reg-researchers': record_dict.get('users', []),
         }
         return mapped_dict
 
@@ -251,10 +250,7 @@ class SfaReg(SfaApi):
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
-                mapped_dict = getattr(self, '_'+entity+'_mappings')(record_dict)
-                mapped_dict['type'] = entity
-                mapped_dict['hrn'] = hrn
-                print(mapped_dict)
+                mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
                 result = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
@@ -264,8 +260,8 @@ class SfaReg(SfaApi):
             return []
 
     def update(self, entity, urn, record_dict):
+        hrn = urn_to_hrn(urn)[0]
         try:
-            hrn = urn_to_hrn(urn)[0]
             if entity == 'user' and hrn == self.credential.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
@@ -273,9 +269,9 @@ class SfaReg(SfaApi):
             else:
                 cred = self.get_credential(hrn, 'authority')
             if cred:
-                record_dict["type"] = entity
-                record_dict["hrn"] = hrn
-                result = self._proxy.Update(record_dict, cred)
+                mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
+                print(mapped_dict)
+                result = self._proxy.Update(mapped_dict, cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
             raise Exception("No Credential to update this Or Urn is Not Right", urn)
