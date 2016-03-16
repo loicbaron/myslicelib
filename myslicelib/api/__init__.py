@@ -224,6 +224,8 @@ class Api(object):
             result += self.registry.create(self._entity, id, params)
             if not result:
                 result += self.registry.update(self._entity, id, params)
+            # XXX We should flag if Exception is raised
+            # XXX because for Slice if Registry call failed we will not call the AMs
 
         if self._entity in self._am:
             for am in self.ams:
