@@ -1,9 +1,12 @@
 from myslicelib import setup as s
 from myslicelib.api import Api
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
 
 class Entity(object):
-    _attributes = []
+    _attributes = {}
+    _type = 'entity'
     _api = None
+    id = None
 
     def __init__(self, data = None):
         if data :
@@ -27,32 +30,38 @@ class Entity(object):
         try:
             return self._attributes[name]
         except KeyError :
-            print(name)
-            from pprint import pprint
-            pprint(self._attributes)
             raise KeyError
-
+    
+    # XXX cant setattribute succuessfully
     def setattribute(self, name, value):
-        if not hasattr(self, name):
+        if name != '_api':
             self._attributes[name] = value
-        else:
-            super().__setattr__(name, value)
+        super().__setattr__(name, value)
+    #     if not hasattr(self, name):
+    #         self._attributes[name] = value
+    #     else:
+    #         self._attributes[name] = value
+    #         super().__setattr__(name, value)
 
     def dict(self):
         return self._attributes
 
     def save(self):
         if not self.id:
-            self.id = None
-
+            if self.hrn:
+                self.id = hrn_to_urn(self.hrn, self._type)
+            else:
+                self.id = None
+            
         res = self._api.update(self.id, self.attributes())
-        return res 
+        
+        return res
 
     def delete(self):
-        if not self._id:
+        if not self.id:
             raise Exception("No element specified")
 
-        res = self._api.delete(self._id)
+        res = self._api.delete(self.id)
 
         return res
 

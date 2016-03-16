@@ -5,4 +5,5 @@ class Leases(Entities):
 
 class Lease(Entity):
     _class = "Lease"
+    _type = "lease"
     _collection = "Leases"

@@ -8,6 +8,7 @@ class Projects(Entities):
 
 class Project(Entity):
     _class = "Project"
+    _type = "authority"
     _collection = "Projects"
 
     @property

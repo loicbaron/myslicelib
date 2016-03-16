@@ -8,6 +8,7 @@ class Slices(Entities):
 
 class Slice(Entity):
     _class = "Slice"
+    _type = "slice"
     _collection = "Slices"
 
     # def __str__(self):

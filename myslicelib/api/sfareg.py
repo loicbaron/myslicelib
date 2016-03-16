@@ -108,7 +108,6 @@ class SfaReg(SfaApi):
 
             authority.append({
                 'id' :  d.get('reg-urn'),
-                'keys': d.get('reg-keys', []),
                 'certificate': d.get('gid'),
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
@@ -157,6 +156,7 @@ class SfaReg(SfaApi):
             user.append({
 
             'id' :  d.get('reg-urn'),
+            'name' : d.get('hrn'),
             'keys': d.get('reg-keys', []),
             'certificate': d.get('gid'),
             'email': d.get('email', ''),
@@ -219,35 +219,49 @@ class SfaReg(SfaApi):
             # if Error, go to upper level until reach the root level
             return self.get_credential(upper_hrn, entity)
 
+    def _user_mappings(self, record_dict):
+        mapped_dict = {                     
+                    'email': record_dict.get('email', ''),                   
+                    'reg-keys': record_dict.get('keys', '')
+        }
+        return mapped_dict
+
+    def _authority_mappings(self, record_dict):
+        mapped_dict = {                     
+                    'name': record_dict.get('name', None),
+                    'reg-pis': record_dict.get('pi_users', [])                   
+        }
+        return mapped_dict
+
+    def _project_mappings(self, record_dict):
+        mapped_dict = {                     
+                    'name': record_dict.get('name', None),
+                    'reg-pis': record_dict.get('pi_users', [])                   
+        }
+        return mapped_dict
+
+    def _slice_mappings(self, record_dict):
+        mapped_dict = {                     
+                    'reg-researchers': record_dict.get('users', ),  
+        }
+        return mapped_dict
+
     def create(self, entity, urn, record_dict):
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
-                record_dict["type"] = entity
-                record_dict["hrn"] = hrn
-                result = self._proxy.Register(record_dict, auth_cred)
+                mapped_dict = getattr(self, '_'+entity+'_mappings')(record_dict)
+                mapped_dict['type'] = entity
+                mapped_dict['hrn'] = hrn
+                print(mapped_dict)
+                result = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)
             return []
         except Exception as e:
             traceback.print_exc()
             return []
-
-    def delete(self, entity, urn):
-        try:
-            hrn = urn_to_hrn(urn)[0]
-            auth_cred = self.get_credential(hrn, 'authority')
-            if auth_cred:
-                result = self._proxy.Remove(hrn, auth_cred, entity)
-                if result == 1:
-                    return True
-                else:
-                    raise Exception(result)
-            return False
-        except Exception as e:
-            traceback.print_exc()
-            return False
 
     def update(self, entity, urn, record_dict):
         try:
@@ -268,5 +282,20 @@ class SfaReg(SfaApi):
         except Exception as e:
             traceback.print_exc()
             return []
+
+    def delete(self, entity, urn):
+        try:
+            hrn = urn_to_hrn(urn)[0]
+            auth_cred = self.get_credential(hrn, 'authority')
+            if auth_cred:
+                result = self._proxy.Remove(hrn, auth_cred, entity)
+                if result == 1:
+                    return True
+                else:
+                    raise Exception(result)
+            return False
+        except Exception as e:
+            traceback.print_exc()
+            return False
 
     # self.CreateGid

@@ -56,31 +56,41 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 
 # users = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get()
 # for u in users:
-#     print(u) 
-#     print(u.authority)
-#     print(u.slices)
+#     print(u.attributes)
+#     print(u.id) 
+    # print(u.authority)
+    # print(u.slices)
 #     u.slices = []
 #     print(u.slices)
 #     print(u.pi_authorities)
 #     print(u)
 
-u = q(User).id('urn:publicid:IDN+onelab:inria+user+lucia_guevgeozian_odizzio').get().first()
+# u = q(User).id('urn:publicid:IDN+onelab:inria+user+lucia_guevgeozian_odizzio').get().first()
 
-auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
-start_time = time.time()
-for auth in auths:
-    print('Authority')
-    print("attributes")
-    pprint(auth.attributes()) 
-    #print("users")
-    #pprint(auth.users)
-    #print("projects")
-    #pprint(auth.projects)
-    print("pi_users")
-    pis = auth.pi_users
-    pis.append(u)
-    pprint(pis)
-auths.save()
+# auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
+# print('Authority')
+# print("attributes")
+# pprint(auth.attributes()) 
+# #print("users")
+# #pprint(auth.users)
+# #print("projects")
+# #pprint(auth.projects)
+# print("pi_users")
+# pis = auth.pi_users
+# pis.append(u)
+# pprint(pis)
+# auths.save()
+
+u = User()
+#u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
+u.authority = 'onelab.upmc.apitest'
+u.hrn = 'onelab.upmc.apitest.zhouquantest'
+u.email = 'blabla@zhouquantest.com'
+u.keys = ['ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArj9G7unMu7/zy/WziNMgyBfWGGl+96oEZtH0fXU/ZAnn6SS1S4iaDUjju3EZmXqeu/uYdEQ0pyW3yYNaJoaMzJIseskLV6NgQ70eM/nGDpHIFOobsRSrGyWKHv+tmEMQHLOCq4dGaellv5QR2Ewf+ZnNYw5Rtkgw20tvRRrpuNmzEt4VyK3ayKH/tNvw8EqIpQPdhXAWE/YIRfigDnW3yQdScwImCVyI5wI0MNFAp9IbInRVJscIuHq3ecwv8k7bMGlJlRhjV21wbNfmsY++g8LC3YHQidUH6ISYtAh5COq01VxBrJFVMbye6zAiUONcDLYIZ8OCuRNJxA57qa8Ujw==']
+print(u)
+u.save()
+u.delete()
+
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
