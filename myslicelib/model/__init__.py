@@ -6,7 +6,6 @@ class Entity(object):
     _attributes = {}
     _type = 'entity'
     _api = None
-    id = None
 
     def __init__(self, data = None):
         if data :
@@ -48,10 +47,10 @@ class Entity(object):
 
     def save(self):
         if not self.id:
-            if self.hrn:
-                self.id = hrn_to_urn(self.hrn, self._type)
-            else:
-                self.id = None
+            # if self.hrn:
+            #     self.id = hrn_to_urn(self.hrn, self._type)
+            # else:
+            self.id = None
             
         res = self._api.update(self.id, self.attributes())
         

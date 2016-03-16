@@ -181,6 +181,7 @@ class SfaReg(SfaApi):
             result = self._extract_with_entity(entity, self._list_entity())
         else:
             hrn, urn_type = urn_to_hrn(urn)
+
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
 
@@ -223,8 +224,10 @@ class SfaReg(SfaApi):
                     'hrn': hrn,
                     'type': 'user',                 
                     'email': record_dict.get('email', ''),                   
-                    'reg-keys': record_dict.get('keys', '')
         }
+
+        if 'keys' in record_dict:
+            mapped_dict = record_dict.get('keys', '')
         return mapped_dict
 
     def _authority_mappings(self, hrn, record_dict):
@@ -270,7 +273,6 @@ class SfaReg(SfaApi):
                 cred = self.get_credential(hrn, 'authority')
             if cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                print(mapped_dict)
                 result = self._proxy.Update(mapped_dict, cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)

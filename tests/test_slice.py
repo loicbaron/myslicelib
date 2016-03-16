@@ -26,13 +26,12 @@ class TestSlice(unittest.TestCase):
         self.assertRaises(MysNotUrnFormatError)
 
     def test_id_slice(self):
-
         self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex')
         self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', self.q._id)
 
     def test_00_create_auth(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
-                                                                    'name': 'apitest'
+                                                                    'name': 'Aa.pitest'
                                                                     })
         self.assertIsInstance(res, Authorities)
         for auth in res:
@@ -40,11 +39,11 @@ class TestSlice(unittest.TestCase):
 
     def test_01_create_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
-                                                'reg-researchers': [hrn],
+                                                'users': [hrn],
                                                 })
         self.assertIsInstance(res, Slices)
         for sli in res:
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
+            self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
 
     def test_02_get_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       
@@ -53,10 +52,10 @@ class TestSlice(unittest.TestCase):
 
     def test_03_update_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
-                                                'reg-researchers': [hrn, 'onelab.inria.aaaa'],
+                                                'users': [hrn, 'onelab.inria.aaaa'],
                                                 })
         for sli in res:
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.attribute('users'))
+            self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
     
     def test_04_delete_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
