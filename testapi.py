@@ -81,16 +81,23 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 # pprint(pis)
 # auths.save()
 
-u = User()
-#u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
-u.authority = 'onelab.upmc.apitest'
-u.hrn = 'onelab.upmc.apitest.zhouquantest'
-u.email = 'blabla@zhouquantest.com'
-u.keys = ['ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArj9G7unMu7/zy/WziNMgyBfWGGl+96oEZtH0fXU/ZAnn6SS1S4iaDUjju3EZmXqeu/uYdEQ0pyW3yYNaJoaMzJIseskLV6NgQ70eM/nGDpHIFOobsRSrGyWKHv+tmEMQHLOCq4dGaellv5QR2Ewf+ZnNYw5Rtkgw20tvRRrpuNmzEt4VyK3ayKH/tNvw8EqIpQPdhXAWE/YIRfigDnW3yQdScwImCVyI5wI0MNFAp9IbInRVJscIuHq3ecwv8k7bMGlJlRhjV21wbNfmsY++g8LC3YHQidUH6ISYtAh5COq01VxBrJFVMbye6zAiUONcDLYIZ8OCuRNJxA57qa8Ujw==']
-print(u)
-u.save()
-u.delete()
+#u = User()
+##u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
+#u.authority = 'onelab.upmc.apitest'
+#u.hrn = 'onelab.upmc.apitest.zhouquantest'
+#u.email = 'blabla@zhouquantest.com'
+#u.keys = ['ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArj9G7unMu7/zy/WziNMgyBfWGGl+96oEZtH0fXU/ZAnn6SS1S4iaDUjju3EZmXqeu/uYdEQ0pyW3yYNaJoaMzJIseskLV6NgQ70eM/nGDpHIFOobsRSrGyWKHv+tmEMQHLOCq4dGaellv5QR2Ewf+ZnNYw5Rtkgw20tvRRrpuNmzEt4VyK3ayKH/tNvw8EqIpQPdhXAWE/YIRfigDnW3yQdScwImCVyI5wI0MNFAp9IbInRVJscIuHq3ecwv8k7bMGlJlRhjV21wbNfmsY++g8LC3YHQidUH6ISYtAh5COq01VxBrJFVMbye6zAiUONcDLYIZ8OCuRNJxA57qa8Ujw==']
+#print(u)
+#u.save()
+#u.delete()
 
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+s = Slice()
+s.authority = 'onelab.upmc.apitest'
+s.hrn = 'onelab.upmc.apitest.slice1'
+s.users.append(u)
+s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
+s.save()
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()

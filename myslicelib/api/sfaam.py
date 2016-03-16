@@ -1,5 +1,6 @@
 import traceback
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, unique_call_id
+from myslicelib.util.builder import Builder
 from myslicelib.util.parser import Parser
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
@@ -131,6 +132,8 @@ class SfaAm(SfaApi):
                     api_options['sfa_users'] = record_dict['users']
                     api_options['geni_users'] = record_dict['users']
                     #api_options['append'] = True
+
+                    request_rspec = Builder(self.version()['testbed']).build(urn, record_dict)
 
                     if 'parsed' not in record_dict:
                         raise MysParameterIsRequiredError('request respec is required')
