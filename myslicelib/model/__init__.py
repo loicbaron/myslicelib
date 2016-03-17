@@ -6,10 +6,6 @@ class Entity(object):
     _attributes = {}
     _type = 'entity'
     _api = None
-    _id = None
-    _authority = None
-    _shortname = None
-    _hrn = None
 
     def __init__(self, data = None):
         if data :
@@ -40,11 +36,59 @@ class Entity(object):
         if name != '_api':
             self._attributes[name] = value
         super().__setattr__(name, value)
-    #     if not hasattr(self, name):
-    #         self._attributes[name] = value
-    #     else:
-    #         self._attributes[name] = value
-    #         super().__setattr__(name, value)
+        self.generate(name, value)
+
+    def generate(self, name, value):
+        if name == 'id':            
+            if 'hrn' not in self._attributes:
+                hrn,t = urn_to_hrn(value)
+                self._attributes['hrn'] = hrn
+                super().__setattr__('hrn', hrn)
+
+        if name  == 'hrn':
+            if 'id' not in self._attributes:
+                id = hrn_to_urn(value, self._type)
+                self._attributes['id'] = id
+                super().__setattr__('id', id)
+
+        if name == 'id' or name == 'hrn':
+            if 'authority' not in self._attributes:
+                authority = '.'.join(self.hrn.split('.')[:-1])
+                self._attributes['authority'] = authority
+                super().__setattr__('authority', authority)
+            if 'shortname' not in self._attributes:
+                shortname = self.hrn.split('.')[-1]        
+                self._attributes['shortname'] = shortname
+                super().__setattr__('shortname', shortname)
+
+        if name  == 'authority':
+            if 'shortname' in self._attributes:
+                hrn = value+'.'+self.shortname
+                self._attributes['hrn'] = hrn
+                super().__setattr__('hrn', hrn)
+                id = hrn_to_urn(hrn, self._type)
+                self._attributes['id'] = id
+                super().__setattr__('id', id)
+
+        if name == 'shortname':
+            if 'shortname' in self._attributes:
+                hrn = self.authority+'.'+value
+                self._attributes['hrn'] = hrn
+                super().__setattr__('hrn', hrn)
+                id = hrn_to_urn(hrn, self._type)
+                self._attributes['id'] = id
+                super().__setattr__('id', id)
+
+        # if self._attributes.has_key('id'):
+        #     hrn, t = urn_to_hrn(self.id)
+        #     self._attributes[name] = value
+        #     super().__setattr__(name, value)
+                
+        #         self.hrn = hrn
+        #     if self.authority is None:
+        #         self.authority = '.'.join(self.hrn.split('.')[:-1])
+        #     if self.shortname is None:
+        #         self.shortname = self.hrn.split('.')[-1]
 
     def dict(self):
         return self._attributes
@@ -67,70 +111,6 @@ class Entity(object):
         res = self._api.delete(self.id)
 
         return res
-
-    @property
-    def authority(self):
-        return self._authority
-
-    @authority.setter
-    def authority(self, value):
-        self._authority = value
-        if self._hrn is None and self.shortname:
-             self.hrn = value + self.shortname
-        if self._id is None and self.hrn:
-             self.id = hrn_to_urn(self.hrn, self._type)
-
-    @property
-    def shortname(self):
-        return self._shortname
-
-    @shortname.setter
-    def shortname(self, value):
-        self._shortname = value
-        if self._hrn is None and self.authority:
-            self.hrn = self.authority + value
-        if self._id is None and self.hrn:
-            self.id = hrn_to_urn(self.hrn, self._type)
-
-    @property
-    def hrn(self):
-        return self._hrn
-
-    @hrn.setter
-    def hrn(self, value):
-        self._hrn = value
-        if self._id is None:
-            self.id = hrn_to_urn(value, self._type)
-        if self._authority is None:
-            self.authority = '.'.join(value.split('.')[:-1])
-        if self._shortname is None:
-            self.shortname = value.split('.')[-1]
-
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        self._id = value
-        if self._hrn is None:
-            hrn,t = urn_to_hrn(value)
-            self.hrn = hrn
-        if self._authority is None:
-            self.authority = '.'.join(self.hrn.split('.')[:-1])
-        if self._shortname is None:
-            self.shortname = self.hrn.split('.')[-1]
-
-    def generate(self):
-        if self.id:
-            if self.hrn is None:
-                hrn,t = urn_to_hrn(self.id)
-                self.hrn = hrn
-            if self.authority is None:
-                self.authority = '.'.join(self.hrn.split('.')[:-1])
-            if self.shortname is None:
-                self.shortname = self.hrn.split('.')[-1]
-        
    
 
 class Entities(set):
