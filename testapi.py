@@ -81,8 +81,9 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 # pprint(pis)
 # auths.save()
 
-#u = User()
-##u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
+u = User()
+u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
+pprint(u)
 #u.authority = 'onelab.upmc.apitest'
 #u.hrn = 'onelab.upmc.apitest.zhouquantest'
 #u.email = 'blabla@zhouquantest.com'
@@ -91,13 +92,19 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #u.save()
 #u.delete()
 
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-s = Slice()
-s.authority = 'onelab.upmc.apitest'
-s.hrn = 'onelab.upmc.apitest.slice1'
-s.users.append(u)
-s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
-s.save()
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#s = Slice()
+#
+#s.authority = 'onelab.upmc.apitest'
+#s.shortname = 'slice1'
+#
+#pprint(s)
+
+#s.hrn = 'onelab.upmc.apitest.slice1'
+#
+#s.users.append(u)
+#s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
+#s.save()
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()

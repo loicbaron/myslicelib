@@ -30,4 +30,5 @@ class Slice(Entity):
         Authority = myslicelib.model.authority.Authority
         urn = self.attribute('authority')
         return q(Authority).id(urn).get()
-        
+       
+
