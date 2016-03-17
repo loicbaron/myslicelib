@@ -81,7 +81,8 @@ class SfaReg(SfaApi):
 
             slices.append({
                 'id': d['reg-urn'],
-                'shortname': d['hrn'],
+                'shortname': d['hrn'].split('.')[-1],
+                'hrn': d['hrn'],
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'users': users,
@@ -108,7 +109,8 @@ class SfaReg(SfaApi):
 
             authority.append({
                 'id' :  d.get('reg-urn'),
-                'shortname': d['hrn'],
+                'shortname': d['hrn'].split('.')[-1],
+                'hrn': d['hrn'],
                 'name': d['name'],
                 'certificate': d.get('gid'),
                 'created': self._datetime(d['date_created']),
@@ -140,7 +142,8 @@ class SfaReg(SfaApi):
             project.append({
 
                 'id' :  d['reg-urn'],
-                'shortname': d['hrn'],
+                'shortname': d['hrn'].split('.')[-1],
+                'hrn': d['hrn'],
                 'name': d['name'],
                 'certificate': d['gid'],
                 'created': self._datetime(d['date_created']),
@@ -159,7 +162,8 @@ class SfaReg(SfaApi):
             user.append({
 
             'id' :  d.get('reg-urn'),
-            'shortname': d['hrn'],
+            'shortname': d['hrn'].split('.')[-1],
+            'hrn': d['hrn'],
             'keys': d.get('reg-keys', []),
             'certificate': d.get('gid'),
             'email': d.get('email', ''),

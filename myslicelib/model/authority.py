@@ -16,9 +16,6 @@ class Authorities(Entities):
 #         result = call()
 #         done_queue.put(result)
 
-class Projects(Entities):
-    pass
-
 class Authority(Entity):
     _class = "Authority"
     _type = "authority"

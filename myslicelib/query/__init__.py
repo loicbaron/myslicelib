@@ -48,7 +48,7 @@ class Query(object):
 
         self.entity = entity
 
-        self.api = getattr(Api(s.endpoints, s.credential), self.entity._type())()
+        self.api = getattr(Api(s.endpoints, s.credential), self.entity._type)()
 
     def collection(self, elements=None):
         '''

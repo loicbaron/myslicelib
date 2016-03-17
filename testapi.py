@@ -25,18 +25,17 @@ s.endpoints = [
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
 
-# path = "/root/.sfi/"
-# pkey = path + "onelab.upmc.loic_baron.pkey"
-# hrn = "onelab.upmc.loic_baron"
-# email = "loic.baron@lip6.fr"
-# cert = path + "onelab.upmc.loic_baron.user.gid"
-
 path = "/root/.sfi/"
-pkey = path + "onelab.upmc.joshzhou16.pkey"
-cert = path + "onelab.upmc.joshzhou16.sscert"
+pkey = path + "onelab.upmc.loic_baron.pkey"
+hrn = "onelab.upmc.loic_baron"
+email = "loic.baron@lip6.fr"
+cert = path + "onelab.upmc.loic_baron.user.gid"
 
-hrn = "onelab.upmc.joshzhou16"
-email = "joshzhou16@gmail.com"
+#path = "/root/.sfi/"
+#pkey = path + "onelab.upmc.joshzhou16.pkey"
+#cert = path + "onelab.upmc.joshzhou16.sscert"
+#hrn = "onelab.upmc.joshzhou16"
+#email = "joshzhou16@gmail.com"
 
 
 #pkey = path + "lbaron.pkey"
@@ -81,9 +80,9 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 # pprint(pis)
 # auths.save()
 
-u = User()
-u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
-pprint(u)
+#u = User()
+#u.id = 'urn:publicid:IDN+onelab:upmc:apitest+user+zhouquantest'
+#pprint(u)
 #u.authority = 'onelab.upmc.apitest'
 #u.hrn = 'onelab.upmc.apitest.zhouquantest'
 #u.email = 'blabla@zhouquantest.com'
@@ -92,19 +91,17 @@ pprint(u)
 #u.save()
 #u.delete()
 
-#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-#s = Slice()
-#
-#s.authority = 'onelab.upmc.apitest'
-#s.shortname = 'slice1'
-#
-#pprint(s)
-
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+s = Slice()
+s.authority = 'onelab.upmc'
+s.shortname = 'slice1'
 #s.hrn = 'onelab.upmc.apitest.slice1'
-#
-#s.users.append(u)
+s.addUser(u)
+s.addUser(u1)
+pprint(s)
 #s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
-#s.save()
+s.save()
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()

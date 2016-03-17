@@ -31,4 +31,11 @@ class Slice(Entity):
         urn = self.attribute('authority')
         return q(Authority).id(urn).get()
        
-
+    def addUser(self, user):
+        self.users.append(user.hrn)
+        return self
+    
+    def removeUser(self, user):
+        self.users = set(self.users) - set(user.hrn)
+        return self
+    
