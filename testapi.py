@@ -17,10 +17,10 @@ from pprint import pprint
 
 s.endpoints = [
     Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
-    Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
+    #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
     Endpoint(url="https://portal.onelab.eu:6080",type="Reg"),
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
@@ -91,6 +91,27 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #u.save()
 #u.delete()
 
+# 'location': {'longitude': '1.15', 'latitude': '41.07', 'country': 'Spain'},
+# 'sliver_types': [{'disk_images': [{'version': 'f22', 'os': 'Linux', 'name': 'Fedora f22'}], 'name': 'plab-vserver'}]
+#r = q(Resource).filter('country','Spain').get()
+#pprint(r)
+#print('-'*10)
+#r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
+#pprint(r)
+#print('-'*10)
+#r = q(Resource).filter('country','Spain').filter('version','f22').get()
+#pprint(r)
+#print('-'*10)
+#r = q(Resource).filter('country','Poland').get()
+#pprint(r)
+
+##### XXX For later
+#####r = q(Resource).filter('country',['Poland','Spain'], 'in').get()
+#####pprint(r)
+
+
+#r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get().first()
+r = q(Resource).filter('country','Spain').filter('version','f22').get()
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 s = Slice()
@@ -98,9 +119,12 @@ s.authority = 'onelab.upmc'
 s.shortname = 'slice1'
 #s.hrn = 'onelab.upmc.apitest.slice1'
 s.addUser(u)
+pprint(s)
 s.addUser(u1)
 pprint(s)
-#s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
+s.addResources(r)
+pprint(s)
+##s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
 s.save()
 
 # print(time.time()-start_time)

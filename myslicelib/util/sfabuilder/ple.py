@@ -4,6 +4,8 @@ class Ple(SfaBuilder):
 
     def builder(self, urn, record_dict):
         result = []
+        from pprint import pprint
+        print(record_dict)
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
         testbed = el.attrib['component_id'].split("+")[1]
         if ':' in testbed:

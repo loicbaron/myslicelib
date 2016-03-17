@@ -38,3 +38,9 @@ class Slice(Entity):
         self.users = set(self.users) - set(user.hrn)
         return self
     
+    def addResource(self, resource):
+        self.resources.append(resource.attributes())
+
+    def addResources(self, resources):
+        for r in resources:
+            self.addResource(r)
