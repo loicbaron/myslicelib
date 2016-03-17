@@ -31,26 +31,13 @@ class Authority(Entity):
             for urn in self.attribute('users'):
                 result += q(User).id(urn).get()
         return result
-        # task_queue = Queue()
-        # done_queue = Queue()
-        # for urn in self.attribute('users'):
-        #     task_queue.put(lambda x: x+1)
 
-        # for i in range(3):
-        #     p = Process(target=worker, args=(task_queue, done_queue))
-        #     print('doing')
-        #     p.start()
-
-        # for i in range(3):
-        #     p.join()
-
-        # done_queue.join()
-
-        # result = []
-        # while not done_queue.empty():
-        #     result += done_queue.get()
-
-        # return result
+    def getPi_users(self):
+        User = myslicelib.model.user.User
+        result = []
+        for urn in self.attribute('pi_users'):
+            result += q(User).id(urn).get()
+        return result
 
     def getSlices(self):
         Slice = myslicelib.model.slice.Slice
