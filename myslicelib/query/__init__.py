@@ -20,6 +20,33 @@ def q(entity: Entity):
         logging.error("Class {} not found".format(QueryClass))
         exit(1)
 
+def checker(dict_in, dict_filter):
+    global flag
+    flag = False
+    
+    def extract(dict_in, dict_filter):
+        global flag
+        for key, value in dict_in.items():
+            if not flag:
+                if isinstance(value, dict): # If value itself is dictionary
+                    extract(value, dict_filter)
+                elif isinstance(value, list):
+                    for el in value:
+                        if isinstance(el, str):
+                            # XXX We only support == operator at the moment 
+                            if key == dict_filter['key'] and el == dict_filter['value']:
+                                flag = True
+                                break
+                        else:
+                            extract(el, dict_filter)
+                elif isinstance(value, str):
+                    # XXX We only support == operator at the moment 
+                    if key == dict_filter['key'] and value == dict_filter['value']:
+                        flag = True
+                        break
+
+    extract(dict_in, dict_filter)
+    return flag
 
 class Query(object):
 
@@ -47,7 +74,7 @@ class Query(object):
     def __init__(self, entity: Entity) -> None:
 
         self.entity = entity
-
+        self._filter = []
         self.api = getattr(Api(s.endpoints, s.credential), self.entity._type)()
 
     def collection(self, elements=None):
@@ -72,11 +99,9 @@ class Query(object):
                 collection = getattr(module, CollectionClass)()
             except ImportError:
                 logging.error("Class {} not found, using default Entities".format(CollectionClass))
-
         if (elements):
             for el in elements:
                 collection.add(self.entity(el))
-
         return collection
 
     def id(self, id):
@@ -86,12 +111,38 @@ class Query(object):
     #collections is no longer a 
     def get(self):
         res = self.api.get(self._id)
-        import pdb
-        pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
         if self._filter:
-            for r in res:
-                r = filter(lambda x: x == self._filter['value'], r)
+            
+#{
+#    'interfaces': ['urn:publicid:IDN+ple+interface+node14873:eth0'],
+#    'type': 'node',
+#    'exclusive': 'false',
+#    'id': 'urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no',
+#    'testbed': 'urvple',
+#    'name': 'planetlab1.cs.uit.no',
+#    'hardware_types': ['plab-pc', 'pc'],
+#    'available': 'true',
+#    'sliver_types': [{
+#        'disk_images': [{
+#            'name': 'Fedora f22',
+#            'version': 'f22',
+#            'os': 'Linux'
+#        }],
+#        'name': 'plab-vserver'
+#    }],
+#    'location': {
+#        'country': 'Norway',
+#        'latitude': '69.6813',
+#        'longitude': '18.977'
+#    },
+#    'technologies': ['Virtual Machines', 'Distributed Systems', 'Internet', 'Wired']
+#},
+            for f in self._filter:
+                res = [x for x in res if checker(x, f)]
         return self.collection(res)
+
 
     def update(self, params):
         if not self._id:
@@ -108,9 +159,10 @@ class Query(object):
         return res 
 
     def filter(self, key, value, op = '='):
-        self._filter = {
+        self._filter.append({
                         'key':key,
                         'value':value,
                         'op':op
-                       }
+                       })
+        return self
 
