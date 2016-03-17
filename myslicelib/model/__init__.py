@@ -9,10 +9,10 @@ class Entity(object):
     _generator = ['id', 'hrn', 'authority', 'shortname']
 
     def __init__(self, data = None):
-        if data :
-            self._attributes = data
         if self._attributes:
             self._attributes = {}
+        if data :
+            self._attributes = data
 
         self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
 
