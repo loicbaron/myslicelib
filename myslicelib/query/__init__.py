@@ -86,7 +86,11 @@ class Query(object):
     #collections is no longer a 
     def get(self):
         res = self.api.get(self._id)
-
+        import pdb
+        pdb.set_trace()
+        if self._filter:
+            for r in res:
+                r = filter(lambda x: x == self._filter['value'], r)
         return self.collection(res)
 
     def update(self, params):
@@ -94,7 +98,6 @@ class Query(object):
             raise Exception("No element specified")
 
         res = self.api.update(self._id, params)
-
         return self.collection(res)
 
     def delete(self):
@@ -102,6 +105,12 @@ class Query(object):
             raise Exception("No element specified")
 
         res = self.api.delete(self._id)
-
         return res 
+
+    def filter(self, key, value, op = '='):
+        self._filter = {
+                        'key':key,
+                        'value':value,
+                        'op':op
+                       }
 
