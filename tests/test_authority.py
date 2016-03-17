@@ -30,12 +30,12 @@ class TestProject(unittest.TestCase):
 
     def test_01_create_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
-                                                'reg-pis': [hrn],
+                                                'pi_users': [hrn],
                                                 })
         self.assertIsInstance(res, Authorities)
         for auth in res:
             self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
-            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.pi_users)
 
     def test_02_get_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').get()
@@ -45,13 +45,13 @@ class TestProject(unittest.TestCase):
 
     def test_03_update_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
-                                                'reg-pis': ['onelab.upmc.joshzhou16', hrn],
+                                                'pi_users': ['onelab.upmc.joshzhou16', hrn],
                                                 })
         self.assertIsInstance(res, Authorities)
         for auth in res:
             self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
-            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
-            self.assertIn(hrn_to_urn('onelab.upmc.joshzhou16', 'user'), auth.attribute('pi_users'))
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.pi_users)
+            self.assertIn(hrn_to_urn('onelab.upmc.joshzhou16', 'user'), auth.pi_users)
 
     def test_04_delete_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
@@ -59,12 +59,12 @@ class TestProject(unittest.TestCase):
 
     def test_authority_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
-                                                'reg-pis': [hrn],
+                                                'pi_users': [hrn],
                                                 })
         self.assertIsInstance(res, Authorities)
         for auth in res:
             self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
-            self.assertIn(hrn_to_urn(hrn, 'user'), auth.attribute('pi_users'))
+            self.assertIn(hrn_to_urn(hrn, 'user'), auth.pi_users)
             res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
             self.assertTrue(res)
         

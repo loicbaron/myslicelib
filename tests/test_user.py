@@ -52,7 +52,7 @@ class TestUser(unittest.TestCase):
     def test_03_update_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron.new@gmail.com',
-                                                'reg-keys': [SSH_KEY],
+                                                'keys': [SSH_KEY],
                                                 })
         for user in res:
             self.assertEqual('loic.baron.new@gmail.com', user.email)
