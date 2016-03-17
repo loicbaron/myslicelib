@@ -12,12 +12,11 @@ class Slice(Entity):
     _collection = "Slices"
 
     def __init__(self, data = None):
+        super().__init__(data)
         if data is None:
             self.users = []
             self.resources = []
             self.leases = []
-
-        super().__init__(data)
 
     def getUsers(self):
         User = myslicelib.model.user.User
@@ -39,3 +38,9 @@ class Slice(Entity):
         self.users = set(self.users) - set(user.hrn)
         return self
     
+    def addResource(self, resource):
+        self.resources.append(resource.attributes())
+
+    def addResources(self, resources):
+        for r in resources:
+            self.addResource(r)

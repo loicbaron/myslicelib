@@ -110,7 +110,8 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #####pprint(r)
 
 
-r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
+#r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get().first()
+r = q(Resource).filter('country','Spain').filter('version','f22').get()
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 s = Slice()
@@ -118,9 +119,11 @@ s.authority = 'onelab.upmc'
 s.shortname = 'slice1'
 #s.hrn = 'onelab.upmc.apitest.slice1'
 s.addUser(u)
+pprint(s)
 s.addUser(u1)
-#pprint(s)
-s.resources.append(r)
+pprint(s)
+s.addResources(r)
+pprint(s)
 ##s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
 s.save()
 
