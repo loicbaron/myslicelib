@@ -5,7 +5,7 @@ class Resources(Entities):
 
 class Resource(Entity):
     _class = "Resource"
-    _type = "node" # link, channel ???
+    _type = "resource" # link, channel ???
     _collection = "Resources"
 
 #

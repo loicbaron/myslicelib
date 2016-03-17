@@ -5,7 +5,7 @@ class Ple(SfaParser):
     def resource_parser(self, rspec):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
+        testbed = el.attrib['component_manager_id'].split("+")[1]
         if ':' in testbed:
             testbed = testbed.split(":")[1]
 

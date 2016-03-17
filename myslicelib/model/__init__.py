@@ -11,7 +11,7 @@ class Entity(object):
     def __init__(self, data = None):
         if self._attributes:
             self._attributes = {}
-        if data :
+        if data:
             self._attributes = data
 
     def __repr__(self):
@@ -32,7 +32,6 @@ class Entity(object):
         except KeyError :
             raise KeyError
     
-    # XXX cant setattribute succuessfully
     def setattribute(self, name, value):
         if name != '_api':
             self._attributes[name] = value
@@ -42,10 +41,9 @@ class Entity(object):
             self._group_settaribute(group)
 
     def _group_settaribute(self, group):
-        if group:
-            for k, v in group.items():
-                super().__setattr__(k, v)
-                self._attributes[k] = v
+        for k, v in group.items():
+            super().__setattr__(k, v)
+            self._attributes[k] = v
 
     def _generate_with_id(self):
         hrn = urn_to_hrn(self.id)[0]
@@ -72,6 +70,7 @@ class Entity(object):
                 id = hrn_to_urn(hrn, self._type)
                 )
             return group
+        return {}
 
     def _generate_with_authority(self):
         if 'shortname' in self._attributes:
@@ -81,6 +80,7 @@ class Entity(object):
                 id = hrn_to_urn(hrn, self._type)
                 )
             return group
+        return {}
 
     def dict(self):
         return self._attributes
