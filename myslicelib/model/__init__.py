@@ -14,8 +14,6 @@ class Entity(object):
         if data :
             self._attributes = data
 
-        self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-
     def __repr__(self):
         return "%s" % (self.attributes())
 
@@ -88,6 +86,8 @@ class Entity(object):
         return self._attributes
 
     def save(self):
+        if self._api is None:
+            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
         if not self.id:
             # if self.hrn:
             #     self.id = hrn_to_urn(self.hrn, self._type)
@@ -101,7 +101,8 @@ class Entity(object):
     def delete(self):
         if not self.id:
             raise Exception("No element specified")
-
+        if self._api is None:
+            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
         res = self._api.delete(self.id)
 
         return res

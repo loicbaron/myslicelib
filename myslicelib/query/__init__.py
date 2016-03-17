@@ -72,11 +72,9 @@ class Query(object):
                 collection = getattr(module, CollectionClass)()
             except ImportError:
                 logging.error("Class {} not found, using default Entities".format(CollectionClass))
-
         if (elements):
             for el in elements:
                 collection.add(self.entity(el))
-
         return collection
 
     def id(self, id):
@@ -86,7 +84,7 @@ class Query(object):
     #collections is no longer a 
     def get(self):
         res = self.api.get(self._id)
-
+        print(res)
         return self.collection(res)
 
     def update(self, params):

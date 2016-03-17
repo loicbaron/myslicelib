@@ -98,51 +98,51 @@ class Api(object):
 
         return method_handler
 
-    def _queue_hanlder(self, call, *params):
-        if params is None:
-            self._q.put(call())
-        else:
-            self._q.put(call(*params))
+    # def _queue_hanlder(self, call, *params):
+    #     if params is None:
+    #         self._q.put(call())
+    #     else:
+    #         self._q.put(call(*params))
+
+    # def _thread_handler(self, call, *params):
+    #     return threading.Thread(target=self._queue_hanlder, args=(call, *params))
+
+    # def _parallel_request(self, threads):
+    #     result = []
+    #     with self._q.mutex:
+    #         self._q.queue.clear() 
+    #     try:
+    #         for t in threads:
+    #             t.start()
+    #         for t in threads:
+    #             t.join()        
+    #         print(len(threads))
+    #         for _ in threads: 
+    #             res = self._q.get(block=False)
+    #             if isinstance(res, list):
+    #                 result += res
+    #             else:
+    #                 result += [res]
+    #         return result
+    #     except Exception as e:
+    #         print(e)
+    #         return result
+
 
     def _thread_handler(self, call, *params):
-        return threading.Thread(target=self._queue_hanlder, args=(call, *params))
+        return {call: params}
 
     def _parallel_request(self, threads):
         result = []
-        with self._q.mutex:
-            self._q.queue.clear() 
-        try:
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()        
-            for _ in threads:            
-                res = self._q.get(block=False)
-                if isinstance(res, list):
-                    result += res
-                else:
-                    result += [res]
-            return result
-        except Exception as e:
-            print(e)
-            return result
-
-
-    # def _thread_handler(self, call, *params):
-    #     return {call: params}
-
-    # @time.timeit
-    # def _parallel_request(self, threads):
-    #     result = []
-    #     with concurrent.futures.ThreadPoolExecutor() as executor:
-    #         for thread in threads:
-    #             for call, arg in thread.items():
-    #                 if arg:
-    #                     future = executor.submit(call, *arg)
-    #                 else:
-    #                     future = executor.submit(call)
-    #                 result += [future.result()]
-    #     return result
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for thread in threads:
+                for call, arg in thread.items():
+                    if arg:
+                        future = executor.submit(call, *arg)
+                    else:
+                        future = executor.submit(call)
+                    result += future.result()
+        return result
 
 
     def version(self):
