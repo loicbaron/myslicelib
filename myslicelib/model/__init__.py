@@ -6,10 +6,13 @@ class Entity(object):
     _attributes = {}
     _type = 'entity'
     _api = None
+    _generator = ['id', 'hrn', 'authority', 'shortname']
 
     def __init__(self, data = None):
         if data :
             self._attributes = data
+        if self._attributes:
+            self._attributes = {}
 
         self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
 
@@ -36,59 +39,50 @@ class Entity(object):
         if name != '_api':
             self._attributes[name] = value
         super().__setattr__(name, value)
-        self.generate(name, value)
+        if name in self._generator:
+            group = getattr(self, '_generate_with_' + name)()
+            self._group_settaribute(group)
 
-    def generate(self, name, value):
-        if name == 'id':            
-            if 'hrn' not in self._attributes:
-                hrn,t = urn_to_hrn(value)
-                self._attributes['hrn'] = hrn
-                super().__setattr__('hrn', hrn)
+    def _group_settaribute(self, group):
+        if group:
+            for k, v in group.items():
+                super().__setattr__(k, v)
+                self._attributes[k] = v
 
-        if name  == 'hrn':
-            if 'id' not in self._attributes:
-                id = hrn_to_urn(value, self._type)
-                self._attributes['id'] = id
-                super().__setattr__('id', id)
+    def _generate_with_id(self):
+        hrn = urn_to_hrn(self.id)[0]
+        group = dict(
+                hrn = hrn,
+                authority = '.'.join(hrn.split('.')[:-1]),
+                shortname = hrn.split('.')[-1]
+                )
+        return group
 
-        if name == 'id' or name == 'hrn':
-            if 'authority' not in self._attributes:
-                authority = '.'.join(self.hrn.split('.')[:-1])
-                self._attributes['authority'] = authority
-                super().__setattr__('authority', authority)
-            if 'shortname' not in self._attributes:
-                shortname = self.hrn.split('.')[-1]        
-                self._attributes['shortname'] = shortname
-                super().__setattr__('shortname', shortname)
+    def _generate_with_hrn(self):
+        group = dict(
+                id = hrn_to_urn(self.hrn, self._type),
+                authority = '.'.join(self.hrn.split('.')[:-1]),
+                shortname = self.hrn.split('.')[-1]
+                )
+        return group
 
-        if name  == 'authority':
-            if 'shortname' in self._attributes:
-                hrn = value+'.'+self.shortname
-                self._attributes['hrn'] = hrn
-                super().__setattr__('hrn', hrn)
+    def _generate_with_shortname(self):
+        if 'authority' in self._attributes:
+            hrn = self.authority + self.shortname
+            group = dict(
+                hrn = hrn,
                 id = hrn_to_urn(hrn, self._type)
-                self._attributes['id'] = id
-                super().__setattr__('id', id)
+                )
+            return group
 
-        if name == 'shortname':
-            if 'shortname' in self._attributes:
-                hrn = self.authority+'.'+value
-                self._attributes['hrn'] = hrn
-                super().__setattr__('hrn', hrn)
+    def _generate_with_authority(self):
+        if 'shortname' in self._attributes:
+            hrn = self.authority + self.shortname
+            group = dict(
+                hrn = hrn,
                 id = hrn_to_urn(hrn, self._type)
-                self._attributes['id'] = id
-                super().__setattr__('id', id)
-
-        # if self._attributes.has_key('id'):
-        #     hrn, t = urn_to_hrn(self.id)
-        #     self._attributes[name] = value
-        #     super().__setattr__(name, value)
-                
-        #         self.hrn = hrn
-        #     if self.authority is None:
-        #         self.authority = '.'.join(self.hrn.split('.')[:-1])
-        #     if self.shortname is None:
-        #         self.shortname = self.hrn.split('.')[-1]
+                )
+            return group
 
     def dict(self):
         return self._attributes
