@@ -117,37 +117,37 @@ r = q(Resource).filter('name', 'wsn430-27.grenoble.iot-lab.info').get()
 r1 = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
 r.update(r1)
 
-#r = q(Resource).filter('country','Spain').filter('version','f22').get()
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+##r = q(Resource).filter('country','Spain').filter('version','f22').get()
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 s = Slice()
 s.authority = 'onelab.upmc'
 s.shortname = 'slice1'
-#s.hrn = 'onelab.upmc.apitest.slice1'
-s.addUser(u)
-pprint(s)
-s.addUser(u1)
-pprint(s)
-s.removeUser(u1)
-pprint(s)
-# XXX In builder check that resources belong to the right testbed
-s.addResources(r)
-pprint(s)
+##s.hrn = 'onelab.upmc.apitest.slice1'
+#s.addUser(u)
+#pprint(s)
+#s.addUser(u1)
+#pprint(s)
+#s.removeUser(u1)
+#pprint(s)
+## XXX In builder check that resources belong to the right testbed
+#s.addResources(r)
+#pprint(s)
 
 l = Lease()
 l.slice_id = s.id
 l.start_time = 1458320400
 l.duration = 3600
-l.end_time = 1458324000
+#l.end_time = 1458324000
 # XXX In builder check that resources belong to the right testbed
 l.addResources(r)
 pprint(l)
 
-s.addLease(l)
-pprint(s)
-
-s = s.save()
-pprint(s)
+#s.addLease(l)
+#pprint(s)
+#
+#s = s.save()
+#pprint(s)
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()

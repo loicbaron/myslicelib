@@ -39,4 +39,12 @@ class Resource(Entity):
 #         print(e)
 #     return location
 #
+    def save(self):
+        raise NotImplemented("A Resource has to be part of a slice to be saved slice.save()")
+
+    def delete(self):
+        raise NotImplemented("A Resource has to be part of a slice to be removed slice.removeResource()")
+
+    def update(self):
+        raise NotImplemented("A Resource has to be part of a slice to be updated slice.addResource()")
 
