@@ -27,7 +27,7 @@ class Omf(SfaParser):
                 'start_time': start_time,
                 'end_time': end_time,
                 'duration': duration,
-                'nodes': [],
+                'resources': [],
             }        
             for node in nodes:
                 leases_in_node = node.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease_ref')
@@ -36,7 +36,7 @@ class Omf(SfaParser):
                 else:
                     for lease_in_node in leases_in_node:
                         if l['lease_id'] == lease_in_node.attrib['id_ref']:
-                            l['nodes'].append(node.attrib['component_id'])
+                            l['resources'].append(node.attrib['component_id'])
             result.append(l)
         return result
 

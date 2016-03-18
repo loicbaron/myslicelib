@@ -17,7 +17,7 @@ class Iotlab(SfaParser):
                 'end_time': int(lease.attrib['start_time']) + \
                             int(lease.attrib['duration']),
 
-                'nodes': [node.attrib['component_id'] for node in list(lease)],
+                'resources': [node.attrib['component_id'] for node in list(lease)],
             }
             result.append(lease)
         return result

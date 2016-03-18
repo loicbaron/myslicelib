@@ -43,7 +43,28 @@ class Slice(Entity):
     
     def addResource(self, resource):
         self.resources.append(resource.attributes())
+        return self
 
     def addResources(self, resources):
         for r in resources:
             self.addResource(r)
+        return self
+
+    def removeResource(self, resource):
+        self.resources = list(filter(lambda x: x['id']==resource.id, self.resources))
+        return self
+
+    def removeResources(self):
+        self.resources = [] 
+        return self
+
+    def addLease(self, lease):
+        self.leases.append(lease.attributes())
+        return self
+
+    def removeLease(self, lease):
+        raise NotImplemented("not implemented yet") 
+
+    def removeLeases(self, lease):
+        self.leases = []
+        return self
