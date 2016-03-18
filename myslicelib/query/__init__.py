@@ -2,6 +2,8 @@ import logging
 from myslicelib import setup as s
 from myslicelib.api import Api
 from myslicelib.model import Entity, Entities
+from myslicelib.util.checker import checker
+from collections import defaultdict
 
 def q(entity: Entity):
     '''
@@ -19,34 +21,6 @@ def q(entity: Entity):
     except ImportError:
         logging.error("Class {} not found".format(QueryClass))
         exit(1)
-
-def checker(dict_in, dict_filter):
-    global flag
-    flag = False
-    
-    def extract(dict_in, dict_filter):
-        global flag
-        for key, value in dict_in.items():
-            if not flag:
-                if isinstance(value, dict): # If value itself is dictionary
-                    extract(value, dict_filter)
-                elif isinstance(value, list):
-                    for el in value:
-                        if isinstance(el, str):
-                            # XXX We only support == operator at the moment 
-                            if key == dict_filter['key'] and el == dict_filter['value']:
-                                flag = True
-                                break
-                        else:
-                            extract(el, dict_filter)
-                elif isinstance(value, str):
-                    # XXX We only support == operator at the moment 
-                    if key == dict_filter['key'] and value == dict_filter['value']:
-                        flag = True
-                        break
-
-    extract(dict_in, dict_filter)
-    return flag
 
 class Query(object):
 
@@ -74,7 +48,7 @@ class Query(object):
     def __init__(self, entity: Entity) -> None:
 
         self.entity = entity
-        self._filter = []
+        self._filter = defaultdict(set)
         self.api = getattr(Api(s.endpoints, s.credential), self.entity._type)()
 
     def collection(self, elements=None):
@@ -108,12 +82,10 @@ class Query(object):
         self._id = id
         return self
 
-    #collections is no longer a 
     def get(self):
         res = self.api.get(self._id)
         if self._filter:
-            for f in self._filter:
-                res = [x for x in res if checker(x, f)]
+            res = [x for x in res if checker(x, self._filter)]
         return self.collection(res)
 
 
@@ -131,11 +103,23 @@ class Query(object):
         res = self.api.delete(self._id)
         return res 
 
-    def filter(self, key, value, op = '='):
-        self._filter.append({
-                        'key':key,
-                        'value':value,
-                        'op':op
-                       })
+    def filter(self, key, value, option='equal'):
+        # if option == 'equal':
+        #     self._filter.append({
+        #                     'key': key,
+        #                     'value': value,
+        #                    })
+        # if option == 'in':
+        #     for el in value:
+        #         if key in self._filter:
+        #             self._filter += []
+        if isinstance(value, str):
+            self._filter[key].update(set([value]))
+        else:
+            self._filter[key].update(set(value))
+        #print(self._filter)
         return self
+
+
+
 
