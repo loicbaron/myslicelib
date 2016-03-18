@@ -26,16 +26,16 @@ s.endpoints = [
 ]
 
 path = "/root/.sfi/"
-pkey = path + "onelab.upmc.loic_baron.pkey"
-hrn = "onelab.upmc.loic_baron"
-email = "loic.baron@lip6.fr"
-cert = path + "onelab.upmc.loic_baron.user.gid"
+# pkey = path + "onelab.upmc.loic_baron.pkey"
+# hrn = "onelab.upmc.loic_baron"
+# email = "loic.baron@lip6.fr"
+# cert = path + "onelab.upmc.loic_baron.user.gid"
 
-#path = "/root/.sfi/"
-#pkey = path + "onelab.upmc.joshzhou16.pkey"
-#cert = path + "onelab.upmc.joshzhou16.sscert"
-#hrn = "onelab.upmc.joshzhou16"
-#email = "joshzhou16@gmail.com"
+path = "/root/.sfi/"
+pkey = path + "onelab.upmc.joshzhou16.pkey"
+cert = path + "onelab.upmc.joshzhou16.sscert"
+hrn = "onelab.upmc.joshzhou16"
+email = "joshzhou16@gmail.com"
 
 
 #pkey = path + "lbaron.pkey"
@@ -53,6 +53,9 @@ cert = path + "onelab.upmc.loic_baron.user.gid"
 
 s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey)
 
+#r = q(Resource).get()
+#r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
+#pprint(r)
 # users = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get()
 # for u in users:
 #     print(u.attributes)
@@ -91,24 +94,22 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #u.save()
 #u.delete()
 
-# 'location': {'longitude': '1.15', 'latitude': '41.07', 'country': 'Spain'},
-# 'sliver_types': [{'disk_images': [{'version': 'f22', 'os': 'Linux', 'name': 'Fedora f22'}], 'name': 'plab-vserver'}]
-#r = q(Resource).filter('country','Spain').get()
-#pprint(r)
-#print('-'*10)
-#r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
-#pprint(r)
-#print('-'*10)
-#r = q(Resource).filter('country','Spain').filter('version','f22').get()
-#pprint(r)
-#print('-'*10)
-#r = q(Resource).filter('country','Poland').get()
-#pprint(r)
+# u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+# u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+# s = Slice()
+# s.authority = 'onelab.upmc'
+# s.shortname = 'slice1'
+# #s.hrn = 'onelab.upmc.apitest.slice1'
+# # s.addUser(u)
+# # s.addUser(u1)
+# pprint(s)
+# #s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
+# s.save()
 
-##### XXX For later
-#####r = q(Resource).filter('country',['Poland','Spain'], 'in').get()
-#####pprint(r)
-
+#r = q(Resource).filter('country','Germany').get()
+r = q(Resource).filter('country', ['Germany', 'France']).get()
+r = q(Resource).filter('country', ['Germany', 'France']).filter('name','plab-vserver').get()
+pprint(r)
 
 #r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get().first()
 r = q(Resource).filter('country','Spain').filter('version','f22').get()
@@ -157,4 +158,6 @@ pprint(s)
 
 #user = Query(Authority).update('urn:publicid:IDN+onelab:upmc+authority+sa',{'name':'UPMC'})
 #user = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{'name':'UPMC2'})
+=======
+>>>>>>> Stashed changes
 
