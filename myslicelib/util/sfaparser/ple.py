@@ -18,6 +18,7 @@ class Ple(SfaParser):
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
+                'services': [],
                 'testbed':testbed,
                 'technologies':['Virtual Machines','Distributed Systems','Internet','Wired'],
             }
@@ -56,6 +57,10 @@ class Ple(SfaParser):
                         'os':'Linux',
                         'version':self.get_planetlab_attribute(node, 'fcdistro')
                     }]})
+                if 'services' in element.tag:
+                    login = element.find('{http://www.geni.net/resources/rspec/3}login')
+                    resource['services'].append({'login':login.attrib})
+
             result.append(resource)
         return result
 

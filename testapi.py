@@ -127,7 +127,7 @@ pprint(s)
 s.addResources(r)
 pprint(s)
 ##s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
-s.save()
+s = s.save()
 pprint(s)
 
 # print(time.time()-start_time)
