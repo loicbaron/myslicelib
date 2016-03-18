@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from myslicelib.util.sfabuilder import SfaBuilder
 
 class Ple(SfaBuilder):
@@ -6,67 +7,27 @@ class Ple(SfaBuilder):
         result = []
         from pprint import pprint
         print(record_dict)
-        el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
-        if ':' in testbed:
-            testbed = testbed.split(":")[1]
 
-        for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
-            resource = {
-                'type' : 'node',
-                'id': node.attrib['component_id'],
-                'name': node.attrib['component_name'],
-                'exclusive': node.attrib['exclusive'],
-                'hardware_types': [],
-                'interfaces': [],
-                'sliver_types': [],
-                'testbed':testbed,
-                'technologies':['Virtual Machines','Distributed Systems','Internet','Wired'],
-            }
+        #<?xml version="1.0"?>
+        #  <rspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.geni.net/resources/rspec/3" xmlns:plos="http://www.planet-lab.org/resources/sfa/ext/plos/1" xmlns:flack="http://www.protogeni.net/resources/rspec/ext/flack/1" xmlns:planetlab="http://www.planet-lab.org/resources/sfa/ext/planetlab/1" type="request" xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd http://www.planet-lab.org/resources/sfa/ext/planetlab/1 http://www.planet-lab.org/resources/sfa/ext/planetlab/1/planetlab.xsd http://www.planet-lab.org/resources/sfa/ext/plos/1 http://www.planet-lab.org/resources/sfa/ext/plos/1/plos.xsd" expires="2016-03-18T12:26:50Z" generated="2016-03-18T11:26:50Z">
+        #    <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:urvple+node+planetlab1.urv.cat" component_name="planetlab1.urv.cat">
+        #      <sliver_type name="plab-vserver"/>
+        #    </node>
+        #    <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:irisaple+node+inriarennes2.irisa.fr" component_name="inriarennes2.irisa.fr">
+        #      <sliver_type name="plab-vserver"/>
+        #    </node>
+        #  </rspec>
+        rspec = '<?xml version="1.0"?>\
+        <rspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.geni.net/resources/rspec/3" xmlns:plos="http://www.planet-lab.org/resources/sfa/ext/plos/1" xmlns:flack="http://www.protogeni.net/resources/rspec/ext/flack/1" xmlns:planetlab="http://www.planet-lab.org/resources/sfa/ext/planetlab/1" type="request" xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd http://www.planet-lab.org/resources/sfa/ext/planetlab/1 http://www.planet-lab.org/resources/sfa/ext/planetlab/1/planetlab.xsd http://www.planet-lab.org/resources/sfa/ext/plos/1 http://www.planet-lab.org/resources/sfa/ext/plos/1/plos.xsd" expires="2016-03-18T12:26:50Z" generated="2016-03-18T11:26:50Z">'
 
-            #    'sliver_types': [
-            #        {
-            #        'name':'plab-vserver',
-            #        'disk_images':[
-            #            {
-            #            'name':'Fedora 22',
-            #            'os':'Linux',
-            #            'version':'22',
-            #            'description':'',
-            #            #'url':'',
-            #            }
-            #        ]
-            #        }
-            #    ],
+        for r in record_dict['resources']:
+            rspec += '<node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="'+r['id']+'" component_name="'+r['id'].split('+')[-1]+'">'
+            rspec += '<sliver_type name="plab-vserver"/>'
+            rspec += '</node>'
 
-            for element in list(node):
-                if 'hardware_type' in element.tag:
-                    resource['hardware_types'].append(element.attrib['name'])
-                if 'location' in element.tag:
-                    resource['location'] = element.attrib
-                    if not 'country' in resource['location'] or resource['location']['country']=='unknown' or resource['location']['country']==None:
-                        resource['location']['country'] = self.get_planetlab_attribute(node,'country')
+        rspec += '</rspec>'
 
-                if 'interface' in element.tag:
-                    resource['interfaces'].append(element.attrib['component_id'])
-                if 'available' in element.tag:
-                    resource['available'] = element.attrib['now']
-
-                if 'sliver_type' in element.tag:
-                    resource['sliver_types'].append({'name':element.attrib['name'],'disk_images':[{
-                        'name':'Fedora '+ self.get_planetlab_attribute(node, 'fcdistro'),
-                        'os':'Linux',
-                        'version':self.get_planetlab_attribute(node, 'fcdistro')
-                    }]})
-            result.append(resource)
-        return result
-
-    def get_planetlab_attribute(self, node, name):
-        elements = node.findall('{http://www.planet-lab.org/resources/sfa/ext/planetlab/1}attribute')
-        for el in elements:
-            if el.attrib['name']==name:
-                return el.attrib['value']
-
+        return rspec
 
 #  <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no" exclusive="false" component_name="planetlab1.cs.uit.no">
 #    <hardware_type name="plab-pc"/>
