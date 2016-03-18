@@ -111,34 +111,7 @@ class Query(object):
     #collections is no longer a 
     def get(self):
         res = self.api.get(self._id)
-        #import pdb
-        #pdb.set_trace()
         if self._filter:
-            
-#{
-#    'interfaces': ['urn:publicid:IDN+ple+interface+node14873:eth0'],
-#    'type': 'node',
-#    'exclusive': 'false',
-#    'id': 'urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no',
-#    'testbed': 'urvple',
-#    'name': 'planetlab1.cs.uit.no',
-#    'hardware_types': ['plab-pc', 'pc'],
-#    'available': 'true',
-#    'sliver_types': [{
-#        'disk_images': [{
-#            'name': 'Fedora f22',
-#            'version': 'f22',
-#            'os': 'Linux'
-#        }],
-#        'name': 'plab-vserver'
-#    }],
-#    'location': {
-#        'country': 'Norway',
-#        'latitude': '69.6813',
-#        'longitude': '18.977'
-#    },
-#    'technologies': ['Virtual Machines', 'Distributed Systems', 'Internet', 'Wired']
-#},
             for f in self._filter:
                 res = [x for x in res if checker(x, f)]
         return self.collection(res)

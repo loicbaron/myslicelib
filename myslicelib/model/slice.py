@@ -15,6 +15,7 @@ class Slice(Entity):
         super().__init__(data)
         if data is None:
             self.users = []
+            self.geni_users = []
             self.resources = []
             self.leases = []
 
@@ -32,10 +33,12 @@ class Slice(Entity):
        
     def addUser(self, user):
         self.users.append(user.hrn)
+        self.geni_users.append({'urn':user.id,'keys':user.keys})
         return self
     
     def removeUser(self, user):
-        self.users = set(self.users) - set(user.hrn)
+        self.geni_users = list(filter(lambda x: x['urn']==user.id, self.geni_users))
+        self.users = list(set(self.users) - set(user.hrn))
         return self
     
     def addResource(self, resource):
