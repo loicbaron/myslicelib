@@ -109,7 +109,6 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #r = q(Resource).filter('country','Germany').get()
 r = q(Resource).filter('country', ['Germany', 'France']).get()
 r = q(Resource).filter('country', ['Germany', 'France']).filter('name','plab-vserver').get()
-pprint(r)
 
 #r = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get().first()
 r = q(Resource).filter('country','Spain').filter('version','f22').get()
@@ -158,6 +157,4 @@ pprint(s)
 
 #user = Query(Authority).update('urn:publicid:IDN+onelab:upmc+authority+sa',{'name':'UPMC'})
 #user = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{'name':'UPMC2'})
-=======
->>>>>>> Stashed changes
 
