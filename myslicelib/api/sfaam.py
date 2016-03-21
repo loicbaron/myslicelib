@@ -148,8 +148,6 @@ class SfaAm(SfaApi):
 
         result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
         
-        print(result)
-
         if 'code' in result and \
             'geni_code' in result['code'] and \
             result['code']['geni_code']==0:
