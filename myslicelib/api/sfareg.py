@@ -67,7 +67,7 @@ class SfaReg(SfaApi):
         :return:
         '''
         # TODO: use local timezone from server
-        tz = pytz.timezone('Europe/Paris')
+        tz = pytz.timezone('UTC')
         return tz.localize(date)
 
     def _slice(self, data):
