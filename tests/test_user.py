@@ -62,7 +62,7 @@ class TestUser(unittest.TestCase):
 
     def test_04_delete_user(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
 
     def test_user_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
@@ -70,7 +70,7 @@ class TestUser(unittest.TestCase):
             self.assertEqual('loic.baron@gmail.com', user.email)
             self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', user.id)
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
         
     @unittest.expectedFailure
     def test_get_user_from_slice(self):

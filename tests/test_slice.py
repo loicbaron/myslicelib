@@ -31,7 +31,7 @@ class TestSlice(unittest.TestCase):
 
     def test_00_create_auth(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
-                                                                    'name': 'Aa.pitest'
+                                                                    'name': 'Apitest'
                                                                     })
         self.assertIsInstance(res, Authorities)
         for auth in res:
@@ -59,11 +59,11 @@ class TestSlice(unittest.TestCase):
     
     def test_04_delete_slice(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
 
     def test_05_clear_up(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
 
     # def test_slice_with_root_cred(self):
     #     res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
@@ -79,7 +79,8 @@ class TestSlice(unittest.TestCase):
     @unittest.expectedFailure
     def test_get_authority_from_user(self):
         with self.assertRaises(MysNotImplementedError):
-            self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
+            res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
+            print(res)
     
     # def test_get_authority_from_root_authority(self):
     #     res = self.q.get()

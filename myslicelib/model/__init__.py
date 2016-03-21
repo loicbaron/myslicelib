@@ -64,7 +64,7 @@ class Entity(object):
 
     def _generate_with_shortname(self):
         if 'authority' in self._attributes:
-            hrn = self.authority + self.shortname
+            hrn = self.authority + '.' + self.shortname
             group = dict(
                 hrn = hrn,
                 id = hrn_to_urn(hrn, self._type)
@@ -74,7 +74,7 @@ class Entity(object):
 
     def _generate_with_authority(self):
         if 'shortname' in self._attributes:
-            hrn = self.authority + self.shortname
+            hrn = self.authority + '.' + self.shortname
             group = dict(
                 hrn = hrn,
                 id = hrn_to_urn(hrn, self._type)
