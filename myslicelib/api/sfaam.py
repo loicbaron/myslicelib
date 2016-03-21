@@ -77,7 +77,7 @@ class SfaAm(SfaApi):
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             traceback.print_exc()
-            exit(1)
+            return []
 
         if raw:
             return result
@@ -89,7 +89,6 @@ class SfaAm(SfaApi):
                     xml_string = result['value']['geni_rspec']
                 else:
                     xml_string = result['value']
-                # from pprint import pprint
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
                 testbed = get_testbed_type(self.version()['id'])
@@ -97,7 +96,7 @@ class SfaAm(SfaApi):
                 # XXX Check result
             except Exception as e:
                 traceback.print_exc()
-                exit(1)
+                return []
         else:
             raise SfaError(result)
 
@@ -138,11 +137,9 @@ class SfaAm(SfaApi):
                     api_options['sfa_users'] = record_dict['geni_users']
                     api_options['geni_users'] = record_dict['geni_users']
                     #api_options['append'] = True
-                    pprint(api_options)
                     
                     parser = get_testbed_type(self.version()['id'])
                     rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
-
                     #if 'parsed' not in record_dict:
                     #    raise MysParameterIsRequiredError('request respec is required')
                     #if isinstance(record_dict['parsed'], dict):
@@ -160,7 +157,6 @@ class SfaAm(SfaApi):
                     elif self.version()['version'] == 3:
                         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
                         result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
-                        pprint(result)
                         if 'code' in result and 'geni_code' in result['code'] and result['code']['geni_code']==0:
                             api_options['call_id'] = unique_call_id()
                             result = self._proxy.Provision([urn], [self.slice_credential], api_options)
@@ -168,7 +164,6 @@ class SfaAm(SfaApi):
                             raise SfaError(result)
                     else:
                         raise NotImplementedError('geni_ api version not supported')                  
-                    pprint(result)
                     # check geni error codes
                     if result['code']['geni_code'] == 0:
                         try:
@@ -176,7 +171,6 @@ class SfaAm(SfaApi):
                                 xml_string = result['value']['geni_rspec']
                             else:
                                 xml_string = result['value']
-                            # from pprint import pprint
                             # pprint(xml_string)
                             # XXX if urn is not None we need to Filter - in the parser??? 
                             testbed = get_testbed_type(self.version()['id'])
@@ -184,7 +178,7 @@ class SfaAm(SfaApi):
                             # XXX Check result
                         except Exception as e:
                             traceback.print_exc()
-                            exit(1)
+                            return []
                     else:
                         raise SfaError(result)
 
@@ -206,7 +200,3 @@ class SfaAm(SfaApi):
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')
         return result
-
-
-
-
