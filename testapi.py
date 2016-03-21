@@ -16,8 +16,8 @@ from myslicelib.query import q
 from pprint import pprint
 
 s.endpoints = [
-    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
+    Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
@@ -113,46 +113,58 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #ls = q(Lease).get()
 #pprint(ls)
 
-s1 = q(Slice).id("urn:publicid:IDN+onelab:upmc+slice+slice1").get()
-pprint(s1)
-s1 = q(Slice).filter('authority','urn:publicid:IDN+onelab:upmc+authority+sa').get()
-pprint(s1)
+#s1 = q(Slice).id("urn:publicid:IDN+onelab:upmc+slice+slice1").get()
+#pprint(s1)
+#s1 = q(Slice).filter('authority','urn:publicid:IDN+onelab:upmc+authority+sa').get()
+#pprint(s1)
+#s1 = q(Slice).get()
+#pprint(s1)
 
 #r = q(Resource).filter('name', 'wsn430-27.grenoble.iot-lab.info').get()
+#pprint(r)
 #r1 = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
+#pprint(r1)
 #r.update(r1)
-#
-###r = q(Resource).filter('country','Spain').filter('version','f22').get()
-##u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-##u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-#s = Slice()
-#s.authority = 'onelab.upmc'
-#s.shortname = 'slice1'
-###s.hrn = 'onelab.upmc.apitest.slice1'
-##s.addUser(u)
-##pprint(s)
-##s.addUser(u1)
-##pprint(s)
-##s.removeUser(u1)
-##pprint(s)
-### XXX In builder check that resources belong to the right testbed
-##s.addResources(r)
-##pprint(s)
-#
-#l = Lease()
-#l.slice_id = s.id
-#l.start_time = 1458320400
-#l.duration = 3600
-##l.end_time = 1458324000
-## XXX In builder check that resources belong to the right testbed
-#l.addResources(r)
-#pprint(l)
-#
-#s.addLease(l)
-##pprint(s)
-##
-#s = s.save()
+
+d1 = {'available': 'true', 'id': 'urn:publicid:IDN+iotlab+node+wsn430-27.grenoble.iot-lab.info', 'technologies': ['IoT', 'Internet of Things'], 'hardware_types': ['wsn430:cc1101'], 'name': 'wsn430-27.grenoble.iot-lab.info', 'type': 'node', 'sliver_types': [], 'interfaces': [], 'parser': 'iotlab', 'manager': 'urn:publicid:IDN+iotlab+authority+sa', 'location': {'country': 'France'}, 'exclusive': 'true'}
+r1 = Resource(d1)
+
+d2 = {'available': 'false', 'id': 'urn:publicid:IDN+ple:upcple+node+planetlab2.upc.es', 'location': {'longitude': '2.11273', 'latitude': '41.3897', 'country': 'Spain'}, 'technologies': ['Virtual Machines', 'Distributed Systems', 'Internet', 'Wired'], 'services': [], 'hardware_types': ['plab-pc', 'pc'], 'name': 'planetlab2.upc.es', 'type': 'node', 'interfaces': ['urn:publicid:IDN+ple+interface+node931:eth0'], 'parser': 'ple', 'manager': 'urn:publicid:IDN+ple+authority+cm', 'sliver_types': [{'name': 'plab-vserver', 'disk_images': [{'name': 'Fedora f22', 'version': 'f22', 'os': 'Linux'}]}], 'exclusive': 'false'}
+r2 = Resource(d2)
+
+r = [r1,r2]
+
+##r = q(Resource).filter('country','Spain').filter('version','f22').get()
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+s = Slice()
+s.authority = 'onelab.upmc'
+s.shortname = 'slice1'
+##s.hrn = 'onelab.upmc.slice1'
+s.addUser(u)
 #pprint(s)
+s.addUser(u1)
+#pprint(s)
+#s.removeUser(u1)
+#pprint(s)
+## XXX In builder check that resources belong to the right testbed
+s.addResources(r)
+#pprint(s)
+
+l = Lease()
+l.slice_id = s.id
+l.start_time = 1458579600
+l.duration = 3600
+#l.end_time = 1458324000
+# XXX In builder check that resources belong to the right testbed
+l.addResources(r)
+pprint(l)
+
+s.addLease(l)
+
+pprint(s)
+s = s.save()
+pprint(s)
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()

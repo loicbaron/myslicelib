@@ -93,7 +93,6 @@ class Entity(object):
             #     self.id = hrn_to_urn(self.hrn, self._type)
             # else:
             self.id = None
-            
         res = self._api.update(self.id, self.attributes())
         
         return res
@@ -122,6 +121,15 @@ class Entities(set):
             return True
         else:
             return False
+
+    def has(self, id):
+        '''
+        Returns true if element with id exists
+
+        :param id:
+        :return:
+        '''
+        return any(el.id == id for el in self)
 
     def dict(self):
         '''

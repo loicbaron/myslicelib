@@ -33,7 +33,7 @@ class Slice(Entity):
        
     def addUser(self, user):
         self.users.append(user.hrn)
-        self.geni_users.append({'urn':user.id,'keys':user.keys})
+        self.geni_users.append({'urn':user.id,'keys':user.keys,'email':user.email})
         return self
     
     def removeUser(self, user):
