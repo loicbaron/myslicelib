@@ -234,7 +234,7 @@ class SfaReg(SfaApi):
         }
 
         if 'keys' in record_dict:
-            mapped_dict = record_dict.get('keys', '')
+            mapped_dict['keys'] = record_dict.get('keys', '')
         return mapped_dict
 
     def _authority_mappings(self, hrn, record_dict):
@@ -294,13 +294,11 @@ class SfaReg(SfaApi):
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 result = self._proxy.Remove(hrn, auth_cred, entity)
-                if result == 1:
-                    return True
-                else:
+                if result != 1:
                     raise Exception(result)
-            return False
+            return []
         except Exception as e:
             traceback.print_exc()
-            return False
+            return []
 
     # self.CreateGid
