@@ -16,8 +16,8 @@ from myslicelib.query import q
 from pprint import pprint
 
 s.endpoints = [
-    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
@@ -113,39 +113,44 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #ls = q(Lease).get()
 #pprint(ls)
 
-r = q(Resource).filter('name', 'wsn430-27.grenoble.iot-lab.info').get()
-r1 = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
-r.update(r1)
+s1 = q(Slice).id("urn:publicid:IDN+onelab:upmc+slice+slice1").get()
+pprint(s1)
+s1 = q(Slice).filter('authority','urn:publicid:IDN+onelab:upmc+authority+sa').get()
+pprint(s1)
 
-##r = q(Resource).filter('country','Spain').filter('version','f22').get()
-#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-#u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-s = Slice()
-s.authority = 'onelab.upmc'
-s.shortname = 'slice1'
-##s.hrn = 'onelab.upmc.apitest.slice1'
-#s.addUser(u)
-#pprint(s)
-#s.addUser(u1)
-#pprint(s)
-#s.removeUser(u1)
-#pprint(s)
-## XXX In builder check that resources belong to the right testbed
-#s.addResources(r)
-#pprint(s)
-
-l = Lease()
-l.slice_id = s.id
-l.start_time = 1458320400
-l.duration = 3600
-#l.end_time = 1458324000
-# XXX In builder check that resources belong to the right testbed
-l.addResources(r)
-pprint(l)
-
-#s.addLease(l)
-#pprint(s)
+#r = q(Resource).filter('name', 'wsn430-27.grenoble.iot-lab.info').get()
+#r1 = q(Resource).filter('country','Spain').filter('name','planetlab2.upc.es').get()
+#r.update(r1)
 #
+###r = q(Resource).filter('country','Spain').filter('version','f22').get()
+##u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+##u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#s = Slice()
+#s.authority = 'onelab.upmc'
+#s.shortname = 'slice1'
+###s.hrn = 'onelab.upmc.apitest.slice1'
+##s.addUser(u)
+##pprint(s)
+##s.addUser(u1)
+##pprint(s)
+##s.removeUser(u1)
+##pprint(s)
+### XXX In builder check that resources belong to the right testbed
+##s.addResources(r)
+##pprint(s)
+#
+#l = Lease()
+#l.slice_id = s.id
+#l.start_time = 1458320400
+#l.duration = 3600
+##l.end_time = 1458324000
+## XXX In builder check that resources belong to the right testbed
+#l.addResources(r)
+#pprint(l)
+#
+#s.addLease(l)
+##pprint(s)
+##
 #s = s.save()
 #pprint(s)
 

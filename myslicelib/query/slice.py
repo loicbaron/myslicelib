@@ -1,4 +1,5 @@
 from myslicelib.query import Query
+from myslicelib.util.checker import checker
 
 class SliceQuery(Query):
 
@@ -20,6 +21,7 @@ class SliceQuery(Query):
         res = self.api.get(self._id)
         if self._id:
             return self.collection(self._merge_dicts(res))
+
         return self.collection(res)
 
     def update(self, params):

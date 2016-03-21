@@ -6,8 +6,6 @@ class Ple(SfaBuilder):
     def builder(self, urn, record_dict):
         result = []
         from pprint import pprint
-        print(record_dict)
-
         #<?xml version="1.0"?>
         #  <rspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.geni.net/resources/rspec/3" xmlns:plos="http://www.planet-lab.org/resources/sfa/ext/plos/1" xmlns:flack="http://www.protogeni.net/resources/rspec/ext/flack/1" xmlns:planetlab="http://www.planet-lab.org/resources/sfa/ext/planetlab/1" type="request" xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd http://www.planet-lab.org/resources/sfa/ext/planetlab/1 http://www.planet-lab.org/resources/sfa/ext/planetlab/1/planetlab.xsd http://www.planet-lab.org/resources/sfa/ext/plos/1 http://www.planet-lab.org/resources/sfa/ext/plos/1/plos.xsd" expires="2016-03-18T12:26:50Z" generated="2016-03-18T11:26:50Z">
         #    <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:urvple+node+planetlab1.urv.cat" component_name="planetlab1.urv.cat">
@@ -27,7 +25,7 @@ class Ple(SfaBuilder):
                 rspec += '</node>'
 
         rspec += '</rspec>'
-
+        pprint(rspec)
         return rspec
 
 #  <node component_manager_id="urn:publicid:IDN+ple+authority+cm" component_id="urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no" exclusive="false" component_name="planetlab1.cs.uit.no">

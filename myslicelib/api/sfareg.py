@@ -293,7 +293,7 @@ class SfaReg(SfaApi):
                 result = self._proxy.Remove(hrn, auth_cred, entity)
                 if result != 1:
                     raise Exception(result)
-                return []
+            return []
         except Exception as e:
             traceback.print_exc()
             return []

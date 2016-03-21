@@ -6,9 +6,6 @@ class Omf(SfaParser):
     def lease_parser(self, rspec):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
-        if ':' in testbed:
-            testbed = testbed.split(":")[1]
 
         leases = rspec.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease')
 
@@ -24,6 +21,7 @@ class Omf(SfaParser):
             duration = end_time - start_time
             l = {            
                 'lease_id': lease.attrib['id'],
+                'parser':self.__class__.__name__.lower(),
                 'start_time': start_time,
                 'end_time': end_time,
                 'duration': duration,
@@ -43,21 +41,19 @@ class Omf(SfaParser):
     def resource_parser(self, rspec):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
-        if ':' in testbed:
-            testbed = testbed.split(":")[1]    
-
 
         for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {
                 'type' : 'node',
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
+                'manager': node.attrib['component_manager_id'],
+                'parser':self.__class__.__name__.lower(),
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
-                'testbed':testbed,
+                'parser':self.__class__.__name__.lower(),
                 'technologies':['Wireless','Wifi'],
             }
             for element in list(node):

@@ -10,7 +10,9 @@ class Fuseco(SfaParser):
             resource = {
             'type' : 'node',
             'id': node.attrib['component_id'],
-            'hostname': node.attrib['component_name'],
+            'name': node.attrib['component_name'],
+            'manager': node.attrib['component_manager_id'],
+            'parser':self.__class__.__name__.lower(),
             }
             for element in list(node):
                 if 'location' in element.tag:
