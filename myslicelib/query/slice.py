@@ -1,4 +1,5 @@
 from myslicelib.query import Query
+from myslicelib.util.checker import checker
 
 class SliceQuery(Query):
 
@@ -16,6 +17,11 @@ class SliceQuery(Query):
 
     def get(self):
         res = self.api.get(self._id)
+        #if self._filter:
+        #    res = [x for x in res if checker(x, self._filter)]
+
+        if self._id is None:
+            return self.collection(res)
         
         return self.collection(self._merge_dicts(res))
 
