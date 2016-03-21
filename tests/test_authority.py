@@ -55,7 +55,7 @@ class TestProject(unittest.TestCase):
 
     def test_04_delete_authority(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
 
     def test_authority_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').update({
@@ -66,7 +66,7 @@ class TestProject(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:coucou+authority+sa', auth.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), auth.pi_users)
             res = self.q.id('urn:publicid:IDN+onelab:coucou+authority+sa').delete()
-            self.assertTrue(res)
+            self.assertEqual([], res)
         
     # def test_get_authority_from_root_authority(self):
     #     res = self.q.get()

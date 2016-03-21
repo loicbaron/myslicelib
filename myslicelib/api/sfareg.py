@@ -112,7 +112,7 @@ class SfaReg(SfaApi):
                 'shortname': d['hrn'].split('.')[-1],
                 'hrn': d['hrn'],
                 'name': d['name'],
-                'certificate': d.get('gid'),
+                'certificate': d['gid'],
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
@@ -192,9 +192,6 @@ class SfaReg(SfaApi):
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
 
-            # if entity in ['project', 'authority']:
-            #     urn_type = 'project' if len(hrn.split('.'))> 2 else 'authority'
-
             # entity is query object
             # urn_type is type of object derived from urn
             if entity == urn_type or entity == 'project':
@@ -230,7 +227,7 @@ class SfaReg(SfaApi):
         mapped_dict = {
                     'hrn': hrn,
                     'type': 'user',                 
-                    'email': record_dict.get('email', ''),                   
+                    'email': record_dict.get('email', ''), # email cant be empty string                  
         }
 
         if 'keys' in record_dict:
@@ -261,6 +258,7 @@ class SfaReg(SfaApi):
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
+                print(mapped_dict)
                 result = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)

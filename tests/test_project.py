@@ -55,7 +55,7 @@ class TestProject(unittest.TestCase):
 
     def test_04_delete_project(self):
         res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
-        self.assertTrue(res)
+        self.assertEqual([], res)
 
     def test_project_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').update({
@@ -66,7 +66,7 @@ class TestProject(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:inria:authx+authority+sa', auth.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), auth.pi_users)
             res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
-            self.assertTrue(res)
+            self.assertEqual([], res)
         
     @unittest.expectedFailure
     def test_get_project_from_slice(self):

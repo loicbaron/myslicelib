@@ -2,7 +2,7 @@ import traceback
 from pprint import pprint
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, unique_call_id
 from myslicelib.util.builder import Builder
-from myslicelib.util.parser import Parser
+from myslicelib.util.parser import Parser, get_testbed_type
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.api.sfa import SfaError
 from myslicelib.error import MysParameterIsRequiredError
@@ -92,7 +92,8 @@ class SfaAm(SfaApi):
                 # from pprint import pprint
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
-                result = Parser(xml_string).parse(entity)
+                testbed = get_testbed_type(self.version()['id'])
+                result = Parser(testbed, xml_string).parse(entity)
                 # XXX Check result
             except Exception as e:
                 traceback.print_exc()
@@ -138,8 +139,9 @@ class SfaAm(SfaApi):
                     api_options['geni_users'] = record_dict['geni_users']
                     #api_options['append'] = True
                     pprint(api_options)
-
-                    rspec = Builder(self.version()['testbed']).build(urn, record_dict)
+                    
+                    parser = get_testbed_type(self.version()['id'])
+                    rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
 
                     #if 'parsed' not in record_dict:
                     #    raise MysParameterIsRequiredError('request respec is required')
@@ -177,7 +179,8 @@ class SfaAm(SfaApi):
                             # from pprint import pprint
                             # pprint(xml_string)
                             # XXX if urn is not None we need to Filter - in the parser??? 
-                            result = Parser(xml_string).parse(entity)
+                            testbed = get_testbed_type(self.version()['id'])
+                            result = Parser(testbed, xml_string).parse(entity)
                             # XXX Check result
                         except Exception as e:
                             traceback.print_exc()

@@ -7,16 +7,6 @@ class Api(object):
         self.endpoint = endpoint
         self.credential = credential
 
-        self.type_ams = {
-            'omf' : ['nitos','omf','omf.nitos','omf.netmode','netmode','gaia','omf.gaia','snu','omf.snu','omf.kaist','r2lab','omf.r2lab','faraday','omf.faraday','omf.etri'],
-            'iotlab' : ['iotlab','iii'],                    # IoT
-            'ple' : ['ple'],                                # PlanetLab
-            'fuseco' : ['fuseco.fokus.fraunhofer.de'],
-            'emulab' : ['wilab2.ilabt.iminds.be'],          # iMinds
-            'openflow' : ['openflow','ofam','ofelia'],      # Ofelia Openflow
-            'virtualization' : ['virtualization','vtam']    # Ofelia VM
-        }
-
 
         if hasattr(ssl, '_create_unverified_context'):
             context = ssl._create_unverified_context()
@@ -55,10 +45,6 @@ class Api(object):
                     'type': 'registry'
                 }
             else :
-                for t in self.type_ams:
-                    if result['value']['urn'].split("+")[1].split(":")[0] in self.type_ams[t]:
-                        testbed = t
-                        continue
                 return {
                     'status': {
                         'online' : True,
@@ -66,7 +52,6 @@ class Api(object):
                     },
                     'id': result['value']['urn'],
                     'version' : result['value']['geni_api'],
-                    'testbed' : testbed,
                     'type' : 'am'
                 }
         except Exception as e:

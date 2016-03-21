@@ -5,9 +5,6 @@ class Iotlab(SfaParser):
     def lease_parser(self, rspec):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
-        if ':' in testbed:
-            testbed = testbed.split(":")[1]
 
         for lease in rspec.findall('{http://www.geni.net/resources/rspec/3}lease'):
             lease = {
@@ -18,6 +15,7 @@ class Iotlab(SfaParser):
                             int(lease.attrib['duration']),
 
                 'resources': [node.attrib['component_id'] for node in list(lease)],
+                'parser':self.__class__.__name__.lower(),
             }
             result.append(lease)
         return result
@@ -26,20 +24,18 @@ class Iotlab(SfaParser):
     def resource_parser(self, rspec):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
-        testbed = el.attrib['component_id'].split("+")[1]
-        if ':' in testbed:
-            testbed = testbed.split(":")[1]
 
         for node in rspec.findall('{http://www.geni.net/resources/rspec/3}node'):
             resource = {
                 'type' : 'node',
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
+                'manager': node.attrib['component_manager_id'],
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
-                'testbed':testbed,
+                'parser':self.__class__.__name__.lower(),
                 'technologies':['IoT','Internet of Things'],
             }
             for element in list(node):

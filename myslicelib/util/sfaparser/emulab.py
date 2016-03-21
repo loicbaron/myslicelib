@@ -14,11 +14,12 @@ class Emulab(SfaParser):
                 'type' : 'node',
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
+                'manager': node.attrib['component_manager_id'],
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
-                'testbed':testbed,
+                'parser':self.__class__.__name__.lower(),
 
             }
             for element in list(node):
