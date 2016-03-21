@@ -66,18 +66,17 @@ class TestUser(unittest.TestCase):
 
     def test_user_with_root_cred(self):
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+        self.assertIsInstance(res, Users)
         for user in res:
             self.assertEqual('loic.baron@gmail.com', user.email)
             self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', user.id)
         res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
         self.assertEqual([], res)
         
-    @unittest.expectedFailure
     def test_get_user_from_slice(self):
         with self.assertRaises(MysNotImplementedError):
-            self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
+            res = self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 
-    @unittest.expectedFailure
     def test_get_user_from_authority(self):
         with self.assertRaises(MysNotImplementedError):
             res = self.q.id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
