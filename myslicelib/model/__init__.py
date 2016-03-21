@@ -93,7 +93,6 @@ class Entity(object):
             #     self.id = hrn_to_urn(self.hrn, self._type)
             # else:
             self.id = None
-            
         res = self._api.update(self.id, self.attributes())
         
         return res
