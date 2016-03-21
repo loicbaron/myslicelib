@@ -1,5 +1,4 @@
 from copy import deepcopy
-import xml.etree.ElementTree
 from myslicelib.util.parser import get_testbed_type
 
 class Builder(object):
