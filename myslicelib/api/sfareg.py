@@ -80,9 +80,9 @@ class SfaReg(SfaApi):
                 users.append(hrn_to_urn(u, 'user'))
 
             slices.append({
-                'id': d['reg-urn'],
-                'shortname': d['hrn'].split('.')[-1],
-                'hrn': d['hrn'],
+                'id' : d.get('reg-urn'),
+                'shortname': d.get('hrn').split('.')[-1],
+                'hrn': d.get('hrn'),
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'users': users,
@@ -108,11 +108,11 @@ class SfaReg(SfaApi):
                 mappings[entity['type']] += [entity['reg-urn']]
 
             authority.append({
-                'id' :  d.get('reg-urn'),
-                'shortname': d['hrn'].split('.')[-1],
-                'hrn': d['hrn'],
-                'name': d['name'],
-                'certificate': d['gid'],
+                'id': d.get('reg-urn'),
+                'shortname': d.get('hrn').split('.')[-1],
+                'hrn': d.get('hrn'),
+                'name': d.get('name'),
+                'certificate': d.get('gid'),
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
@@ -140,15 +140,14 @@ class SfaReg(SfaApi):
                     mappings[entity['type']]+= [entity['reg-urn']]
 
             project.append({
-
-                'id' :  d['reg-urn'],
-                'shortname': d['hrn'].split('.')[-1],
-                'hrn': d['hrn'],
-                'name': d['name'],
-                'certificate': d['gid'],
+                'id' :  d.get('reg-urn'),
+                'shortname': d.get('hrn').split('.')[-1],
+                'hrn': d.get('hrn'),
+                'name': d.get('name'),
+                'certificate': d.get('gid'),
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
-                'pi_users': [hrn_to_urn(user, 'user') for user in d['reg-pis']],
+                'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
                 'users': mappings['user'],
                 'slices': mappings['slice'],
             })
@@ -163,7 +162,7 @@ class SfaReg(SfaApi):
 
             'id' :  d.get('reg-urn'),
             'shortname': d['hrn'].split('.')[-1],
-            'hrn': d['hrn'],
+            'hrn': d.get('hrn'),
             'keys': d.get('reg-keys', []),
             'certificate': d.get('gid'),
             'email': d.get('email', ''),
@@ -191,13 +190,14 @@ class SfaReg(SfaApi):
 
             if urn_type not in ['slice', 'user', 'authority']:
                 raise MysNotUrnFormatError
-
             # entity is query object
             # urn_type is type of object derived from urn
-            if entity == urn_type or entity == 'project':
-                result = self._get_entity(hrn)
-            else:
-                raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
+            
+            if entity != urn_type:
+                if entity != 'project' or urn_type != 'authority':
+                    raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
+            
+            result = self._get_entity(hrn)
 
         if raw:
             return self._extract_with_entity(entity, result)
@@ -258,7 +258,6 @@ class SfaReg(SfaApi):
             auth_cred = self.get_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                print(mapped_dict)
                 result = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
                 return self.get(entity, urn)

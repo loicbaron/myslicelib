@@ -7,6 +7,7 @@ from myslicelib.query import q
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
 from myslicelib.error import MysNotUrnFormatError
+from myslicelib.error import MysNotImplementedError
 
 from tests import s
 from tests import hrn
@@ -68,20 +69,18 @@ class TestProject(unittest.TestCase):
             res = self.q.id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
             self.assertEqual([], res)
         
-    @unittest.expectedFailure
     def test_get_project_from_slice(self):
         with self.assertRaises(MysNotImplementedError):
             self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 
-    @unittest.expectedFailure
     def test_get_project_from_user(self):
         with self.assertRaises(MysNotImplementedError):
             self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
 
-    @unittest.expectedFailure
+    # NOT RECOMMANDED
     def test_get_project_from_authority(self):
-        with self.assertRaises(MysNotImplementedError):
-            self.q.id('urn:publicid:IDN+onelab:inria+authority+sa')
+        res = self.q.id('urn:publicid:IDN+onelab:inria+authority+sa').get()
+           
 
 if __name__ == '__main__':
     #print(q(User).get())

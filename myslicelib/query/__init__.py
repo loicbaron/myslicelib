@@ -26,25 +26,6 @@ class Query(object):
 
     _id = None
 
-    # def __new__(cls, *args, **kwargs):
-        # if cls is Query:
-        #     try :
-        #         __import__(args[0])
-        #         return super(Query, cls).__new__(type(args[0].capitalize(), (), {}))
-        #     except ImportError :
-        #         logging.error("Entity %s not found" % (args[0]))
-        #         exit(1)
-
-
-        #
-        # if cls is Query:
-        #     print subcls
-        #     for x in cls.__subclasses__():
-        #         if x.__name__ == subcls:
-        #             return super(Query, cls).__new__(x)
-        # else:
-        #     return super(Query, cls).__new__(cls, *args, **kwargs)
-
     def __init__(self, entity: Entity) -> None:
 
         self.entity = entity
