@@ -1,4 +1,9 @@
+from datetime import datetime
+import dateutil.parser
+import pytz
 from OpenSSL import crypto, SSL
+import os.path
+import xml.etree.ElementTree
 from myslicelib.util.url import validateUrl
 #from myslicelib.util.certificate import Keypair, Certificate
 
@@ -28,7 +33,7 @@ class Endpoint(object):
 
 class Credential(object):
 
-    def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None):
+    def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None, sfa_credentials=None):
         if not private_key or not email or not hrn:
             raise ValueError("private key, email and hrn must be specified")
             exit(1)
@@ -41,6 +46,24 @@ class Credential(object):
             self.certificate = self.create_self_signed_cert()
         else:
             self.certificate = certificate
+
+        # this dict can contain: user_credential, hrn of a slice, hrn of an authority...
+        # sfa_credentials can be delegated from another user
+        if sfa_credentials:
+            for k,v in sfa_credentials.items():
+                if os.path.isfile(v):
+                    with open(v, "r") as myfile:
+                        v = myfile.read()
+                # Check if the credential is expired
+                el = xml.etree.ElementTree.fromstring(v)
+                expiration = el.find('credential').find('expires').text
+                exp = dateutil.parser.parse(expiration)
+                utc = pytz.utc
+                if exp > utc.localize(datetime.now()):
+                    setattr(self, k.replace('.','_'), v)
+                    print(k+': is valid')
+                else:
+                    print(k+': is expired')
 
     def create_self_signed_cert(self):
 

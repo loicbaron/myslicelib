@@ -17,7 +17,12 @@ class SfaReg(SfaApi):
                 certificate = myfile.read()
         else:
             certificate = credential.certificate
-        self.user_credential = self._proxy.GetSelfCredential(
+        if hasattr(credential, 'user_credential'):
+            print('User provided sfa_credentials user_credential')
+            self.user_credential = credential.user_credential
+        else:
+            print('GetSelfCredential from Registry')
+            self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.credential.hrn,
                                         'user')
@@ -216,7 +221,15 @@ class SfaReg(SfaApi):
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if hrn:
                 if entity == 'slice':
+                    # If credentials were provided don't call the Registry
+                    c = getattr(self.credential, hrn.replace('.','_'), None)
+                    if c: return c
+                    print('GetCredential: '+hrn+' from Registry')
                     return self._proxy.GetCredential(self.user_credential, hrn, entity)
+                # If credentials were provided don't call the Registry
+                c = getattr(self.credential, upper_hrn.replace('.','_'), None)
+                if c: return c
+                print('GetCredential: '+upper_hrn+' from Registry')
                 return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:

@@ -26,16 +26,24 @@ s.endpoints = [
 ]
 
 path = "/root/.sfi/"
-# pkey = path + "onelab.upmc.loic_baron.pkey"
-# hrn = "onelab.upmc.loic_baron"
-# email = "loic.baron@lip6.fr"
-# cert = path + "onelab.upmc.loic_baron.user.gid"
+pkey = path + "onelab.upmc.loic_baron.pkey"
+hrn = "onelab.upmc.loic_baron"
+email = "loic.baron@lip6.fr"
+cert = path + "onelab.upmc.loic_baron.user.gid"
+# expired cred
+#sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user_for_onelab.myslice.user.cred'}
+#sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user.cred'}
+sfa_credentials = {
+                  'user_credential': path+'onelab.upmc.loic_baron.user.cred', 
+                  'onelab.upmc.slice1': path+'onelab.upmc.loic_baron-onelab.upmc.slice1.slice.cred',
+                  'onelab.upmc': path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred',
+                  }
 
-path = "/root/.sfi/"
-pkey = path + "onelab.upmc.joshzhou16.pkey"
-cert = path + "onelab.upmc.joshzhou16.sscert"
-hrn = "onelab.upmc.joshzhou16"
-email = "joshzhou16@gmail.com"
+#path = "/root/.sfi/"
+#pkey = path + "onelab.upmc.joshzhou16.pkey"
+#cert = path + "onelab.upmc.joshzhou16.sscert"
+#hrn = "onelab.upmc.joshzhou16"
+#email = "joshzhou16@gmail.com"
 
 
 #pkey = path + "lbaron.pkey"
@@ -51,7 +59,7 @@ email = "joshzhou16@gmail.com"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey, sfa_credentials=sfa_credentials)
 
 #r = q(Resource).get()
 #r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
@@ -94,17 +102,16 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 #u.save()
 #u.delete()
 
-# u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-# u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-# s = Slice()
-# s.authority = 'onelab.upmc'
-# s.shortname = 'slice1'
-# #s.hrn = 'onelab.upmc.apitest.slice1'
-# # s.addUser(u)
-# # s.addUser(u1)
-# pprint(s)
-# #s.resources.append('urn:publicid:IDN+ple:uitple+node+planetlab1.cs.uit.no')
-# s.save()
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+s = Slice()
+s.authority = 'onelab.upmc'
+s.shortname = 'slice1'
+#s.hrn = 'onelab.upmc.apitest.slice1'
+s.addUser(u1)
+s.removeUser(u)
+s.save()
+pprint(s)
 
 #r = q(Resource).filter('country','Germany').get()
 #r = q(Resource).filter('country', ['Germany', 'France']).get()
@@ -137,34 +144,35 @@ r = [r1,r2]
 ##r = q(Resource).filter('country','Spain').filter('version','f22').get()
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-s = Slice()
-s.authority = 'onelab.upmc'
-s.shortname = 'slice1'
-##s.hrn = 'onelab.upmc.slice1'
-s.addUser(u)
-#pprint(s)
-s.addUser(u1)
-#pprint(s)
-#s.removeUser(u1)
-#pprint(s)
+pprint(u)
+#s = Slice()
+#s.authority = 'onelab.upmc'
+#s.shortname = 'slice1'
+###s.hrn = 'onelab.upmc.slice1'
+#s.addUser(u)
+##pprint(s)
+#s.addUser(u1)
+##pprint(s)
+##s.removeUser(u1)
+##pprint(s)
+### XXX In builder check that resources belong to the right testbed
+#s.addResources(r)
+##pprint(s)
+#
+#l = Lease()
+#l.slice_id = s.id
+#l.start_time = 1458640800
+#l.duration = 3600
+##l.end_time = 1458324000
 ## XXX In builder check that resources belong to the right testbed
-s.addResources(r)
+#l.addResources(r)
+#pprint(l)
+#
+#s.addLease(l)
+#
 #pprint(s)
-
-l = Lease()
-l.slice_id = s.id
-l.start_time = 1458579600
-l.duration = 3600
-#l.end_time = 1458324000
-# XXX In builder check that resources belong to the right testbed
-l.addResources(r)
-pprint(l)
-
-s.addLease(l)
-
-pprint(s)
-s = s.save()
-pprint(s)
+#s = s.save()
+#pprint(s)
 
 # print(time.time()-start_time)
 # auths = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
