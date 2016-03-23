@@ -25,7 +25,7 @@ class SfaReg(SfaApi):
         self.user_credentials = []
         # this dict can contain: user_credential, slice_credential, authority_credential...
         # sfa_credentials can be delegated from another user
-        if credential.permissions:
+        if hasattr(credential, 'permissions'):
             for c in credential.permissions:
                 if 'id' not in c:
                     c['id'] = hrn_to_urn(c['hrn'],c['type'])
