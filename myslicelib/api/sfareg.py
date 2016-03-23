@@ -2,6 +2,10 @@ import os
 import traceback
 import pytz
 
+from datetime import datetime
+import dateutil.parser
+import xml.etree.ElementTree
+
 from myslicelib.api.sfa import Api as SfaApi
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn 
 
@@ -17,15 +21,41 @@ class SfaReg(SfaApi):
                 certificate = myfile.read()
         else:
             certificate = credential.certificate
-        if hasattr(credential, 'user_credential'):
-            print('User provided sfa_credentials user_credential')
-            self.user_credential = credential.user_credential
-        else:
+
+        self.user_credentials = []
+        # this dict can contain: user_credential, slice_credential, authority_credential...
+        # sfa_credentials can be delegated from another user
+        if credential.permissions:
+            for c in credential.permissions:
+                if 'id' not in c:
+                    c['id'] = hrn_to_urn(c['hrn'],c['type'])
+                if 'hrn' not in c:
+                    c['hrn'],c['type'] = urn_to_hrn(c['id'])
+                if os.path.isfile(c['xml']):
+                    with open(c['xml'], "r") as myfile:
+                        c['xml'] = myfile.read()
+                # Check if the credential is expired
+                el = xml.etree.ElementTree.fromstring(c['xml'])
+                expiration = el.find('credential').find('expires').text
+                exp = dateutil.parser.parse(expiration)
+                utc = pytz.utc
+                if exp > utc.localize(datetime.now()):
+                    self.user_credentials.append(c)
+                    if c['type'] == 'user':
+                        self.user_credential = c['xml']
+                else:
+                    print(k+': is expired')
+        if not self.user_credentials:
             print('GetSelfCredential from Registry')
             self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.credential.hrn,
                                         'user')
+    def _getCredential(self, hrn, obj_type):
+        for c in self.user_credentials:
+            if c['hrn']==hrn and c['type']==obj_type:
+                return c['xml']
+        return False
 
     def _extract_with_entity(self, entity, result):
         filtered_entites = []
@@ -222,12 +252,12 @@ class SfaReg(SfaApi):
             if hrn:
                 if entity == 'slice':
                     # If credentials were provided don't call the Registry
-                    c = getattr(self.credential, hrn.replace('.','_'), None)
+                    c = self._getCredential(hrn, entity)
                     if c: return c
                     print('GetCredential: '+hrn+' from Registry')
                     return self._proxy.GetCredential(self.user_credential, hrn, entity)
                 # If credentials were provided don't call the Registry
-                c = getattr(self.credential, upper_hrn.replace('.','_'), None)
+                c = self._getCredential(upper_hrn, entity)
                 if c: return c
                 print('GetCredential: '+upper_hrn+' from Registry')
                 return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)

@@ -16,8 +16,8 @@ from myslicelib.query import q
 from pprint import pprint
 
 s.endpoints = [
-    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
@@ -33,11 +33,12 @@ cert = path + "onelab.upmc.loic_baron.user.gid"
 # expired cred
 #sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user_for_onelab.myslice.user.cred'}
 #sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user.cred'}
-sfa_credentials = {
-                  'user_credential': path+'onelab.upmc.loic_baron.user.cred', 
-                  'onelab.upmc.slice1': path+'onelab.upmc.loic_baron-onelab.upmc.slice1.slice.cred',
-                  'onelab.upmc': path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred',
-                  }
+permissions = [
+              {'type':'user', 'hrn':'onelab.upmc.loic_baron', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
+              #{'id':'xxxx', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
+              {'type':'slice', 'hrn':'onelab.upmc.slice1', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.slice1.slice.cred'},
+              {'type':'authority', 'hrn':'onelab.upmc', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred'},
+              ]
 
 #path = "/root/.sfi/"
 #pkey = path + "onelab.upmc.joshzhou16.pkey"
@@ -59,7 +60,7 @@ sfa_credentials = {
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey, sfa_credentials=sfa_credentials)
+s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey, permissions=permissions)
 
 #r = q(Resource).get()
 #r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
