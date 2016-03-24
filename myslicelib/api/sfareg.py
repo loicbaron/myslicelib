@@ -139,7 +139,7 @@ class SfaReg(SfaApi):
                 'authority': [],
             }
             ### XXX need optimatiztion with query(id = None)
-            enitities = self._extract_with_authority(d['hrtn'], self._list_entity(d['hrn']))
+            enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
 
             for entity in enitities:
                 # depend object tpye, we add this object urn to its coresponding mappings
