@@ -189,11 +189,11 @@ class Api(object):
 
         return result
 
-    def get_credentials(self, ids):
+    def get_credentials(self, ids, delegated_to=None):
         result = []
         threads = []
         for id in ids:
-            threads += [self._thread_handler(self.registry.get_credential, id)]
+            threads += [self._thread_handler(self.registry.get_credential,id,delegated_to)]
         result = self._parallel_request(threads)
         return result
 

@@ -56,34 +56,3 @@ class User(Entity):
 
         self.credentials = self._api.get_credentials(ids)
         return self
-
-        ## XXX To be moved into SfaReg
-        ## XXX How to delegate Credentials???
-        #credentials.append({
-        #  'type':'user',
-        #  'id': self.id,
-        #  'xml': self._api.get_credential(self.attribute['hrn'], 'user'),
-        #  'delegated': False,
-        #})
-
-        #for urn in self.attribute('slices'):
-        #    hrn,o = urn_to_hrn(urn)
-        #    credentials.append({
-        #      'type': o_type,
-        #      'id': urn,
-        #      'xml': self._api.get_credential(hrn, o_type),
-        #      'delegated': False,
-        #    })
-
-        ## XXX do we need to distinguish authorities and projects credentials
-        #for urn in self.attribute('pi_authorities'):
-        #    hrn,o = urn_to_hrn(urn)
-        #    credentials.append({
-        #      'type': o_type,
-        #      'id': urn,
-        #      'xml': self._api.get_credential(hrn, o_type),
-        #      'delegated': False,
-        #    })
-        #self.credentials = credentials
-        #return credentials
-

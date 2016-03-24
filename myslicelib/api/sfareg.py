@@ -248,18 +248,35 @@ class SfaReg(SfaApi):
 
         return result
 
-    def get_credential(self, urn):
+    def get_credential(self, urn, delegated_to=None):
         hrn, entity = urn_to_hrn(urn)
-        local_cred = list(filter(lambda c: c['id'] == urn, self.user_credentials))
+        if delegated_to:
+            local_cred = list(filter(lambda c: c['id'] == urn and c['delegated_to']==delegated_to, self.user_credentials))
+        else:
+            local_cred = list(filter(lambda c: c['id'] == urn, self.user_credentials))
+
         if local_cred:
             print('already defined %s' % urn)
             return local_cred
         else:
+            if delegated_to:
+                # XXX To be removed
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+                # TODO
+                # delegate(cred)
+                # gid of object urn
+                #obj_gid = self._proxy.GetGids([hrn], self.user_credential)
+                #user_pkey = self.authentication.private_key
+                # gid of user
+                #user_gid = self._proxy.GetGids([self.authentication.hrn], self.user_credential)
+                #cred = delegate(obj_gid_file, user_pkey_file, user_gid_file)
+            else:
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
             d = [{
                 'id': urn,
                 'type': entity,
-                'xml': self._proxy.GetCredential(self.user_credential, hrn, entity),
-                'delegated': False,
+                'xml': cred, 
+                'delegated_to': delegated_to,
             }]
             self.user_credentials += d 
         return d
