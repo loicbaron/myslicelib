@@ -27,9 +27,9 @@ class Endpoint(object):
         return self.url
 
 
-class Credential(object):
+class Authentication(object):
 
-    def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None, permissions=None):
+    def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None, credentials=None):
         if not private_key or not email or not hrn:
             raise ValueError("private key, email and hrn must be specified")
             exit(1)
@@ -43,8 +43,8 @@ class Credential(object):
         else:
             self.certificate = certificate
 
-        if permissions:
-            self.permissions = permissions
+        if credentials:
+            self.credentials = credentials
 
     def create_self_signed_cert(self):
 

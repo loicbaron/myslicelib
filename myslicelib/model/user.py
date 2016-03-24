@@ -1,5 +1,8 @@
 import myslicelib
 
+from myslicelib import setup as s
+from myslicelib.api import Api
+
 from myslicelib.model import Entities, Entity
 from myslicelib.query import q
 
@@ -34,4 +37,53 @@ class User(Entity):
             result += q(Slice).id(urn).get()
         return result
 
+    def getCredential(self, id):
+        if self._api is None:
+            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
+        self.credentials = self._api.get_credentials([id])
+        return self
+
+    def getCredentials(self):
+        if self._api is None:
+            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
+
+        ids =[]
+        ids.append(self.id)
+        for urn in self.attribute('slices'):
+            ids.append(urn)
+        for urn in self.attribute('pi_authorities'):
+            ids.append(urn)
+
+        self.credentials = self._api.get_credentials(ids)
+        return self
+
+        ## XXX To be moved into SfaReg
+        ## XXX How to delegate Credentials???
+        #credentials.append({
+        #  'type':'user',
+        #  'id': self.id,
+        #  'xml': self._api.get_credential(self.attribute['hrn'], 'user'),
+        #  'delegated': False,
+        #})
+
+        #for urn in self.attribute('slices'):
+        #    hrn,o = urn_to_hrn(urn)
+        #    credentials.append({
+        #      'type': o_type,
+        #      'id': urn,
+        #      'xml': self._api.get_credential(hrn, o_type),
+        #      'delegated': False,
+        #    })
+
+        ## XXX do we need to distinguish authorities and projects credentials
+        #for urn in self.attribute('pi_authorities'):
+        #    hrn,o = urn_to_hrn(urn)
+        #    credentials.append({
+        #      'type': o_type,
+        #      'id': urn,
+        #      'xml': self._api.get_credential(hrn, o_type),
+        #      'delegated': False,
+        #    })
+        #self.credentials = credentials
+        #return credentials
 

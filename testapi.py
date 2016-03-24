@@ -2,7 +2,7 @@
 import sys
 import time
 
-from myslicelib.util import Endpoint, Credential
+from myslicelib.util import Endpoint, Authentication
 from myslicelib.api import Api
 
 from myslicelib import setup as s
@@ -31,14 +31,15 @@ hrn = "onelab.upmc.loic_baron"
 email = "loic.baron@lip6.fr"
 cert = path + "onelab.upmc.loic_baron.user.gid"
 # expired cred
-#sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user_for_onelab.myslice.user.cred'}
-#sfa_credentials = {'user_credential':path+'onelab.upmc.loic_baron.user.cred'}
-permissions = [
-              {'type':'user', 'hrn':'onelab.upmc.loic_baron', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
-              #{'id':'xxxx', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
-              {'type':'slice', 'hrn':'onelab.upmc.slice1', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.slice1.slice.cred'},
-              {'type':'authority', 'hrn':'onelab.upmc', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred'},
-              ]
+credentials = None
+#credentials = [{'user_credential':path+'onelab.upmc.loic_baron.user_for_onelab.myslice.user.cred'}
+#credentials = [{'user_credential':path+'onelab.upmc.loic_baron.user.cred'}
+#credentials = [
+#              {'type':'user', 'hrn':'onelab.upmc.loic_baron', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
+#              #{'id':'xxxx', 'xml':path+'onelab.upmc.loic_baron.user.cred'},
+#              {'type':'slice', 'hrn':'onelab.upmc.slice1', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.slice1.slice.cred'},
+#              {'type':'authority', 'hrn':'onelab.upmc', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred'},
+#              ]
 
 #path = "/root/.sfi/"
 #pkey = path + "onelab.upmc.joshzhou16.pkey"
@@ -60,7 +61,7 @@ permissions = [
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey, permissions=permissions)
+s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
 #r = q(Resource).get()
 #r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
@@ -105,10 +106,12 @@ s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pk
 
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u1.getCredentials()
+print(u1)
 s = Slice()
 s.authority = 'onelab.upmc'
 s.shortname = 'slice1'
-#s.hrn = 'onelab.upmc.apitest.slice1'
+##s.hrn = 'onelab.upmc.apitest.slice1'
 s.addUser(u1)
 s.removeUser(u)
 s.save()
@@ -143,9 +146,12 @@ r2 = Resource(d2)
 r = [r1,r2]
 
 ##r = q(Resource).filter('country','Spain').filter('version','f22').get()
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-pprint(u)
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#pprint(u)
+
+#p = q(Project).get()
+
 #s = Slice()
 #s.authority = 'onelab.upmc'
 #s.shortname = 'slice1'

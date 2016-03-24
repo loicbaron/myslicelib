@@ -4,7 +4,7 @@ import argparse
 import os.path
 
 # from myslicelib.util.certificate import Keypair, Certificate
-from myslicelib.util import Credential
+from myslicelib.util import Authentication
 
 def certificate(pkey, email, hrn):
         '''
@@ -19,7 +19,7 @@ def certificate(pkey, email, hrn):
         if not pkey or not email or not hrn:
             exit("private key, email and hrn must be specified")
         else:
-            return Credential(hrn=hrn, email=email, private_key=pkey).certificate
+            return Authentication(hrn=hrn, email=email, private_key=pkey).certificate
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MySlice console interface.')

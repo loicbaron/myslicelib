@@ -6,7 +6,7 @@ import multiprocessing
 from myslicelib.api import Api 
 from myslicelib.api.sfareg import SfaReg
 from myslicelib.api.sfaam import SfaAm
-from myslicelib.util import Endpoint, Credential
+from myslicelib.util import Endpoint, Authentication
 from myslicelib import setup as s
 
 from config import loic, quan
@@ -55,7 +55,7 @@ class MeasureSfaApi(Singleton):
                 Endpoint(url=config['url_am'], type ='AM'),
                 Endpoint(url=config['url_registry'], type = 'Reg')
             ]
-        s.credential = Credential(  email=config['email'], 
+        s.credential = Authentication(  email=config['email'], 
                                     hrn=config['hrn'], 
                                     private_key=config['pkey'], 
                                     certificate=config['cert'])
