@@ -100,7 +100,3 @@ class Query(object):
             self._filter[key].update(set(value))
         #print(self._filter)
         return self
-
-
-
-

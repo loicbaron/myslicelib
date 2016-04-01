@@ -63,6 +63,30 @@ credentials = None
 
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
+#a = q(Authority).filter('hrn','onelab.upmc').get()
+a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+u_a = a.isPi(u)
+print(u_a)
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u_a = a.isPi(u)
+print(u_a)
+
+#pprint(a)
+#p = q(Project).filter('hrn','onelab.upmc.mobicom').get()
+p = q(Project).id('urn:publicid:IDN+onelab:upmc:mobicom+authority+sa').get().first()
+pprint(p)
+x = p.getAuthority()
+
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u_p = p.isPi(u)
+print(u_p)
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u_x = x.isPi(u)
+print(u_x)
+
+pprint(x)
+
 #r = q(Resource).get()
 #r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 #pprint(r)
@@ -104,18 +128,18 @@ s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_ke
 #u.save()
 #u.delete()
 
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-u1.getCredentials()
-print(u1)
-s = Slice()
-s.authority = 'onelab.upmc'
-s.shortname = 'slice1'
-##s.hrn = 'onelab.upmc.apitest.slice1'
-s.addUser(u1)
-s.removeUser(u)
-s.save()
-pprint(s)
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#u1.getCredentials()
+#print(u1)
+#s = Slice()
+#s.authority = 'onelab.upmc'
+#s.shortname = 'slice1'
+###s.hrn = 'onelab.upmc.apitest.slice1'
+#s.addUser(u1)
+#s.removeUser(u)
+#s.save()
+#pprint(s)
 
 #r = q(Resource).filter('country','Germany').get()
 #r = q(Resource).filter('country', ['Germany', 'France']).get()

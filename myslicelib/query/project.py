@@ -6,13 +6,8 @@ from myslicelib.query import Query
 class ProjectQuery(Query):
     
     def __init__(self, entity: Entity) -> None:
-        self.entity = entity
-        self.api = getattr(Api(s.endpoints, s.credential), 'project')()
+        super().__init__(entity)
         self.auth_api = getattr(Api(s.endpoints, s.credential), 'authority')()
-
-    def get(self):
-        res = self.api.get(self._id)
-        return self.collection(res)
 
     def update(self, params):
 
