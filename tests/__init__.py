@@ -1,7 +1,7 @@
 import os
 
 from myslicelib import setup as s
-from myslicelib.util import Endpoint, Credential
+from myslicelib.util import Endpoint, Authentication
 
 s.endpoints = [
     #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
@@ -39,4 +39,4 @@ else:
 #cert = path + "fed4fire.upmc.loic_baron.user.gid"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)

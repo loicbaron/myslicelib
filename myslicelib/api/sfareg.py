@@ -14,19 +14,22 @@ from myslicelib.error import MysNotImplementedError
 
 class SfaReg(SfaApi):
 
-    def __init__(self, endpoint, credential):
-        super(SfaReg, self).__init__(endpoint, credential)
-        if os.path.isfile(credential.certificate):
-            with open(credential.certificate, "r") as myfile:
+    def __init__(self, endpoint, authentication):
+        super(SfaReg, self).__init__(endpoint, authentication)
+        if os.path.isfile(authentication.certificate):
+            with open(authentication.certificate, "r") as myfile:
                 certificate = myfile.read()
         else:
-            certificate = credential.certificate
+            certificate = authentication.certificate
+
+        self.authentication = authentication
 
         self.user_credentials = []
+        self.user_credential = None
         # this dict can contain: user_credential, slice_credential, authority_credential...
         # sfa_credentials can be delegated from another user
-        if hasattr(credential, 'permissions'):
-            for c in credential.permissions:
+        if hasattr(authentication, 'credentials'):
+            for c in authentication.credentials:
                 if 'id' not in c:
                     c['id'] = hrn_to_urn(c['hrn'],c['type'])
                 if 'hrn' not in c:
@@ -45,13 +48,13 @@ class SfaReg(SfaApi):
                         self.user_credential = c['xml']
                 else:
                     print(k+': is expired')
-        if not self.user_credentials:
+        if not self.user_credential:
             print('GetSelfCredential from Registry')
             self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
-                                        self.credential.hrn,
+                                        self.authentication.hrn,
                                         'user')
-    def _getCredential(self, hrn, obj_type):
+    def _getXmlCredential(self, hrn, obj_type):
         for c in self.user_credentials:
             if c['hrn']==hrn and c['type']==obj_type:
                 return c['xml']
@@ -245,26 +248,61 @@ class SfaReg(SfaApi):
 
         return result
 
+    def get_credential(self, urn, delegated_to=None):
+        hrn, entity = urn_to_hrn(urn)
+        if delegated_to:
+            local_cred = list(filter(lambda c: c['id'] == urn and c['delegated_to']==delegated_to, self.user_credentials))
+        else:
+            local_cred = list(filter(lambda c: c['id'] == urn, self.user_credentials))
+
+        if local_cred:
+            print('already defined %s' % urn)
+            return local_cred
+        else:
+            if delegated_to:
+                # XXX To be removed
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+                # TODO
+                # delegate(cred)
+                # gid of object urn
+                #obj_gid = self._proxy.GetGids([hrn], self.user_credential)
+                #user_pkey = self.authentication.private_key
+                # gid of user
+                #user_gid = self._proxy.GetGids([self.authentication.hrn], self.user_credential)
+                #cred = delegate(obj_gid_file, user_pkey_file, user_gid_file)
+            else:
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+            d = [{
+                'id': urn,
+                'type': entity,
+                'xml': cred, 
+                'delegated_to': delegated_to,
+            }]
+            self.user_credentials += d 
+        return d
+
     # look up to see the upper has the credential
-    def get_credential(self, hrn, entity):
+    def search_credential(self, hrn, entity):
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if hrn:
                 if entity == 'slice':
                     # If credentials were provided don't call the Registry
-                    c = self._getCredential(hrn, entity)
+                    c = self._getXmlCredential(hrn, entity)
                     if c: return c
-                    print('GetCredential: '+hrn+' from Registry')
+                    print('GetCredential hrn: '+hrn+' from Registry')
                     return self._proxy.GetCredential(self.user_credential, hrn, entity)
                 # If credentials were provided don't call the Registry
-                c = self._getCredential(upper_hrn, entity)
+                c = self._getXmlCredential(upper_hrn, entity)
                 if c: return c
-                print('GetCredential: '+upper_hrn+' from Registry')
+                if not upper_hrn or obj_type is None:
+                    upper_hrn = hrn
+                print('GetCredential upper: '+upper_hrn+' from Registry')
                 return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
-            return self.get_credential(upper_hrn, entity)
+            return self.search_credential(upper_hrn, entity)
 
     def _user_mappings(self, hrn, record_dict):
         mapped_dict = {
@@ -298,7 +336,7 @@ class SfaReg(SfaApi):
     def create(self, entity, urn, record_dict):
         try:
             hrn = urn_to_hrn(urn)[0]
-            auth_cred = self.get_credential(hrn, 'authority')
+            auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
                 result = self._proxy.Register(mapped_dict, auth_cred)
@@ -312,12 +350,12 @@ class SfaReg(SfaApi):
     def update(self, entity, urn, record_dict):
         hrn = urn_to_hrn(urn)[0]
         try:
-            if entity == 'user' and hrn == self.credential.hrn:
+            if entity == 'user' and hrn == self.authentication.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
-                cred = self.get_credential(hrn, 'slice')
+                cred = self.search_credential(hrn, 'slice')
             else:
-                cred = self.get_credential(hrn, 'authority')
+                cred = self.search_credential(hrn, 'authority')
             if cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
                 result = self._proxy.Update(mapped_dict, cred)
@@ -331,7 +369,7 @@ class SfaReg(SfaApi):
     def delete(self, entity, urn):
         try:
             hrn = urn_to_hrn(urn)[0]
-            auth_cred = self.get_credential(hrn, 'authority')
+            auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 result = self._proxy.Remove(hrn, auth_cred, entity)
                 if result != 1:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.5
 import sys
 import os
-from myslicelib.util import Endpoint, Credential
+from myslicelib.util import Endpoint, Authentication
 from myslicelib.api import Api
 
 from myslicelib import setup as s
@@ -44,7 +44,7 @@ cert = path + "myslice.cert"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
 
 
 #lease = Query(Leases).get()

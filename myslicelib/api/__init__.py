@@ -5,7 +5,7 @@ Base API Class
 import threading
 from queue import Queue
 from urllib.parse import urlparse
-from myslicelib.util import Endpoint, Credential
+from myslicelib.util import Endpoint, Authentication
 from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
 #from myslicelib.util.certificate import Keypair, Certificate
@@ -59,13 +59,13 @@ class Api(object):
 
     _q = Queue()
 
-    def __init__(self, endpoints: Endpoint, credential: Credential) -> None:
+    def __init__(self, endpoints: Endpoint, authentication: Authentication) -> None:
 
         if not isinstance(endpoints, list) or not all(isinstance(endpoint, Endpoint) for endpoint in endpoints):
             raise ValueError("API needs an object of type Endpoint")
 
-        if not isinstance(credential, Credential):
-            raise ValueError("API needs an object of type Credential")
+        if not isinstance(authentication, Authentication):
+            raise ValueError("API needs an object of type Authentication")
 
         self.registry = None # at least one registry endpoint must be present
         self.ams = [] # one or plus am must be present, this depends on the am to be present
@@ -73,7 +73,7 @@ class Api(object):
         # search for the registry
         for endpoint in endpoints:
             if (endpoint.protocol == "SFA") and (endpoint.type == "Reg"):
-                self.registry = SfaReg(endpoint, credential)
+                self.registry = SfaReg(endpoint, authentication)
                 registry_endpoint = endpoint
                 break
 
@@ -83,7 +83,7 @@ class Api(object):
         # search for the AMs
         for endpoint in endpoints:
             if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
-                self.ams.append( SfaAm(endpoint,  SfaReg(registry_endpoint, credential)) )
+                self.ams.append( SfaAm(endpoint,  SfaReg(registry_endpoint, authentication)) )
 
 
     def __getattr__(self, entity):
@@ -187,6 +187,14 @@ class Api(object):
                 "id" : res[i]['id'],
             } )
 
+        return result
+
+    def get_credentials(self, ids, delegated_to=None):
+        result = []
+        threads = []
+        for id in ids:
+            threads += [self._thread_handler(self.registry.get_credential,id,delegated_to)]
+        result = self._parallel_request(threads)
         return result
 
     def get(self, id=None, raw=False):

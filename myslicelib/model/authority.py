@@ -32,7 +32,7 @@ class Authority(Entity):
                 result += q(User).id(urn).get()
         return result
 
-    def getPi_users(self):
+    def getPiUsers(self):
         User = myslicelib.model.user.User
         result = []
         for urn in self.attribute('pi_users'):
@@ -53,3 +53,6 @@ class Authority(Entity):
     def removePi(self, user):
         self.pi_users = set(self.pi_users) - set(user.id)
         return self
+
+    def isPi(self, user):
+        return user.id in self.pi_users

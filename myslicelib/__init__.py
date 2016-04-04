@@ -6,7 +6,7 @@ except AssertionError:
     exit("MySlice Lib requires Python 3.5")
 
 from typing import Set
-from myslicelib.util import Credential, Endpoint
+from myslicelib.util import Authentication, Endpoint
 
 class Singleton(type):
     _instances = {}
@@ -19,20 +19,20 @@ class Setup(metaclass=Singleton):
 
     def __init__(self):
         self._setup = True
-        self._credential = None
+        self._authentication = None
         self._endpoints = None
 
     @property
-    def credential(self) -> Credential:
-        return self._credential
+    def authentication(self) -> Authentication:
+        return self._authentication
 
-    @credential.setter
-    def credential(self, credential: Credential) -> None:
-        self._credential = credential
+    @authentication.setter
+    def authentication(self, authentication: Authentication) -> None:
+        self._authentication = authentication
 
-    @credential.deleter
-    def credential(self) -> None:
-        del self._credential
+    @authentication.deleter
+    def authentication(self) -> None:
+        del self._authentication
 
     @property
     def endpoints(self) -> Set[Endpoint]:
