@@ -10,11 +10,17 @@ class User(Entity):
     _class = "User"
     _type = "user"
     _collection = "Users"
-    
+
+    def isPi(self):
+        for auth in self.attribute('authority'):
+            if auth in self.attribute('pi_authorities'):
+                return True
+        return False
+
     def getAuthority(self):
         Authority = myslicelib.model.authority.Authority
         result = []
-        for urn in self.attribute('users'):
+        for urn in self.attribute('authority'):
             result += q(Authority).id(urn).get()
         return result
 
