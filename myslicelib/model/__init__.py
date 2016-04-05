@@ -132,6 +132,12 @@ class Entities(set):
         '''
         return any(el.id == id for el in self)
 
+    def hasErrors(self):
+        if self.logs:
+            return True
+        else:
+            return False
+
     def dict(self):
         '''
 

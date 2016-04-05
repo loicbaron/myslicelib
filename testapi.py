@@ -62,12 +62,17 @@ credentials = None
 
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
-u = q(User).get()
-pprint(u)
+res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+pprint(res)
+res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
+pprint(res)
 
-r = q(Resource).get()
-pprint(r)
-pprint(r.logs)
+#u = q(User).get()
+#pprint(u)
+#
+#r = q(Resource).get()
+#pprint(r)
+#pprint(r.logs)
 #a = q(Authority).filter('hrn','onelab.upmc').get()
 #a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()

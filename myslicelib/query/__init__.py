@@ -72,7 +72,6 @@ class Query(object):
         c.logs = res['errors']
         return c
 
-
     def update(self, params):
         if not self._id:
             raise Exception("No element specified")
@@ -81,7 +80,6 @@ class Query(object):
         c = self.collection(res['data'])
         c.logs = res['errors']
         return c
-
 
     def delete(self):
         if not self._id:

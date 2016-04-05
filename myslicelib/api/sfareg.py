@@ -86,7 +86,6 @@ class SfaReg(SfaApi):
 
     def _list_entity(self, hrn=None):
         if hrn is None:
-            print(self.version())
             hrn = self.version()['id']
         try:
             # attept to list the hrn first if it is an authority
@@ -342,9 +341,11 @@ class SfaReg(SfaApi):
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                result = self._proxy.Register(mapped_dict, auth_cred)
+                res = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
-                result = self.get(entity, urn)
+                res = self.get(entity, urn)
+                result = res['data']
+                self.logs.append(res['errors'])
             else:
                 raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
@@ -366,7 +367,9 @@ class SfaReg(SfaApi):
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
                 res = self._proxy.Update(mapped_dict, cred)
                 # XXX test the result either 1 or a gid
-                result = self.get(entity, urn)
+                res = self.get(entity, urn)
+                result = res['data']
+                self.logs.append(res['errors'])
             else:
                 raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
@@ -376,19 +379,17 @@ class SfaReg(SfaApi):
         return {'data':result,'errors':self.logs}
 
     def delete(self, entity, urn):
+        result = []
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
-                result = self._proxy.Remove(hrn, auth_cred, entity)
-                if result != 1:
-                    raise Exception(result)
-            else:
-                result = []
+                res = self._proxy.Remove(hrn, auth_cred, entity)
+                if res != 1:
+                    raise Exception(res)
         except Exception as e:
             traceback.print_exc()
             self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
-            result = []
         return {'data':result,'errors':self.logs}
 
     # self.CreateGid
