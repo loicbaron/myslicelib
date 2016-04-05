@@ -22,7 +22,7 @@ class Endpoint(object):
             self.timeout = timeout
         else:
             # DEFAULT TIMEOUT
-            self.timeout = 3 
+            self.timeout = 5 
         if not url or not validateUrl(url):
             raise ValueError("URL not valid")
         else:

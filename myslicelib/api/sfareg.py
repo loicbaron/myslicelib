@@ -86,6 +86,7 @@ class SfaReg(SfaApi):
 
     def _list_entity(self, hrn=None):
         if hrn is None:
+            print(self.version())
             hrn = self.version()['id']
         try:
             # attept to list the hrn first if it is an authority
@@ -248,7 +249,7 @@ class SfaReg(SfaApi):
             result = []
             #exit(1)
 
-        return result
+        return {'data':result,'errors':self.logs}
 
     def get_credential(self, urn, delegated_to=None):
         hrn, entity = urn_to_hrn(urn)
@@ -281,7 +282,7 @@ class SfaReg(SfaApi):
                 'delegated_to': delegated_to,
             }]
             self.user_credentials += d 
-        return d
+        return {'data':d,'errors':self.logs}
 
     # look up to see the upper has the credential
     def search_credential(self, hrn, entity):
