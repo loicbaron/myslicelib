@@ -16,6 +16,7 @@ class SfaReg(SfaApi):
 
     def __init__(self, endpoint, authentication):
         super(SfaReg, self).__init__(endpoint, authentication)
+        self.logs = []
         if os.path.isfile(authentication.certificate):
             with open(authentication.certificate, "r") as myfile:
                 certificate = myfile.read()
@@ -238,13 +239,14 @@ class SfaReg(SfaApi):
             result = self._get_entity(hrn)
 
         if raw:
-            return self._extract_with_entity(entity, result)
-
+            result = self._extract_with_entity(entity, result)
         try:
             result = getattr(self, "_" + entity)(result)
         except Exception as e:
             traceback.print_exc()
-            exit(1)
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = []
+            #exit(1)
 
         return result
 
@@ -341,11 +343,14 @@ class SfaReg(SfaApi):
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
                 result = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
-                return self.get(entity, urn)
-            return []
+                result = self.get(entity, urn)
+            else:
+                raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
             traceback.print_exc()
-            return []
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = []
+        return {'data':result,'errors':self.logs}
 
     def update(self, entity, urn, record_dict):
         hrn = urn_to_hrn(urn)[0]
@@ -358,13 +363,16 @@ class SfaReg(SfaApi):
                 cred = self.search_credential(hrn, 'authority')
             if cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                result = self._proxy.Update(mapped_dict, cred)
+                res = self._proxy.Update(mapped_dict, cred)
                 # XXX test the result either 1 or a gid
-                return self.get(entity, urn)
-            raise Exception("No Credential to update this Or Urn is Not Right", urn)
+                result = self.get(entity, urn)
+            else:
+                raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
             traceback.print_exc()
-            return []
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = []
+        return {'data':result,'errors':self.logs}
 
     def delete(self, entity, urn):
         try:
@@ -374,9 +382,12 @@ class SfaReg(SfaApi):
                 result = self._proxy.Remove(hrn, auth_cred, entity)
                 if result != 1:
                     raise Exception(result)
-            return []
+            else:
+                result = []
         except Exception as e:
             traceback.print_exc()
-            return []
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = []
+        return {'data':result,'errors':self.logs}
 
     # self.CreateGid

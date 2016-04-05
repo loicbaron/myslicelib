@@ -23,6 +23,7 @@ class SfaAm(SfaApi):
     def __init__(self, endpoint=None, registry=None):
         super(SfaAm, self).__init__(endpoint, registry.credential)
         self.registry = registry
+        self.logs = []
 
     def _lease(self, urn=None):
         # lease don't have urn, it has a lease_id in OMF (hash), but no id in IoT-Lab
@@ -77,17 +78,19 @@ class SfaAm(SfaApi):
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             traceback.print_exc()
-            return []
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = []
 
-        if raw:
-            return result
-
-        result = self._parse_xml(result, entity)
+        if not raw:
+            result = self._parse_xml(result, entity)
         
-        return result
+        return {'data':result,'errors':self.logs}
 
     def _parse_xml(self, result, entity):
         try: 
+            # No result means that we already had an error (ex: Time Out)
+            if not result:
+                return result
             # check geni error codes
             if result['code']['geni_code'] == 0:
                 if isinstance(result['value'], dict):
@@ -104,6 +107,7 @@ class SfaAm(SfaApi):
                 raise SfaError(result)
         except Exception as e:
             traceback.print_exc()
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
             return []
 
 
@@ -124,8 +128,9 @@ class SfaAm(SfaApi):
             # XXX Check result
         except Exception as e:
             traceback.print_exc()
-            return False
-        return result
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = False
+        return {'data':result,'errors':self.logs}
 
     def _renew_slice(self, urn, record_dict, api_options):
         # renew
@@ -188,8 +193,9 @@ class SfaAm(SfaApi):
                 
         except Exception as e:
             traceback.print_exc()
-            return False
-        return result
+            self.logs.append({'endpoint':self.endpoint.name,'url':self.endpoint.url,'protocol':self.endpoint.protocol,'type':self.endpoint.type,'exception':e})
+            result = False
+        return [{'data':result,'errors':self.logs}]
 
     def execute(self, urn, action, obj_type):
         if action.lower() == 'shutdown':
@@ -201,4 +207,4 @@ class SfaAm(SfaApi):
                 result = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
             else:
                 raise NotImplementedError('This AM version does not support PerformOperationalAction')
-        return result
+        return {'data':result,'errors':self.logs}

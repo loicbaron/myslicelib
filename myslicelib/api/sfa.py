@@ -1,12 +1,12 @@
 from xmlrpc import client as xmlrpcclient
 import ssl
+import socket
 
 class Api(object):
 
     def __init__(self, endpoint=None, credential=None):
         self.endpoint = endpoint
         self.credential = credential
-
 
         if hasattr(ssl, '_create_unverified_context'):
             context = ssl._create_unverified_context()
@@ -24,7 +24,8 @@ class Api(object):
             exit("Problem with certificate and/or key")
 
         self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, use_datetime=True, context=context)
-
+        # DEFAULT TIMEOUT is set in Endpoint
+        socket.setdefaulttimeout(self.endpoint.timeout)
         # version call
         self._version = self._version()
 

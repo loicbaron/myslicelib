@@ -60,7 +60,6 @@ class Api(object):
     _q = Queue()
 
     def __init__(self, endpoints: Endpoint, authentication: Authentication) -> None:
-
         if not isinstance(endpoints, list) or not all(isinstance(endpoint, Endpoint) for endpoint in endpoints):
             raise ValueError("API needs an object of type Endpoint")
 
@@ -133,7 +132,7 @@ class Api(object):
         return {call: params}
 
     def _parallel_request(self, threads):
-        result = []
+        result = {'data':[],'errors':[]}
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for thread in threads:
                 for call, arg in thread.items():
@@ -141,7 +140,13 @@ class Api(object):
                         future = executor.submit(call, *arg)
                     else:
                         future = executor.submit(call)
-                    result += future.result()
+                    res = future.result()
+                    #try:
+                    #    res = future.result(timeout=5)
+                    #except concurrent.futures.TimeoutError as e:
+                    #    res = {'data':[],'errors':[e]}
+                    result['data'] += res['data']
+                    result['errors'] += res['errors']
         return result
 
 
@@ -151,10 +156,10 @@ class Api(object):
 
         res = self._parallel_request(threads)
 
-        reg_version = res[0]
-        del res[0]
-
-        result = {
+        reg_version = res['data'][0]
+        del res['data'][0]
+        result = {}
+        result['data'] = {
                 "myslicelib" : {
                     "version" : "1.0"
                 },
@@ -174,23 +179,23 @@ class Api(object):
             }
 
         for i, am in enumerate(self.ams):
-            result["ams"].append( {
+            result['data']["ams"].append( {
                 "url" : am.endpoint.url,
                 "hostname" : urlparse(am.endpoint.url).hostname,
                 "name" : am.endpoint.name,
-                "status" : res[i]['status'],
+                "status" : res['data'][i]['status'],
                 "api" : {
                     "type" : am.endpoint.type,
                     "protocol" : am.endpoint.protocol,
-                    "version" : res[i]['version'],
+                    "version" : res['data'][i]['version'],
                 },
-                "id" : res[i]['id'],
+                "id" : res['data'][i]['id'],
             } )
-
+        result['errors'] = res['errors']
         return result
 
     def get_credentials(self, ids, delegated_to=None):
-        result = []
+        result = {}
         threads = []
         for id in ids:
             threads += [self._thread_handler(self.registry.get_credential,id,delegated_to)]
@@ -198,7 +203,7 @@ class Api(object):
         return result
 
     def get(self, id=None, raw=False):
-        result = []
+        result = {}
         threads = []
         
         if self._entity in self._am:
@@ -215,23 +220,16 @@ class Api(object):
         result = self._parallel_request(threads)
         return result
 
-        # if (id) :
-        #     return self.registry.get(hrn=id, object_type=self.object_type)
-        # else :
-        #     return self.registry.list(object_type=self.object_type)
-        #
-        # raise NotImplementedError('Not implemented')
-
     def update(self, id, params):
         if not isinstance(params, dict):
             raise MysParamsTypeError('a dict is expected')
         
-        result = []
+        result = {}
         threads = []
         if self._entity in self._registry:
-            result += self.registry.create(self._entity, id, params)
-            if not result:
-                result += self.registry.update(self._entity, id, params)
+            res_reg = self.registry.create(self._entity, id, params)
+            if res_reg['errors']:
+                res_reg = self.registry.update(self._entity, id, params)
             # XXX We should flag if Exception is raised
             # XXX because for Slice if Registry call failed we will not call the AMs
 
@@ -239,16 +237,10 @@ class Api(object):
             for am in self.ams:
                 threads += [self._thread_handler(am.update, self._entity, id, params)]
 
-        result += self._parallel_request(threads)
-
-        # if self._entity in self._registry:
-        #     result += self.registry.create(self._entity, id, params)
-        #     if not result:
-        #         result += self.registry.update(self._entity, id, params)
-
-        # if self._entity in self._am:
-        #     for am in self.ams:
-        #         result += am.update(self._entity, id, params)
+        res_am = self._parallel_request(threads)
+        res_am['data'] += res_reg['data']
+        res_am['errors'] += res_reg['errors']
+        result = res_am
 
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
