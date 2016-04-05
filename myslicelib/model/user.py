@@ -40,7 +40,9 @@ class User(Entity):
     def getCredential(self, id):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-        self.credentials = self._api.get_credentials([id])
+        res = self._api.get_credentials([id])
+        self.credentials = res['data']
+        self.logs = res['errors']
         return self
 
     def getCredentials(self):
@@ -54,5 +56,7 @@ class User(Entity):
         for urn in self.attribute('pi_authorities'):
             ids.append(urn)
 
-        self.credentials = self._api.get_credentials(ids)
+        res = self._api.get_credentials(ids)
+        self.credentials = res['data']
+        self.logs = res['errors']
         return self

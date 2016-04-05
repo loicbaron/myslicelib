@@ -94,8 +94,9 @@ class Entity(object):
             # else:
             self.id = None
         res = self._api.update(self.id, self.attributes())
-        
-        return res
+        result = res['data'] 
+        result.logs = res['errors']
+        return result
 
     def delete(self):
         if not self.id:
@@ -103,9 +104,9 @@ class Entity(object):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
         res = self._api.delete(self.id)
-
-        return res
-   
+        result = res['data'] 
+        result.logs = res['errors']
+        return result
 
 class Entities(set):
 

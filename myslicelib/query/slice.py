@@ -23,9 +23,11 @@ class SliceQuery(Query):
             res = [x for x in res if checker(x, self._filter)]
 
         if self._id:
-            return self.collection(self._merge_dicts(res))
-
-        return self.collection(res)
+            c = self.collection(self._merge_dicts(res['data']))
+        else:
+            c = self.collection(res['data'])
+        c.logs = res['errors']
+        return c
 
     def update(self, params):
         if not self._id:
@@ -33,4 +35,7 @@ class SliceQuery(Query):
 
         res = self.api.update(self._id, params)
 
-        return self.collection(self._merge_dicts(res))
+        c = self.collection(self._merge_dicts(res['data']))
+        c.logs = res['errors']
+        return c
+

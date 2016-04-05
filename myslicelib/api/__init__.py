@@ -145,6 +145,7 @@ class Api(object):
                     #    res = future.result(timeout=5)
                     #except concurrent.futures.TimeoutError as e:
                     #    res = {'data':[],'errors':[e]}
+                    print(res)
                     result['data'] += res['data']
                     result['errors'] += res['errors']
         return result
