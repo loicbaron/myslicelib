@@ -30,7 +30,7 @@ class Entity(object):
         try:
             return self._attributes[name]
         except KeyError :
-            raise KeyError
+            raise AttributeError('Entity object has no attribute %s' % 'name')  
     
     def setattribute(self, name, value):
         if name != '_api':
@@ -85,6 +85,10 @@ class Entity(object):
     def dict(self):
         return self._attributes
 
+    def clear(self):
+        self._api = None
+        self.attribute = {}
+
     def save(self):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
@@ -94,18 +98,27 @@ class Entity(object):
             # else:
             self.id = None
         res = self._api.update(self.id, self.attributes())
-        result = res['data'] 
-        result.logs = res['errors']
+
+        result = {
+                'data': res.get('data', []),
+                'errors': res.get('errors', []),
+        }
+
         return result
 
     def delete(self):
         if not self.id:
             raise Exception("No element specified")
+        # Here we reuse the same _api instance
+        # But it means errors will stay in logs until we use a new instance
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
         res = self._api.delete(self.id)
-        result = res['data'] 
-        result.logs = res['errors']
+        
+        result = {
+                'data': res.get('data', []),
+                'errors': res.get('errors', []),
+        }
         return result
 
 class Entities(set):
