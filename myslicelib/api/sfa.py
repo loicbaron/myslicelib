@@ -1,6 +1,7 @@
-from xmlrpc import client as xmlrpcclient
 import ssl
 import socket
+
+from xmlrpc import client as xmlrpcclient
 
 class Api(object):
 
@@ -28,6 +29,9 @@ class Api(object):
         socket.setdefaulttimeout(self.endpoint.timeout)
         # version call
         self._version = self._version()
+
+        # logs
+        self.logs = []
 
     def version(self):
         return self._version
