@@ -4,7 +4,7 @@ from myslicelib import setup as s
 from myslicelib.util import Endpoint, Authentication
 
 s.endpoints = [
-    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
+    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
     #Endpoint(url="https://194.199.16.164:12346",type="AM"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
@@ -14,12 +14,19 @@ s.endpoints = [
 ]
 
 
-if os.path.exists("/root/.sfi/"):
+# if os.path.exists("/root/.sfi/"):
+#     path = "/root/.sfi/"
+#     pkey = path + "onelab.upmc.loic_baron.pkey"
+#     hrn = "onelab.upmc.loic_baron"
+#     email = "loic.baron@lip6.fr"
+#     cert = path + "onelab.upmc.loic_baron.user.gid"
+
+if os.path.exists("/root/.sfi"):
     path = "/root/.sfi/"
-    pkey = path + "onelab.upmc.loic_baron.pkey"
-    hrn = "onelab.upmc.loic_baron"
-    email = "loic.baron@lip6.fr"
-    cert = path + "onelab.upmc.loic_baron.user.gid"
+    pkey = path + "onelab.upmc.joshzhou16.pkey"
+    cert = path + "onelab.upmc.joshzhou16.sscert"
+    hrn = "onelab.upmc.joshzhou16"
+    email = "joshzhou16@gmail.com"
 else:
     path = "/root/"
     pkey = path + "myslice.pkey"
@@ -31,7 +38,6 @@ else:
 #hrn = "onelab.upmc.lbaron"
 #email = "loic.baron@gmail.com"
 #cert = path + "onelab.upmc.lbaron.user.gid"
-
 
 #pkey = path + "fed4fire.upmc.loic_baron.pkey"
 #hrn = "fed4fire.upmc.loic_baron"
