@@ -21,6 +21,11 @@ class Authority(Entity):
     _type = "authority"
     _collection ="Authorities"
 
+    def __init__(self, data=None):
+        super().__init__(data)
+        if data is None:
+            self.pi_users = []
+
     def getUsers(self, pis = False):
         User = myslicelib.model.user.User
         result = []

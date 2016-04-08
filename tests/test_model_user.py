@@ -4,6 +4,14 @@ import unittest
 
 from myslicelib.model.user import Users, User
 
+from tests import s
+
+
+PKEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQD3iRxbPseM1ZIvuZUr\
+Q1p/4KKCqD38b09JFgB2k+aCiuaDKqjoQJ2Yi1MIhaI8QKn17ddZ2mnW\
+N1YZuFlSaiD64rpQT6guoGSjXtQmHqq97lH037/LphRYs2BY6ZknlLGv\
+TPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ=="
+
 class TestUser(unittest.TestCase):
 
     def setUp(self):
@@ -35,6 +43,22 @@ class TestUser(unittest.TestCase):
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
+    def test_save_and_delete(self): 
+        u = User()
+        u.hrn = 'onelab.upmc.apitest.lbaron'
+        u.email = 'apitest@gmail.com'
+        u.keys = [PKEY]
+        # test save
+        res = u.save()
+        usrdata, errors = res['data'][0], res['errors']
+        self.assertEqual(usrdata['hrn'], 'onelab.upmc.apitest.lbaron')
+        self.assertEqual(usrdata['email'], 'apitest@gmail.com')
+        self.assertEqual(usrdata['keys'], [PKEY])
+        self.assertIsNotNone(usrdata['certificate'])
+        self.assertEqual(res['errors'], [])
+        # test delete
+        res = u.delete()
+        self.assertEqual(res, {'errors': [], 'data': []})
 
 
 if __name__ == '__main__':

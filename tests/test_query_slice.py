@@ -15,19 +15,14 @@ from tests import hrn
 
 class TestSlice(unittest.TestCase):
 
-    def setUp(self):
-        self.q = q(Slice)
-        
-    def test_initial(self):
-        self.assertIsNone(self.q._id)
-
     def test_id_is_urn(self):
-        self.q.id('random_urn_string')
+        sl = q(Slice).id('random_urn_string')
+        # Check errors in sl.logs
         self.assertRaises(MysNotUrnFormatError)
 
     def test_id_slice(self):
-        self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex')
-        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', self.q._id)
+        sl = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex')
+        self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', sl._id)
 
     def test_00_create_auth(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').update({
@@ -38,7 +33,7 @@ class TestSlice(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+authority+sa', auth.id)
 
     def test_01_create_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
+        res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
                                                 'users': [hrn],
                                                 })
         self.assertIsInstance(res, Slices)
@@ -46,27 +41,30 @@ class TestSlice(unittest.TestCase):
             self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
 
     def test_02_get_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       
+        res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       
         for sli in res:
             self.assertEqual('urn:publicid:IDN+onelab:upmc:authx+slice+slicex', sli.id)
 
     def test_03_update_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
+        res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
                                                 'users': [hrn, 'onelab.inria.aaaa'],
                                                 })
         for sli in res:
             self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
     
     def test_04_delete_slice(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
-        self.assertEqual([], res)
+        res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
+        self.assertEqual({'errors':[],'data':[]}, res)
 
     def test_05_clear_up(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
-        self.assertEqual([], res)
+        self.assertEqual({'data': [], 'errors': []}, res)
 
     def test_slice_with_root_cred(self):
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
+        q(Authority).id('urn:publicid:IDN+onelab:inria:authx+authority+sa').update({
+                                                                    'name': 'Apitest'
+                                                                    })
+        res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
                                                         'users': [hrn],
                                                         })
         self.assertIsInstance(res, Slices)
@@ -74,16 +72,17 @@ class TestSlice(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
 
-        res = self.q.id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
-        self.assertEqual([], res)
+        q(Authority).id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
+        res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
+        self.assertEqual({'data': [], 'errors': []}, res)
 
 
     def test_get_authority_from_user(self):
         with self.assertRaises(MysNotImplementedError):
-            res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
+            res = q(Slice).id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
     
     # def test_get_authority_from_root_authority(self):
-    #     res = self.q.get()
+    #     res = q(Slice).get()
     #     for auth in res:
     #         self.assertIsNone 
 

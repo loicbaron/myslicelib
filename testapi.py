@@ -16,8 +16,9 @@ from myslicelib.query import q
 from pprint import pprint
 
 s.endpoints = [
-    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM"),
-    #Endpoint(url="https://194.199.16.164:12346",type="AM"),
+    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM", name="ple"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
+    Endpoint(url="https://194.199.16.165:12346",type="AM", name="Wrong iotlab"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
@@ -53,39 +54,48 @@ credentials = None
 #email = "loic.baron@gmail.com"
 #cert = path + "onelab.upmc.lbaron.user.gid"
 
-
 #pkey = path + "fed4fire.upmc.loic_baron.pkey"
 #hrn = "fed4fire.upmc.loic_baron"
 #email = "loic.baron@lip6.fr"
 #cert = path + "fed4fire.upmc.loic_baron.user.gid"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
-
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
+res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+pprint(res)
+res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
+pprint(res)
+
+#u = q(User).get()
+#pprint(u)
+#
+#r = q(Resource).get()
+#pprint(r)
+#pprint(r.logs)
 #a = q(Authority).filter('hrn','onelab.upmc').get()
-a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-u_a = a.isPi(u)
-print(u_a)
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-u_a = a.isPi(u)
-print(u_a)
+#a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#u_a = a.isPi(u)
+#print(u_a)
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#u_a = a.isPi(u)
+#print(u_a)
 
 #pprint(a)
 #p = q(Project).filter('hrn','onelab.upmc.mobicom').get()
-p = q(Project).id('urn:publicid:IDN+onelab:upmc:mobicom+authority+sa').get().first()
-pprint(p)
-x = p.getAuthority()
-
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-u_p = p.isPi(u)
-print(u_p)
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-u_x = x.isPi(u)
-print(u_x)
-
-pprint(x)
+#p = q(Project).id('urn:publicid:IDN+onelab:upmc:mobicom+authority+sa').get().first()
+#pprint(p)
+#x = p.getAuthority()
+#
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#u_p = p.isPi(u)
+#print(u_p)
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+#u_x = x.isPi(u)
+#print(u_x)
+#
+#pprint(x)
 
 #r = q(Resource).get()
 #r = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()

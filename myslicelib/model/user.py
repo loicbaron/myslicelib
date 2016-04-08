@@ -13,21 +13,13 @@ class User(Entity):
     _class = "User"
     _type = "user"
     _collection = "Users"
-
-    def isPi(self):
-        for auth in self.attribute('authority'):
-            if auth in self.attribute('pi_authorities'):
-                return True
-        return False
-
+    
     def getAuthority(self):
         Authority = myslicelib.model.authority.Authority
-        result = []
-        for urn in self.attribute('authority'):
-            result += q(Authority).id(urn).get()
-        return result
+        urn = self.attribute('authority')
+        return q(Authority).id(urn).get()
 
-    def getPi_authorities(self):
+    def getPiAuthorities(self):
         Authority = myslicelib.model.authority.Authority
         pi_auths = self.attribute('pi_authorities')
         # TODO parallel requests using MultiProcess     
@@ -46,7 +38,9 @@ class User(Entity):
     def getCredential(self, id):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-        self.credentials = self._api.get_credentials([id])
+        res = self._api.get_credentials([id])
+        self.credentials = res['data']
+        self.logs = res['errors']
         return self
 
     def getCredentials(self):
@@ -60,5 +54,7 @@ class User(Entity):
         for urn in self.attribute('pi_authorities'):
             ids.append(urn)
 
-        self.credentials = self._api.get_credentials(ids)
+        res = self._api.get_credentials(ids)
+        self.credentials = res['data']
+        self.logs = res['errors']
         return self

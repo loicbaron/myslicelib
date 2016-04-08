@@ -18,22 +18,17 @@ TPcP2p4sEoMvOLCb8vPW1tKDFfM/RIuZjcn89irYjQ=="
 
 class TestUser(unittest.TestCase):
 
-    def setUp(self):
-        self.q = q(User)
-        
-    def test_initial(self):
-        self.assertIsNone(self.q._id)
-
     def test_id_is_urn(self):
-        self.q.id('random_urn_string')
+        u = q(User).id('random_urn_string')
+        # TODO: Check errors in u.logs
         self.assertRaises(MysNotUrnFormatError)
 
     def test_id_user(self):
-        self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron')
-        self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', self.q._id)
+        u = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron')
+        self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', u._id)
 
     def test_01_create_user(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
+        res = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron@gmail.com',
                                                 })
         self.assertIsInstance(res, Users)
@@ -43,14 +38,14 @@ class TestUser(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', user.id)
 
     def test_02_get_user(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
+        res = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
         for user in res:
             self.assertEqual('loic.baron@gmail.com', user.email)
             self.assertEqual([], user.keys)
             self.assertEqual('urn:publicid:IDN+onelab:upmc+user+lbaron', user.id)
 
     def test_03_update_user(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
+        res = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').update({
                                                 'email':'loic.baron.new@gmail.com',
                                                 'keys': [SSH_KEY],
                                                 })
@@ -61,28 +56,30 @@ class TestUser(unittest.TestCase):
 
 
     def test_04_delete_user(self):
-        res = self.q.id('urn:publicid:IDN+onelab:upmc+user+lbaron').delete()
-        self.assertEqual([], res)
+        res = q(User).id('urn:publicid:IDN+onelab:upmc+user+lbaron').delete()
+        self.assertEqual({'errors':[],'data':[]}, res)
 
     def test_user_with_root_cred(self):
-        res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+        res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
         self.assertIsInstance(res, Users)
         for user in res:
             self.assertEqual('loic.baron@gmail.com', user.email)
             self.assertEqual('urn:publicid:IDN+onelab:inria+user+lbaron', user.id)
-        res = self.q.id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
-        self.assertEqual([], res)
+        res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
+        from pprint import pprint
+        pprint(res)
+        self.assertEqual({'errors':[],'data':[]}, res)
         
     def test_get_user_from_slice(self):
         with self.assertRaises(MysNotImplementedError):
-            res = self.q.id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
+            res = q(User).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
 
     def test_get_user_from_authority(self):
         with self.assertRaises(MysNotImplementedError):
-            res = self.q.id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
+            res = q(User).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 
     def test_get_user_from_root_authority(self):
-        res = self.q.get()
+        res = q(User).get()
         self.assertIsInstance(res, Users)
         for user in res:
             self.assertIsNotNone(user.attribute('pi_authorities'))

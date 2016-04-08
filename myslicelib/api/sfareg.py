@@ -23,7 +23,6 @@ class SfaReg(SfaApi):
             certificate = authentication.certificate
 
         self.authentication = authentication
-
         self.user_credentials = []
         self.user_credential = None
         # this dict can contain: user_credential, slice_credential, authority_credential...
@@ -47,13 +46,15 @@ class SfaReg(SfaApi):
                     if c['type'] == 'user':
                         self.user_credential = c['xml']
                 else:
-                    print(k+': is expired')
+                    print(c['id'] +': is expired')
+
         if not self.user_credential:
             print('GetSelfCredential from Registry')
             self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.authentication.hrn,
                                         'user')
+
     def _getXmlCredential(self, hrn, obj_type):
         for c in self.user_credentials:
             if c['hrn']==hrn and c['type']==obj_type:
@@ -238,18 +239,25 @@ class SfaReg(SfaApi):
             result = self._get_entity(hrn)
 
         if raw:
-            return self._extract_with_entity(entity, result)
-
+            result = self._extract_with_entity(entity, result)
         try:
             result = getattr(self, "_" + entity)(result)
         except Exception as e:
             traceback.print_exc()
-            exit(1)
+            self.logs.append({
+                                'endpoint': self.endpoint.name,
+                                'url': self.endpoint.url,
+                                'protocol': self.endpoint.protocol,
+                                'type': self.endpoint.type,
+                                'exception': e
+                            })
+            #exit(1)
 
-        return result
+        return {'data':result,'errors':self.logs}
 
     def get_credential(self, urn, delegated_to=None):
         hrn, entity = urn_to_hrn(urn)
+
         if delegated_to:
             local_cred = list(filter(lambda c: c['id'] == urn and c['delegated_to']==delegated_to, self.user_credentials))
         else:
@@ -261,7 +269,7 @@ class SfaReg(SfaApi):
         else:
             if delegated_to:
                 # XXX To be removed
-                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
                 # TODO
                 # delegate(cred)
                 # gid of object urn
@@ -271,15 +279,19 @@ class SfaReg(SfaApi):
                 #user_gid = self._proxy.GetGids([self.authentication.hrn], self.user_credential)
                 #cred = delegate(obj_gid_file, user_pkey_file, user_gid_file)
             else:
-                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                return cred 
+            
             d = [{
                 'id': urn,
                 'type': entity,
                 'xml': cred, 
                 'delegated_to': delegated_to,
             }]
-            self.user_credentials += d 
-        return d
+            
+            self.user_credentials += d
+
+        return {'data':d,'errors':self.logs}
 
     # look up to see the upper has the credential
     def search_credential(self, hrn, entity):
@@ -295,8 +307,10 @@ class SfaReg(SfaApi):
                 # If credentials were provided don't call the Registry
                 c = self._getXmlCredential(upper_hrn, entity)
                 if c: return c
-                if not upper_hrn or obj_type is None:
-                    upper_hrn = hrn
+                
+                # if not upper_hrn or obj_type is None:
+                #     upper_hrn = hrn
+                
                 print('GetCredential upper: '+upper_hrn+' from Registry')
                 return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
@@ -309,10 +323,11 @@ class SfaReg(SfaApi):
                     'hrn': hrn,
                     'type': 'user',                 
                     'email': record_dict.get('email', ''), # email cant be empty string                  
+                    'keys' : record_dict.get('keys', '')
         }
 
-        if 'keys' in record_dict:
-            mapped_dict['keys'] = record_dict.get('keys', '')
+        # filter key have empty value
+        mapped_dict = {k: v for k, v in mapped_dict.items() if v}
         return mapped_dict
 
     def _authority_mappings(self, hrn, record_dict):
@@ -320,8 +335,11 @@ class SfaReg(SfaApi):
                     'hrn': hrn,
                     'type': 'authority',                 
                     'name': record_dict.get('name', None),
-                    'reg-pis': record_dict.get('pi_users', [])                   
+                    'reg-pis': record_dict.get('pi_users', [])                  
         }
+
+        # filter key have empty value
+        mapped_dict = {k: v for k, v in mapped_dict.items() if v}
         return mapped_dict
 
     def _slice_mappings(self, hrn, record_dict):
@@ -331,6 +349,9 @@ class SfaReg(SfaApi):
                     'type': 'slice',          
                     'reg-researchers': record_dict.get('users', []),
         }
+
+        # filter key have empty value
+        mapped_dict = {k: v for k, v in mapped_dict.items() if v}
         return mapped_dict
 
     def create(self, entity, urn, record_dict):
@@ -339,13 +360,25 @@ class SfaReg(SfaApi):
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                result = self._proxy.Register(mapped_dict, auth_cred)
+                res = self._proxy.Register(mapped_dict, auth_cred)
                 # XXX test the result either 1 or a gid
-                return self.get(entity, urn)
-            return []
+                res = self.get(entity, urn)
+                result = res['data']
+                self.logs += res['errors']
+            else:
+                raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
             traceback.print_exc()
-            return []
+
+            result = []
+            self.logs.append({
+                                'endpoint': self.endpoint.name,
+                                'url': self.endpoint.url,
+                                'protocol': self.endpoint.protocol,
+                                'type': self.endpoint.type,
+                                'exception': e
+                            })
+        return {'data':result,'errors':self.logs}
 
     def update(self, entity, urn, record_dict):
         hrn = urn_to_hrn(urn)[0]
@@ -358,25 +391,45 @@ class SfaReg(SfaApi):
                 cred = self.search_credential(hrn, 'authority')
             if cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
-                result = self._proxy.Update(mapped_dict, cred)
+                res = self._proxy.Update(mapped_dict, cred)
                 # XXX test the result either 1 or a gid
-                return self.get(entity, urn)
-            raise Exception("No Credential to update this Or Urn is Not Right", urn)
+                res = self.get(entity, urn)
+                result = res['data']
+                self.logs += res['errors']
+            else:
+                raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
             traceback.print_exc()
-            return []
+            result = []
+            self.logs.append({
+                                'endpoint': self.endpoint.name,
+                                'url': self.endpoint.url,
+                                'protocol': self.endpoint.protocol,
+                                'type': self.endpoint.type,
+                                'exception': e
+                            })
+        
+        return {'data':result,'errors':self.logs}
 
     def delete(self, entity, urn):
+        result = []
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
-                result = self._proxy.Remove(hrn, auth_cred, entity)
-                if result != 1:
-                    raise Exception(result)
-            return []
+                res = self._proxy.Remove(hrn, auth_cred, entity)
+                if res != 1:
+                    raise Exception(res)
         except Exception as e:
             traceback.print_exc()
-            return []
+            self.logs.append({
+                                'endpoint': self.endpoint.name,
+                                'url': self.endpoint.url,
+                                'protocol': self.endpoint.protocol,
+                                'type': self.endpoint.type,
+                                'exception': e
+                            })
+        
+        return {'data':result,'errors':self.logs}
 
     # self.CreateGid
