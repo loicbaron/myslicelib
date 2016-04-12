@@ -1,4 +1,60 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3.5
+import sys
+import unittest
 
-__author__ = 'Quan zhou'
+from myslicelib.model.user import Users, User
+from myslicelib.model.resource import Resources, Resource
+from myslicelib.model.slice import Slices, Slice
+from myslicelib.query import q
+
+from tests import s
+
+class TestProject(unittest.TestCase):
+
+    def setUp(self):
+        sli = Slice()
+        self.assertIsInstance(sli, Slice)
+
+    def test_addUser_and_addResources(self):
+        
+        # create slice
+        sli = Slice()
+        sli.shortname = 'slicetest'
+        sli.authority = 'onelab.upmc.apitest'
+
+        # add user 
+        usr = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+        sli.addUser(usr)
+        
+        # add resources
+        res = q(Resource).filter('country', 'Germany').filter('version', 'f22').get()
+        sli.addResources(res)
+        
+        result = sli.save()
+
+        # check if successful
+        '''
+        result = {  'data': [   
+                                # AM
+                                {
+                                    'resources': [{resource1}, {resouce2}]
+                                    'leases': []
+                                    }
+                                # Reg
+                                {
+                                    'hrn':..., 'users':...
+                                    }
+                                ]
+                    'errors': 'xxxxx'
+                    }
+        '''
+
+        for d in result['data']:
+            if 'users' in d:
+                self.assertIn(usr.id, d['users'])
+            if 'resources' in d:
+                self.assertIsNotNone(d['resources'])
+
+if __name__ == '__main__':
+    unittest.main()
+

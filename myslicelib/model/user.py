@@ -16,12 +16,10 @@ class User(Entity):
     
     def getAuthority(self):
         Authority = myslicelib.model.authority.Authority
-        result = []
-        for urn in self.attribute('users'):
-            result += q(Authority).id(urn).get()
-        return result
+        urn = self.attribute('authority')
+        return q(Authority).id(urn).get()
 
-    def getPi_authorities(self):
+    def getPiAuthorities(self):
         Authority = myslicelib.model.authority.Authority
         pi_auths = self.attribute('pi_authorities')
         # TODO parallel requests using MultiProcess     

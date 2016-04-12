@@ -58,9 +58,12 @@ class TestSlice(unittest.TestCase):
 
     def test_05_clear_up(self):
         res = q(Authority).id('urn:publicid:IDN+onelab:upmc:authx+authority+sa').delete()
-        self.assertEqual([], res)
+        self.assertEqual({'data': [], 'errors': []}, res)
 
     def test_slice_with_root_cred(self):
+        q(Authority).id('urn:publicid:IDN+onelab:inria:authx+authority+sa').update({
+                                                                    'name': 'Apitest'
+                                                                    })
         res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
                                                         'users': [hrn],
                                                         })
@@ -69,8 +72,9 @@ class TestSlice(unittest.TestCase):
             self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
             self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
 
+        q(Authority).id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
         res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
-        self.assertEqual([], res)
+        self.assertEqual({'data': [], 'errors': []}, res)
 
 
     def test_get_authority_from_user(self):
