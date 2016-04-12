@@ -62,10 +62,10 @@ credentials = None
 
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
-res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
-pprint(res)
-res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
-pprint(res)
+#res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
+#pprint(res)
+#res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
+#pprint(res)
 
 #u = q(User).get()
 #pprint(u)
@@ -139,9 +139,9 @@ pprint(res)
 #u.delete()
 
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-#u1 = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-#u1.getCredentials()
-#print(u1)
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u.getCredentials("onelab.myslice")
+pprint(u)
 #s = Slice()
 #s.authority = 'onelab.upmc'
 #s.shortname = 'slice1'

@@ -37,15 +37,15 @@ class User(Entity):
             result += q(Slice).id(urn).get()
         return result
 
-    def getCredential(self, id):
+    def getCredential(self, id, degate_to=None):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-        res = self._api.get_credentials([id])
+        res = self._api.get_credentials([id],degate_to)
         self.credentials = res['data']
         self.logs = res['errors']
         return self
 
-    def getCredentials(self):
+    def getCredentials(self, degate_to=None):
         if self._api is None:
             self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
 
@@ -56,7 +56,7 @@ class User(Entity):
         for urn in self.attribute('pi_authorities'):
             ids.append(urn)
 
-        res = self._api.get_credentials(ids)
+        res = self._api.get_credentials(ids,degate_to)
         self.credentials = res['data']
         self.logs = res['errors']
         return self

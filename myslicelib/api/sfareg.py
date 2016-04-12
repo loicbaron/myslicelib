@@ -263,15 +263,21 @@ class SfaReg(SfaApi):
         else:
             if delegated_to:
                 # XXX To be removed
-                cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                from sfa.trust.credential import Credential
+                from sfa.trust.gid import GID
+                credential = Credential(string=cred)
                 # TODO
                 # delegate(cred)
-                # gid of object urn
-                #obj_gid = self._proxy.GetGids([hrn], self.user_credential)
-                #user_pkey = self.authentication.private_key
+                # use the private key of the user to sign the delegation of credentials
+                user_pkey = self.authentication.private_key
                 # gid of user
-                #user_gid = self._proxy.GetGids([self.authentication.hrn], self.user_credential)
-                #cred = delegate(obj_gid_file, user_pkey_file, user_gid_file)
+                user = self._proxy.Resolve(self.authentication.hrn, self.user_credential, {})[0]
+                user_gid = GID(string=user['gid'], hrn=self.authentication.hrn)
+                # gid of the delegated_to user
+                delegate_user = self._proxy.Resolve(delegated_to, self.user_credential, {})[0]
+                delegate_gid = GID(string=delegate_user['gid'], hrn=delegated_to)
+                cred = credential.delegate(delegate_gid, user_pkey, user_gid)
             else:
                 cred = self._proxy.GetCredential(self.user_credential, hrn, entity),
             d = [{
