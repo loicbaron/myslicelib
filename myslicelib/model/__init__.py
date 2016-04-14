@@ -91,7 +91,8 @@ class Entity(object):
 
     def save(self):
         if self._api is None:
-            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
+            # using _type instead of _class as project is an authority in SFA Reg
+            self._api = getattr(Api(s.endpoints, s.credential), self._type)()
         if not self.id:
             # if self.hrn:
             #     self.id = hrn_to_urn(self.hrn, self._type)
@@ -112,7 +113,8 @@ class Entity(object):
         # Here we reuse the same _api instance
         # But it means errors will stay in logs until we use a new instance
         if self._api is None:
-            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
+            # using _type instead of _class as project is an authority in SFA Reg
+            self._api = getattr(Api(s.endpoints, s.credential), self._type)()
         res = self._api.delete(self.id)
         
         result = {
