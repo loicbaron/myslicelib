@@ -8,7 +8,8 @@ class Projects(Authorities):
 
 class Project(Authority):
     _class = "Project"
-    _type = "authority"
+    # XXX TBD either use class name lower or use type???
+    _type = "project"
     _collection = "Projects"
 
     def getAuthority(self):

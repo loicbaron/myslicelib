@@ -18,7 +18,7 @@ from pprint import pprint
 s.endpoints = [
     Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM", name="ple"),
     #Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
-    Endpoint(url="https://194.199.16.165:12346",type="AM", name="Wrong iotlab"),
+    #Endpoint(url="https://194.199.16.165:12346",type="AM", name="Wrong iotlab"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
@@ -79,7 +79,16 @@ s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_ke
 #r = q(Resource).get()
 #pprint(r)
 #pprint(r.logs)
-a = q(Authority).filter('hrn','onelab.upmc').get()
+
+# XXX Don't use Filter!!! 
+# it is not optimal, as it is doing List and then Resolve for each element...
+#a = q(Authority).filter('hrn','onelab.upmc').get()
+#a = q(Authority).get()
+#a = q(Project).get()
+#a = q(Authority).get()
+#pprint(a)
+#a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
+#pprint(a)
 #a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 #u_a = a.isPi(u)
@@ -88,10 +97,11 @@ a = q(Authority).filter('hrn','onelab.upmc').get()
 #u_a = a.isPi(u)
 #print(u_a)
 
-pprint(a)
-#p = q(Project).filter('hrn','onelab.upmc.mobicom').get()
-#p = q(Project).id('urn:publicid:IDN+onelab:upmc:mobicom+authority+sa').get().first()
-#pprint(p)
+p = q(Project).filter('hrn','onelab.upmc.infocom').get()
+pprint(p)
+p = q(Project).id('urn:publicid:IDN+onelab:upmc:infocom+authority+sa').get().first()
+pprint(p)
+exit(1)
 #x = p.getAuthority()
 #
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()

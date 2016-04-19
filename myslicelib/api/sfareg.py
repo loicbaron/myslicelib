@@ -2,6 +2,8 @@ import os
 import traceback
 import pytz
 
+from pprint import pprint
+
 from datetime import datetime
 import dateutil.parser
 import xml.etree.ElementTree
@@ -130,68 +132,144 @@ class SfaReg(SfaApi):
             })
         return slices
 
+    #def _authority(self, data):
+    #    authority = []
+    #    for d in data:
+
+    #        mappings = {
+    #            'slice': [],
+    #            'user': [],
+    #            'authority': [],
+    #        }
+    #        ### XXX need optimatiztion with query(id = None)
+    #        enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
+
+    #        for entity in enitities:
+    #            # depend object tpye, we add this object urn to its coresponding mappings
+    #            mappings[entity['type']] += [entity['reg-urn']]
+
+    #        authority.append({
+    #            'id': d.get('reg-urn'),
+    #            'shortname': d.get('hrn').split('.')[-1],
+    #            'hrn': d.get('hrn'),
+    #            'name': d.get('name'),
+    #            'authority': hrn_to_urn('.'.join(d.get('hrn').split('.')[:-1]), 'authority'),
+    #            'certificate': d.get('gid'),
+    #            'created': self._datetime(d['date_created']),
+    #            'updated': self._datetime(d['last_updated']),
+    #            'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
+    #            'users': mappings['user'],
+    #            'slices': mappings['slice'],
+    #            'projects': mappings['authority']
+    #        })
+    #    return authority
+
+    def analyze_authorities(self, data):
+        from collections import defaultdict
+        l_authorities = defaultdict(dict)
+        for d in data:
+            if d.get('classtype')=='authority': 
+                a = d.get('hrn')
+                if a is None or len(a.split('.')) < 3:
+                    if d.get('hrn') in l_authorities.keys():
+                        l_authorities[d.get('hrn')].update(d)
+                    else:
+                        l_authorities[d.get('hrn')] = d
+                else:
+                    if 'project' in l_authorities[d.get('authority')]:
+                        l_authorities[d.get('authority')]['project'].append(d.get('reg-urn'))
+                    else:
+                        l_authorities[d.get('authority')]['project']=[d.get('reg-urn')]
+               
+            else:
+                if d.get('classtype') in l_authorities[d.get('authority')]:
+                    l_authorities[d.get('authority')][d.get('classtype')].append(d.get('reg-urn'))
+                else:
+                    l_authorities[d.get('authority')][d.get('classtype')]=[d.get('reg-urn')]
+        return l_authorities
+
+
     def _authority(self, data):
         authority = []
-        for d in data:
+        l_authorities = self.analyze_authorities(data)
+        mappings = {
+            'slice': [],
+            'user': [],
+            'authority': [],
+        }
+        ### XXX need optimatiztion with query(id = None)
+        #enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
+        for d in l_authorities.values():
+            # depend object tpye, we add this object urn to its coresponding mappings
+            #mappings[entity['type']] += [entity['reg-urn']]
 
-            mappings = {
-                'slice': [],
-                'user': [],
-                'authority': [],
-            }
-            ### XXX need optimatiztion with query(id = None)
-            enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
-
-            for entity in enitities:
-                # depend object tpye, we add this object urn to its coresponding mappings
-                mappings[entity['type']] += [entity['reg-urn']]
-
-            authority.append({
-                'id': d.get('reg-urn'),
-                'shortname': d.get('hrn').split('.')[-1],
-                'hrn': d.get('hrn'),
-                'name': d.get('name'),
-                'authority': hrn_to_urn('.'.join(d.get('hrn').split('.')[:-1]), 'authority'),
-                'certificate': d.get('gid'),
-                'created': self._datetime(d['date_created']),
-                'updated': self._datetime(d['last_updated']),
-                'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
-                'users': mappings['user'],
-                'slices': mappings['slice'],
-                'projects': mappings['authority']
-            })
+            # Avoid Orphan element
+            # XXX This should not happen: when we delete an element, we should delete everything uder it!!!
+            if d.get('hrn') is not None:
+                authority.append({
+                    'id': d.get('reg-urn'),
+                    'shortname': d.get('hrn').split('.')[-1],
+                    'hrn': d.get('hrn'),
+                    'name': d.get('name'),
+                    'authority': hrn_to_urn('.'.join(d.get('hrn').split('.')[:-1]), 'authority'),
+                    'certificate': d.get('gid'),
+                    'created': self._datetime(d['date_created']),
+                    'updated': self._datetime(d['last_updated']),
+                    'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
+                    'users': d.get('user',[]),
+                    'slices': d.get('slice',[]),
+                    'projects': d.get('project',[]),
+                })
+            else:
+                print("WARNING: Orphan element found, clean up the registry %s" % d)
         return authority
+
+    def analyze_projects(self, data):
+        from collections import defaultdict
+        l_projects = defaultdict(dict)
+        for d in data:
+            o = d.get('hrn')
+            a = d.get('authority')
+            if d.get('classtype')=='authority': 
+                if o is not None and len(o.split('.')) > 2:
+                    if d.get('hrn') in l_projects.keys():
+                        l_projects[d.get('hrn')].update(d)
+                    else:
+                        l_projects[d.get('hrn')] = d
+            elif a is not None and len(a.split('.')) > 2:
+                if d.get('classtype') in l_projects[d.get('authority')]:
+                    l_projects[d.get('authority')][d.get('classtype')].append(d.get('reg-urn'))
+                else:
+                    l_projects[d.get('authority')][d.get('classtype')]=[d.get('reg-urn')]
+        return l_projects
+
 
     def _project(self, data):
         project = []
-        
-        for d in data:
-
-            enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
-
-            mappings = {
-                'slice': [],
-                'user': [],
-            }
-
-            for entity in enitities:
-                # depend object tpye, we add this object urn to its coresponding mappings
-                if entity['type'] in mappings:
-                    mappings[entity['type']]+= [entity['reg-urn']]
-
-            project.append({
-                'id' :  d.get('reg-urn'),
-                'shortname': d.get('hrn').split('.')[-1],
-                'hrn': d.get('hrn'),
-                'name': d.get('name'),
-                'authority': hrn_to_urn('.'.join(d.get('hrn').split('.')[:-1]), 'authority'),
-                'certificate': d.get('gid'),
-                'created': self._datetime(d['date_created']),
-                'updated': self._datetime(d['last_updated']),
-                'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
-                'users': mappings['user'],
-                'slices': mappings['slice'],
-            })
+        mappings = {
+            'slice': [],
+            'user': [],
+        }
+        l_projects = self.analyze_projects(data)
+        for d in l_projects.values():
+            # Avoid Orphan element
+            # XXX This should not happen: when we delete an element, we should delete everything uder it!!!
+            if d.get('hrn') is not None:
+                project.append({
+                    'id' :  d.get('reg-urn'),
+                    'shortname': d.get('hrn').split('.')[-1],
+                    'hrn': d.get('hrn'),
+                    'name': d.get('name'),
+                    'authority': hrn_to_urn('.'.join(d.get('hrn').split('.')[:-1]), 'authority'),
+                    'certificate': d.get('gid'),
+                    'created': self._datetime(d['date_created']),
+                    'updated': self._datetime(d['last_updated']),
+                    'pi_users': [hrn_to_urn(user, 'user') for user in d.get('reg-pis', [])],
+                    'users': d.get('user',[]),
+                    'slices': d.get('slice',[]),
+                })
+            else:
+                print("WARNING: Orphan element found, clean up the registry %s" % d)
 
         return project
 
@@ -222,10 +300,13 @@ class SfaReg(SfaApi):
         return user
 
     def get(self, entity, urn=None, raw=False):
-
+        print(entity)
         result = []
         if urn is None:
-            result = self._extract_with_entity(entity, self._list_entity())
+            if entity == 'authority' or entity == 'project':
+                result = self._list_entity()
+            else:
+                result = self._extract_with_entity(entity, self._list_entity())
         else:
             hrn, urn_type = urn_to_hrn(urn)
 
@@ -237,8 +318,10 @@ class SfaReg(SfaApi):
             if entity != urn_type:
                 if entity != 'project' or urn_type != 'authority':
                     raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
-            
-            result = self._get_entity(hrn)
+            if entity == 'authority' or entity == 'project':
+                result = self._list_entity(hrn)
+            else:
+                result = self._get_entity(hrn)
 
         if raw:
             result = self._extract_with_entity(entity, result)
@@ -253,8 +336,6 @@ class SfaReg(SfaApi):
                                 'type': self.endpoint.type,
                                 'exception': e
                             })
-            #exit(1)
-
         return {'data':result,'errors':self.logs}
 
     def get_credential(self, urn, delegated_to=None):
