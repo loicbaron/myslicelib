@@ -67,11 +67,11 @@ s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_ke
 #res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
 #pprint(res)
 
-p = Project()
-p.id = 'urn:publicid:IDN+onelab:u:infocom+authority+sa'
-#p.addPi(u)
-ret = p.save()
-pprint(ret)
+#p = Project()
+#p.id = 'urn:publicid:IDN+onelab:u:infocom+authority+sa'
+##p.addPi(u)
+#ret = p.save()
+#pprint(ret)
 
 #u = q(User).get()
 #pprint(u)
@@ -79,7 +79,7 @@ pprint(ret)
 #r = q(Resource).get()
 #pprint(r)
 #pprint(r.logs)
-#a = q(Authority).filter('hrn','onelab.upmc').get()
+a = q(Authority).filter('hrn','onelab.upmc').get()
 #a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 #u_a = a.isPi(u)
@@ -88,7 +88,7 @@ pprint(ret)
 #u_a = a.isPi(u)
 #print(u_a)
 
-#pprint(a)
+pprint(a)
 #p = q(Project).filter('hrn','onelab.upmc.mobicom').get()
 #p = q(Project).id('urn:publicid:IDN+onelab:upmc:mobicom+authority+sa').get().first()
 #pprint(p)
@@ -145,9 +145,9 @@ pprint(ret)
 #u.delete()
 
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 #u.getCredentials("onelab.myslice")
-#pprint(u)
+pprint(u)
 #s = Slice()
 #s.authority = 'onelab.upmc'
 #s.shortname = 'slice1'
@@ -226,7 +226,7 @@ r = [r1,r2]
 # for auth in auths:
 #     print(auth.id)
 
-#proj = q(Project).id('urn:publicid:IDN+onelab:upmc:apitest+authority+sa').get()
+proj = q(Project).id('urn:publicid:IDN+onelab:upmc:infocom+authority+sa').get()
 #for p in proj:
 #    print('Project')
 #    pprint(p.attributes())
@@ -234,7 +234,8 @@ r = [r1,r2]
 #proj = q(Project).get()
 #for p in proj:
 #    print(p.id)
-
+#
+pprint(proj)
 
 # proj = q(Project).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
 
