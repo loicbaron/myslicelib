@@ -14,19 +14,19 @@ s.endpoints = [
 ]
 
 
-# if os.path.exists("/root/.sfi/"):
-#     path = "/root/.sfi/"
-#     pkey = path + "onelab.upmc.loic_baron.pkey"
-#     hrn = "onelab.upmc.loic_baron"
-#     email = "loic.baron@lip6.fr"
-#     cert = path + "onelab.upmc.loic_baron.user.gid"
-
-if os.path.exists("/root/.sfi"):
+if os.path.exists("/root/.sfi/"):
     path = "/root/.sfi/"
-    pkey = path + "onelab.upmc.joshzhou16.pkey"
-    cert = path + "onelab.upmc.joshzhou16.sscert"
-    hrn = "onelab.upmc.joshzhou16"
-    email = "joshzhou16@gmail.com"
+    pkey = path + "onelab.upmc.loic_baron.pkey"
+    hrn = "onelab.upmc.loic_baron"
+    email = "loic.baron@lip6.fr"
+    cert = path + "onelab.upmc.loic_baron.user.gid"
+
+#if os.path.exists("/root/.sfi"):
+#    path = "/root/.sfi/"
+#    pkey = path + "onelab.upmc.joshzhou16.pkey"
+#    cert = path + "onelab.upmc.joshzhou16.sscert"
+#    hrn = "onelab.upmc.joshzhou16"
+#    email = "joshzhou16@gmail.com"
 else:
     path = "/root/"
     pkey = path + "myslice.pkey"

@@ -2,6 +2,8 @@
 import sys
 import unittest
 
+from pprint import pprint
+
 from myslicelib.model.user import Users, User
 from myslicelib.model.project import Projects, Project
 from myslicelib.query import q

@@ -9,6 +9,7 @@ import dateutil.parser
 import xml.etree.ElementTree
 
 from myslicelib.api.sfa import Api as SfaApi
+from myslicelib.api.sfa import SfaError
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn 
 
 from myslicelib.error import MysNotUrnFormatError
@@ -419,12 +420,15 @@ class SfaReg(SfaApi):
         mapped_dict = {k: v for k, v in mapped_dict.items() if v}
         return mapped_dict
 
+    def _project_mappings(self, hrn, record_dict):
+        return self._authority_mappings(hrn, record_dict)
+
     def _authority_mappings(self, hrn, record_dict):
         mapped_dict = {
                     'hrn': hrn,
                     'type': 'authority',                 
                     'name': record_dict.get('name', None),
-                    'reg-pis': record_dict.get('pi_users', [])                  
+                    'reg-pis': [urn_to_hrn(user)[0] for user in record_dict.get('pi_users', [])],
         }
 
         # filter key have empty value
@@ -505,6 +509,9 @@ class SfaReg(SfaApi):
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.search_credential(hrn, 'authority')
+            if entity == 'authority' or entity == 'project':
+                # Remove everything under it
+                print('remove everything under %s' % urn)
             if auth_cred:
                 res = self._proxy.Remove(hrn, auth_cred, entity)
                 if res != 1:
