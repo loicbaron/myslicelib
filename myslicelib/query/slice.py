@@ -1,6 +1,8 @@
 from myslicelib.query import Query
 from myslicelib.util.checker import checker
 
+from pprint import pprint
+
 class SliceQuery(Query):
 
     def _merge_dicts(self, res):
@@ -8,12 +10,15 @@ class SliceQuery(Query):
         # element could be slice from reg
         # could be resources from am, leases from am
         for element in res:
-            for key, value in element.items():
-                if key in result:
-                    # append
-                    result[key] += value    
-                else:
-                    result[key] = value
+            if isinstance(element, dict):
+                for key, value in element.items():
+                    if key in result:
+                        # append
+                        result[key] += value
+                    else:
+                        result[key] = value
+            else:
+                result = res
         return [result]
 
 
@@ -34,7 +39,6 @@ class SliceQuery(Query):
             raise Exception("No element specified")
 
         res = self.api.update(self._id, params)
-
         c = self.collection(self._merge_dicts(res['data']))
         c.logs = res['errors']
         return c

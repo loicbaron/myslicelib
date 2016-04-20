@@ -58,7 +58,7 @@ class SfaAm(SfaApi):
 
                     'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                 }
-        slice_credential = self.registry.get_credential(hrn, 'slice')
+        slice_credential = self.registry.get_credential(urn)
 
         if self.version()['version'] == 2:
             options['geni_slice_urn'] = urn
@@ -76,6 +76,7 @@ class SfaAm(SfaApi):
         try:
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
+            result = []
             traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -96,7 +97,7 @@ class SfaAm(SfaApi):
             if not result:
                 return result
             # check geni error codes
-            if result['code']['geni_code'] == 0:
+            if self.isResultOk(result):
                 if isinstance(result['value'], dict):
                     xml_string = result['value']['geni_rspec']
                 else:
@@ -118,7 +119,10 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': e
                             })
-            return []
+            if entity == 'slice':
+                return [{'resources':[],'leases':[]}]
+            else:
+                return []
 
 
     def create(self, entity, urn, record_dict):
@@ -126,15 +130,20 @@ class SfaAm(SfaApi):
 
     def delete(self, entity, urn):
         # self.Delete
+        result = []
         try:
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')
             
             hrn = urn_to_hrn(urn)[0]
-            self.slice_credential = self.registry.get_credential(hrn, entity)
+            self.slice_credential = self.registry.get_credential(urn)
             #*self.ois(server, api_options) to check server if uuid supported
             api_options = {}
-            result = self._proxy.Delete([urn], [self.slice_credential], api_options)
+            res = self._proxy.Delete([urn], [self.slice_credential], api_options)
+            if self.isResultOk(res):
+                result = []
+            else:
+                raise Exception(res)
             # XXX Check result
         except Exception as e:
             traceback.print_exc()
@@ -145,7 +154,6 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': e
                             })
-            result = [False]
         return {'data':result,'errors':self.logs}
 
     def _renew_slice(self, urn, record_dict, api_options):
@@ -167,10 +175,7 @@ class SfaAm(SfaApi):
         
         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
         result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
-        
-        if 'code' in result and \
-            'geni_code' in result['code'] and \
-            result['code']['geni_code']==0:
+        if self.isResultOk(result):
             # another call id 
             api_options['call_id'] = unique_call_id()
             return self._proxy.Provision([urn], [self.slice_credential], api_options)
@@ -178,6 +183,7 @@ class SfaAm(SfaApi):
             raise SfaError(result)
 
     def update(self, entity, urn, record_dict):
+        result = []
         try:
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')
@@ -218,17 +224,39 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': e
                             })
-            result = [False]
         return {'data':result,'errors':self.logs}
 
     def execute(self, urn, action, obj_type):
-        if action.lower() == 'shutdown':
-            # XXX Check result
-            result = self._proxy.Shutdown(urn, [object_cred], api_options)
-        else:
-            if self.version()['version'] == 3:
-                # XXX Check result
-                result = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
+        result = []
+        try:
+            if action.lower() == 'shutdown':
+                res = self._proxy.Shutdown(urn, [object_cred], api_options)
+                # XXX Check res
+                # TODO: raise Exception(res)
             else:
-                raise NotImplementedError('This AM version does not support PerformOperationalAction')
+                if self.version()['version'] == 3:
+                    res = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
+                    # XXX Check res
+                    # TODO: raise Exception(res)
+                else:
+                    raise NotImplementedError('This AM version does not support PerformOperationalAction')
+        except Exception as e:
+            traceback.print_exc()
+            self.logs.append({
+                            'endpoint': self.endpoint.name,
+                            'url': self.endpoint.url,
+                            'protocol': self.endpoint.protocol,
+                            'type': self.endpoint.type,
+                            'exception': e
+                            })
+
         return {'data':result,'errors':self.logs}
+
+    def isResultOk(self, result):
+        if 'code' in result and \
+            'geni_code' in result['code'] and \
+            result['code']['geni_code']==0:
+            return True
+        else:
+            return False
+

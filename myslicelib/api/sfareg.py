@@ -301,7 +301,6 @@ class SfaReg(SfaApi):
         return user
 
     def get(self, entity, urn=None, raw=False):
-        print(entity)
         result = []
         if urn is None:
             if entity == 'authority' or entity == 'project':
@@ -385,6 +384,8 @@ class SfaReg(SfaApi):
 
     # look up to see the upper has the credential
     def search_credential(self, hrn, entity):
+        if entity == 'project':
+            entity = 'authority'
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if hrn:
@@ -393,9 +394,11 @@ class SfaReg(SfaApi):
                     c = self._getXmlCredential(hrn, entity)
                     if c: return c
                     print('GetCredential hrn: '+hrn+' from Registry')
-                    return self._proxy.GetCredential(self.user_credential, hrn, entity)
+                    cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                    if cred:
+                        return cred
                 # If credentials were provided don't call the Registry
-                c = self._getXmlCredential(upper_hrn, entity)
+                c = self._getXmlCredential(upper_hrn, 'authority')
                 if c: return c
                 
                 # if not upper_hrn or obj_type is None:
@@ -406,7 +409,7 @@ class SfaReg(SfaApi):
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
-            return self.search_credential(upper_hrn, entity)
+            return self.search_credential(upper_hrn, 'authority')
 
     def _user_mappings(self, hrn, record_dict):
         mapped_dict = {
@@ -474,6 +477,7 @@ class SfaReg(SfaApi):
         return {'data':result,'errors':self.logs}
 
     def update(self, entity, urn, record_dict):
+        result = []
         hrn = urn_to_hrn(urn)[0]
         try:
             if entity == 'user' and hrn == self.authentication.hrn:
@@ -493,7 +497,6 @@ class SfaReg(SfaApi):
                 raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
             traceback.print_exc()
-            result = []
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -506,10 +509,12 @@ class SfaReg(SfaApi):
 
     def delete(self, entity, urn):
         result = []
+        if entity == 'project':
+            entity = 'authority'
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.search_credential(hrn, 'authority')
-            if entity == 'authority' or entity == 'project':
+            if entity == 'authority':
                 # Remove everything under it
                 print('remove everything under %s' % urn)
             if auth_cred:
