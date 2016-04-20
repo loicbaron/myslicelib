@@ -6,10 +6,14 @@ from myslicelib.model.user import Users, User
 from myslicelib.model.resource import Resources, Resource
 from myslicelib.model.slice import Slices, Slice
 from myslicelib.query import q
+from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn, Xrn
 
 from tests import s
+from tests import hrn
 
-class TestProject(unittest.TestCase):
+exec_user = q(User).id(hrn_to_urn(hrn,'user')).get().first()
+
+class TestSlice(unittest.TestCase):
 
     def setUp(self):
         sli = Slice()
@@ -25,6 +29,7 @@ class TestProject(unittest.TestCase):
         # add user 
         usr = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
         sli.addUser(usr)
+        sli.addUser(exec_user)
         
         # add resources
         res = q(Resource).filter('country', 'Germany').filter('version', 'f22').get()
