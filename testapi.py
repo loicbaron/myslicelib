@@ -61,7 +61,9 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
-
+a = q(Authority).get()
+pprint(a)
+exit(1)
 #res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
 #pprint(res)
 #res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
@@ -97,11 +99,11 @@ s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_ke
 #u_a = a.isPi(u)
 #print(u_a)
 
-p = q(Project).filter('hrn','onelab.upmc.infocom').get()
-pprint(p)
-p = q(Project).id('urn:publicid:IDN+onelab:upmc:infocom+authority+sa').get().first()
-pprint(p)
-exit(1)
+#p = q(Project).filter('hrn','onelab.upmc.infocom').get()
+#pprint(p)
+#p = q(Project).id('urn:publicid:IDN+onelab:upmc:infocom+authority+sa').get().first()
+#pprint(p)
+#exit(1)
 #x = p.getAuthority()
 #
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()

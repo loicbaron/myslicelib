@@ -198,6 +198,7 @@ class SfaReg(SfaApi):
             'user': [],
             'authority': [],
         }
+
         ### XXX need optimatiztion with query(id = None)
         #enitities = self._extract_with_authority(d['hrn'], self._list_entity(d['hrn']))
         for d in l_authorities.values():
@@ -221,8 +222,8 @@ class SfaReg(SfaApi):
                     'slices': d.get('slice',[]),
                     'projects': d.get('project',[]),
                 })
-            else:
-                print("WARNING: Orphan element found, clean up the registry %s" % d)
+            #else:
+            #    print("WARNING: Authority Orphan element found, clean up the registry %s" % d)
         return authority
 
     def analyze_projects(self, data):
@@ -270,7 +271,7 @@ class SfaReg(SfaApi):
                     'slices': d.get('slice',[]),
                 })
             else:
-                print("WARNING: Orphan element found, clean up the registry %s" % d)
+                print("WARNING: Projec Orphan element found, clean up the registry %s" % d)
 
         return project
 
