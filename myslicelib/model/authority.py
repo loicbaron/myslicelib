@@ -2,7 +2,6 @@ import myslicelib
 
 from copy import copy
 from myslicelib.model import Entities, Entity
-from myslicelib.model.slice import Slice
 from myslicelib.query import q
 
 from multiprocessing import Process, Queue
@@ -26,6 +25,7 @@ class Authority(Entity):
         super().__init__(data)
         if data is None:
             self.pi_users = []
+            self.slices = []
 
     def getUsers(self, pis = False):
         User = myslicelib.model.user.User
@@ -46,6 +46,7 @@ class Authority(Entity):
         return result
 
     def getSlices(self):
+        from myslicelib.model.slice import Slice
         result = []
         for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
