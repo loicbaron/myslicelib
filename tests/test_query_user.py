@@ -70,14 +70,6 @@ class TestUser(unittest.TestCase):
         pprint(res)
         self.assertEqual({'errors':[],'data':[]}, res)
         
-    def test_get_user_from_slice(self):
-        with self.assertRaises(MysNotImplementedError):
-            res = q(User).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
-
-    def test_get_user_from_authority(self):
-        with self.assertRaises(MysNotImplementedError):
-            res = q(User).id('urn:publicid:IDN+onelab:upmc+authority+sa').get()
-
     def test_get_user_from_root_authority(self):
         res = q(User).get()
         self.assertIsInstance(res, Users)
