@@ -12,7 +12,7 @@ class ProjectQuery(Query):
             _auth_setup = setup
         else:
             _auth_setup = s
-        self.auth_api = getattr(Api(_auth_setup.endpoints, _auth_setup.credential), 'project')()
+        self.auth_api = getattr(Api(_auth_setup.endpoints, _auth_setup.authentication), 'project')()
 
     def update(self, params):
         if not self._id:
