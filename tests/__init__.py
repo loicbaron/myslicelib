@@ -45,4 +45,4 @@ else:
 #cert = path + "fed4fire.upmc.loic_baron.user.gid"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
-s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
