@@ -17,12 +17,13 @@ from pprint import pprint
 
 s.endpoints = [
     Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM", name="ple"),
-    #Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
+    Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
     #Endpoint(url="https://194.199.16.165:12346",type="AM", name="Wrong iotlab"),
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
-    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+    #Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+    Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
 
@@ -61,9 +62,19 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
-a = q(Authority).get()
+a = q(Authority).id('urn:publicid:IDN+onelab:toto+authority+sa').get().first()
+pprint(a)
+a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
+pprint(a)
+a = Authority()
+a.hrn = "onelab.toto"
+a.save()
 pprint(a)
 exit(1)
+#a = q(Resource).get()
+#pprint(a)
+#a = q(Lease).get()
+#pprint(a)
 #res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').update({'email':'loic.baron@gmail.com'})
 #pprint(res)
 #res = q(User).id('urn:publicid:IDN+onelab:inria+user+lbaron').delete()
@@ -158,6 +169,7 @@ exit(1)
 
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u.getCredentials()
 #u.getCredentials("onelab.myslice")
 pprint(u)
 #s = Slice()

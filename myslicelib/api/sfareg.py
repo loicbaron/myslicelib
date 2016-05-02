@@ -90,13 +90,9 @@ class SfaReg(SfaApi):
     def _list_entity(self, hrn=None):
         if hrn is None:
             hrn = self.version()['id']
-        try:
-            # attept to list the hrn first if it is an authority
-            # if hrn is not an authority, it will list all elements
-            return self._proxy.List(hrn, self.user_credential, {'recursive':True})
-        except Exception as e:
-            return self._proxy.List(self.version()['id'], self.user_credential, {'recursive':True})
-
+        # attept to list the hrn first if it is an authority
+        # if hrn is not an authority, it will list all elements
+        return self._proxy.List(hrn, self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
         return self._proxy.Resolve(hrn, self.user_credential, {})
@@ -303,31 +299,33 @@ class SfaReg(SfaApi):
 
     def get(self, entity, urn=None, raw=False):
         result = []
-        if urn is None:
-            if entity == 'authority' or entity == 'project':
-                result = self._list_entity()
-            else:
-                result = self._extract_with_entity(entity, self._list_entity())
-        else:
-            hrn, urn_type = urn_to_hrn(urn)
-
-            if urn_type not in ['slice', 'user', 'authority']:
-                raise MysNotUrnFormatError
-            # entity is query object
-            # urn_type is type of object derived from urn
-            
-            if entity != urn_type:
-                if entity != 'project' or urn_type != 'authority':
-                    raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
-            if entity == 'authority' or entity == 'project':
-                result = self._list_entity(hrn)
-            else:
-                result = self._get_entity(hrn)
-
-        if raw:
-            result = self._extract_with_entity(entity, result)
         try:
-            result = getattr(self, "_" + entity)(result)
+            if urn is None:
+                if entity == 'authority' or entity == 'project':
+                    result = self._list_entity()
+                else:
+                    result = self._extract_with_entity(entity, self._list_entity())
+            else:
+                hrn, urn_type = urn_to_hrn(urn)
+
+                if urn_type not in ['slice', 'user', 'authority']:
+                    raise MysNotUrnFormatError
+                # entity is query object
+                # urn_type is type of object derived from urn
+
+                if entity != urn_type:
+                    if entity != 'project' or urn_type != 'authority':
+                        raise MysNotImplementedError('Please check %s is %s' % (urn, entity))
+
+                if entity == 'authority' or entity == 'project':
+                    result = self._list_entity(hrn)
+                else:
+                    result = self._get_entity(hrn)
+
+            if raw:
+                result = self._extract_with_entity(entity, result)
+            else:
+                result = getattr(self, "_" + entity)(result)
         except Exception as e:
             traceback.print_exc()
             self.logs.append({
@@ -335,7 +333,7 @@ class SfaReg(SfaApi):
                                 'url': self.endpoint.url,
                                 'protocol': self.endpoint.protocol,
                                 'type': self.endpoint.type,
-                                'exception': e
+                                'exception': str(e)
                             })
         return {'data':result,'errors':self.logs}
 
@@ -473,7 +471,7 @@ class SfaReg(SfaApi):
                                 'url': self.endpoint.url,
                                 'protocol': self.endpoint.protocol,
                                 'type': self.endpoint.type,
-                                'exception': e
+                                'exception': str(e)
                             })
         return {'data':result,'errors':self.logs}
 
@@ -503,7 +501,7 @@ class SfaReg(SfaApi):
                                 'url': self.endpoint.url,
                                 'protocol': self.endpoint.protocol,
                                 'type': self.endpoint.type,
-                                'exception': e
+                                'exception': str(e)
                             })
         
         return {'data':result,'errors':self.logs}
@@ -529,7 +527,7 @@ class SfaReg(SfaApi):
                                 'url': self.endpoint.url,
                                 'protocol': self.endpoint.protocol,
                                 'type': self.endpoint.type,
-                                'exception': e
+                                'exception': str(e)
                             })
         
         return {'data':result,'errors':self.logs}

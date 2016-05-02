@@ -227,8 +227,10 @@ class Api(object):
         result = {}
         threads = []
         if self._entity in self._registry:
-            res_reg = self.registry.create(self._entity, id, params)
-            if res_reg['errors']:
+            res_reg = self.registry.get(self._entity, id)
+            if len(res_reg['errors']) > 0 or len(res_reg['data']) == 0:
+                res_reg = self.registry.create(self._entity, id, params)
+            else:
                 res_reg = self.registry.update(self._entity, id, params)
             # XXX We should flag if Exception is raised
             # XXX because for Slice if Registry call failed we will not call the AMs

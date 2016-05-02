@@ -83,7 +83,7 @@ class SfaAm(SfaApi):
                             'url': self.endpoint.url,
                             'protocol': self.endpoint.protocol,
                             'type': self.endpoint.type,
-                            'exception': e
+                            'exception': str(e)
                             })
 
         if not raw:
@@ -117,7 +117,7 @@ class SfaAm(SfaApi):
                             'url': self.endpoint.url,
                             'protocol': self.endpoint.protocol,
                             'type': self.endpoint.type,
-                            'exception': e
+                            'exception': str(e)
                             })
             if entity == 'slice':
                 return [{'resources':[],'leases':[]}]
@@ -152,7 +152,7 @@ class SfaAm(SfaApi):
                             'url': self.endpoint.url,
                             'protocol': self.endpoint.protocol,
                             'type': self.endpoint.type,
-                            'exception': e
+                            'exception': str(e)
                             })
         return {'data':result,'errors':self.logs}
 
@@ -222,7 +222,7 @@ class SfaAm(SfaApi):
                             'url': self.endpoint.url,
                             'protocol': self.endpoint.protocol,
                             'type': self.endpoint.type,
-                            'exception': e
+                            'exception': str(e)
                             })
         return {'data':result,'errors':self.logs}
 
@@ -247,7 +247,7 @@ class SfaAm(SfaApi):
                             'url': self.endpoint.url,
                             'protocol': self.endpoint.protocol,
                             'type': self.endpoint.type,
-                            'exception': e
+                            'exception': str(e)
                             })
 
         return {'data':result,'errors':self.logs}
