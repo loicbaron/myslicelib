@@ -1,4 +1,4 @@
-from myslicelib import setup as s
+from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
 
@@ -89,15 +89,20 @@ class Entity(object):
         self._api = None
         self.attribute = {}
 
-    def save(self):
-        if self._api is None:
-            # using _type instead of _class as project is an authority in SFA Reg
-            self._api = getattr(Api(s.endpoints, s.credential), self._type)()
+    def save(self, setup=None):
+
+        if setup and isinstance(setup, Setup):
+            _setup = setup
+        else:
+            _setup = s
+
+        # using _type instead of _class as project is an authority in SFA Reg
+        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._type)()
+
         if not self.id:
-            # if self.hrn:
-            #     self.id = hrn_to_urn(self.hrn, self._type)
-            # else:
+            # id can be None it will be forged based on the attributes (hrn...)
             self.id = None
+
         res = self._api.update(self.id, self.attributes())
 
         result = {
@@ -107,14 +112,20 @@ class Entity(object):
 
         return result
 
-    def delete(self):
+    def delete(self, setup=None):
+
+        if setup and isinstance(setup, Setup):
+            _setup = setup
+        else:
+            _setup = s
+
         if not self.id:
             raise Exception("No element specified")
-        # Here we reuse the same _api instance
+
         # But it means errors will stay in logs until we use a new instance
-        if self._api is None:
-            # using _type instead of _class as project is an authority in SFA Reg
-            self._api = getattr(Api(s.endpoints, s.credential), self._type)()
+        # using _type instead of _class as project is an authority in SFA Reg
+        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._type)()
+
         res = self._api.delete(self.id)
         
         result = {

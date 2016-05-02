@@ -1,6 +1,6 @@
 import myslicelib
 
-from myslicelib import setup as s
+from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 
 from myslicelib.model import Entities, Entity
@@ -35,26 +35,32 @@ class User(Entity):
             result += q(Slice).id(urn).get()
         return result
 
-    def getCredential(self, id, degate_to=None):
-        if self._api is None:
-            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-        res = self._api.get_credentials([id],degate_to)
+    def getCredential(self, id, delegate_to=None, setup=None):
+        return self.getCredentials(id, delegate_to, setup)
+
+    def getCredentials(self, id=None, delegate_to=None, setup=None):
+
+        if setup and isinstance(setup, Setup):
+            _setup = setup
+        else:
+            _setup = s
+
+        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._class.lower())()
+
+        if id:
+            ids = [id]
+        else:
+            ids =[]
+            ids.append(self.id)
+
+            for urn in self.attribute('slices'):
+                ids.append(urn)
+
+            for urn in self.attribute('pi_authorities'):
+                ids.append(urn)
+
+        res = self._api.get_credentials(ids, delegate_to)
         self.credentials = res['data']
         self.logs = res['errors']
-        return self
 
-    def getCredentials(self, degate_to=None):
-        if self._api is None:
-            self._api = getattr(Api(s.endpoints, s.credential), self._class.lower())()
-
-        ids =[]
-        ids.append(self.id)
-        for urn in self.attribute('slices'):
-            ids.append(urn)
-        for urn in self.attribute('pi_authorities'):
-            ids.append(urn)
-
-        res = self._api.get_credentials(ids,degate_to)
-        self.credentials = res['data']
-        self.logs = res['errors']
         return self

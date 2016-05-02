@@ -1,11 +1,11 @@
 import logging
-from myslicelib import setup as s
+from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 from myslicelib.model import Entity, Entities
 from myslicelib.util.checker import checker
 from collections import defaultdict
 
-def q(entity: Entity):
+def q(entity: Entity, setup=None):
     '''
     Factory function, used to build the correct QueryEntity object
 
@@ -17,7 +17,7 @@ def q(entity: Entity):
     QueryClass = e + "Query"
     try:
         module = __import__(QueryModule, fromlist=[QueryClass])
-        return getattr(module, QueryClass)(entity)
+        return getattr(module, QueryClass)(entity, setup)
     except ImportError:
         logging.error("Class {} not found".format(QueryClass))
         exit(1)
@@ -26,11 +26,16 @@ class Query(object):
 
     _id = None
 
-    def __init__(self, entity: Entity) -> None:
+    def __init__(self, entity: Entity, setup=None) -> None:
+
+        if setup and isinstance(setup, Setup):
+            self._setup = setup
+        else:
+            self._setup = s
 
         self.entity = entity
         self._filter = defaultdict(set)
-        self.api = getattr(Api(s.endpoints, s.credential), self.entity._type)()
+        self.api = getattr(Api(self._setup.endpoints, self._setup.authentication), self.entity._type)()
 
     def collection(self, elements=None):
         '''
