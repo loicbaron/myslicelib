@@ -64,20 +64,6 @@ class TestProject(unittest.TestCase):
             res = q(Project).id('urn:publicid:IDN+onelab:inria:authx+authority+sa').delete()
             self.assertEqual({'errors':[],'data':[]}, res)
         
-    def test_get_project_from_slice(self):
-        with self.assertRaises(MysNotImplementedError):
-            q(Project).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicex').get()
-
-    def test_get_project_from_user(self):
-        with self.assertRaises(MysNotImplementedError):
-            q(Project).id('urn:publicid:IDN+onelab:upmc+user+lbaron').get()
-
-    # NOT RECOMMANDED
-    def test_get_project_from_authority(self):
-        res = q(Project).id('urn:publicid:IDN+onelab:inria+authority+sa').get()
-           
-
 if __name__ == '__main__':
     #print(q(User).get())
     unittest.main()
-
