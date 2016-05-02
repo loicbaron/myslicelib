@@ -227,8 +227,10 @@ class Api(object):
         result = {}
         threads = []
         if self._entity in self._registry:
-            res_reg = self.registry.get(self._entity, id)
-            if len(res_reg['errors']) > 0 or len(res_reg['data']) == 0:
+            res_get = self.registry.get(self._entity, id)
+            if len(res_get['errors']) > 0 or len(res_get['data']) == 0:
+                # Re-Initialize the logs
+                self.registry.logs = []
                 res_reg = self.registry.create(self._entity, id, params)
             else:
                 res_reg = self.registry.update(self._entity, id, params)
