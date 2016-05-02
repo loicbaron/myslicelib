@@ -18,7 +18,7 @@ class TestUser(unittest.TestCase):
         u = User()
         self.assertIsInstance(u, User)
 
-    def test_setter_id(self):
+    def test_1_setter_id(self):
         u = User()
         u.id = 'urn:publicid:IDN+onelab:upmc+user+lbaron'
         self.assertEqual(u.id, 'urn:publicid:IDN+onelab:upmc+user+lbaron')
@@ -26,7 +26,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
-    def test_setter_authority(self):
+    def test_2_setter_authority(self):
         u = User()
         u.hrn = 'onelab.upmc.lbaron'
         self.assertEqual(u.id, 'urn:publicid:IDN+onelab:upmc+user+lbaron')
@@ -34,7 +34,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
-    def test_setter_auth_and_shrtnm(self):
+    def test_3_setter_auth_and_shrtnm(self):
         u = User()
         u.authority = 'onelab.upmc'
         u.shortname = 'lbaron'
@@ -43,7 +43,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
-    def test_save_and_delete(self): 
+    def test_4_save_and_delete(self): 
         u = User()
         u.hrn = 'onelab.upmc.apitest.lbaron'
         u.email = 'apitest@gmail.com'
@@ -51,11 +51,11 @@ class TestUser(unittest.TestCase):
         # test save
         res = u.save()
         usrdata, errors = res['data'][0], res['errors']
+        self.assertEqual(res['errors'], [])
         self.assertEqual(usrdata['hrn'], 'onelab.upmc.apitest.lbaron')
         self.assertEqual(usrdata['email'], 'apitest@gmail.com')
         self.assertEqual(usrdata['keys'], [PKEY])
         self.assertIsNotNone(usrdata['certificate'])
-        self.assertEqual(res['errors'], [])
         # test delete
         res = u.delete()
         self.assertEqual(res, {'errors': [], 'data': []})
