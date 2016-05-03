@@ -11,6 +11,7 @@ from myslicelib.api.sfareg import SfaReg
 #from myslicelib.util.certificate import Keypair, Certificate
 import concurrent.futures
 
+from pprint import pprint
 
 from myslicelib.error import MysParamsTypeError
 
@@ -114,6 +115,7 @@ class Api(object):
                     #    res = future.result(timeout=5)
                     #except concurrent.futures.TimeoutError as e:
                     #    res = {'data':[],'errors':[e]}
+                    pprint(res)
                     result['data'] += res['data']
                     result['errors'] += res['errors']
         return result

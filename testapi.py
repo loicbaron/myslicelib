@@ -5,7 +5,7 @@ import time
 from myslicelib.util import Endpoint, Authentication
 from myslicelib.api import Api
 
-from myslicelib import setup as s
+from myslicelib import setup as s, Setup
 from myslicelib.model.resource import Resources, Resource
 from myslicelib.model.lease import Leases, Lease
 from myslicelib.model.slice import Slices, Slice
@@ -22,8 +22,8 @@ s.endpoints = [
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
-    #Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
-    Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
+    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+    #Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
 
@@ -43,11 +43,6 @@ credentials = None
 #              {'type':'authority', 'hrn':'onelab.upmc', 'xml':path+'onelab.upmc.loic_baron-onelab.upmc.authority.cred'},
 #              ]
 
-#path = "/root/.sfi/"
-#pkey = path + "onelab.upmc.joshzhou16.pkey"
-#cert = path + "onelab.upmc.joshzhou16.sscert"
-#hrn = "onelab.upmc.joshzhou16"
-#email = "joshzhou16@gmail.com"
 
 
 #pkey = path + "lbaron.pkey"
@@ -61,15 +56,36 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.user.gid"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
-s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
-a = q(Authority).id('urn:publicid:IDN+onelab:toto+authority+sa').get().first()
-pprint(a)
-a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
-pprint(a)
-a = Authority()
-a.hrn = "onelab.toto"
-a.save()
-pprint(a)
+s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+#a = q(Authority).id('urn:publicid:IDN+onelab:toto+authority+sa').get().first()
+#pprint(a)
+#a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
+#pprint(a)
+#a = Authority()
+#a.hrn = "onelab.toto"
+#a.save()
+#pprint(a)
+
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+pprint(u)
+
+user_setup = Setup()
+user_setup.endpoints = [
+    #Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
+    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+]
+path = "/root/.sfi/"
+pkey = path + "onelab.upmc.joshzhou16.pkey"
+#cert = path + "onelab.upmc.joshzhou16.sscert"
+cert = path + "onelab.upmc.joshzhou16.user.gid"
+hrn = "onelab.upmc.joshzhou16"
+email = "joshzhou16@gmail.com"
+credentials = None
+user_setup.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+
+creds = u.getCredentials(setup=user_setup)
+pprint(creds)
 exit(1)
 #a = q(Resource).get()
 #pprint(a)

@@ -347,7 +347,7 @@ class SfaReg(SfaApi):
 
         if local_cred:
             print('already defined %s' % urn)
-            return local_cred
+            cred = local_cred
         else:
             if delegated_to:
                 # XXX To be removed
@@ -368,16 +368,15 @@ class SfaReg(SfaApi):
                 cred = credential.delegate(delegate_gid, user_pkey, user_gid)
             else:
                 cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
-                return cred 
             
-            d = [{
-                'id': urn,
-                'type': entity,
-                'xml': cred, 
-                'delegated_to': delegated_to,
-            }]
-            
-            self.user_credentials += d
+        d = [{
+            'id': urn,
+            'type': entity,
+            'xml': cred, 
+            'delegated_to': delegated_to,
+        }]
+        
+        self.user_credentials += d
 
         return {'data':d,'errors':self.logs}
 
