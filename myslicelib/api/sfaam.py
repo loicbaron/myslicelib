@@ -21,7 +21,7 @@ from myslicelib.error import MysParameterIsRequiredError
 class SfaAm(SfaApi):
 
     def __init__(self, endpoint=None, registry=None):
-        super(SfaAm, self).__init__(endpoint, registry.credential)
+        super(SfaAm, self).__init__(endpoint, registry.authentication)
         self.registry = registry
 
     def _lease(self, urn=None):

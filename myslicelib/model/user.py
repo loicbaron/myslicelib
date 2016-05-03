@@ -45,7 +45,7 @@ class User(Entity):
         else:
             _setup = s
 
-        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._class.lower())()
+        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._class.lower())()
 
         if id:
             ids = [id]

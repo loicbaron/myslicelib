@@ -14,7 +14,7 @@ from tests import s
 class TestApi(unittest.TestCase):
 
     def setUp(self):
-        self.api = Api(s.endpoints, s.credential)
+        self.api = Api(s.endpoints, s.authentication)
 
     def test_version(self):
         res = self.api.version()

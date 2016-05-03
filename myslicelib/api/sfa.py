@@ -5,9 +5,9 @@ from xmlrpc import client as xmlrpcclient
 
 class Api(object):
 
-    def __init__(self, endpoint=None, credential=None):
+    def __init__(self, endpoint=None, authentication=None):
         self.endpoint = endpoint
-        self.credential = credential
+        self.authentication = authentication
 
         if hasattr(ssl, '_create_unverified_context'):
             context = ssl._create_unverified_context()
@@ -16,8 +16,8 @@ class Api(object):
 
         try:
             context.load_cert_chain(
-                    self.credential.certificate,
-                    keyfile=self.credential.private_key,
+                    self.authentication.certificate,
+                    keyfile=self.authentication.private_key,
                     password=None
             )
 

@@ -55,11 +55,11 @@ class MeasureSfaApi(Singleton):
                 Endpoint(url=config['url_am'], type ='AM'),
                 Endpoint(url=config['url_registry'], type = 'Reg')
             ]
-        s.credential = Authentication(  email=config['email'], 
+        s.authentication = Authentication(  email=config['email'], 
                                     hrn=config['hrn'], 
                                     private_key=config['pkey'], 
                                     certificate=config['cert'])
-        self.api = Api(s.endpoints, s.credential)
+        self.api = Api(s.endpoints, s.authentication)
         return self
 
     @timeit(loops=_loops) 

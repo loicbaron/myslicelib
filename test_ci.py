@@ -44,7 +44,7 @@ cert = path + "myslice.cert"
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 
-s.credential = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
 
 
 #lease = Query(Leases).get()
@@ -93,7 +93,7 @@ print(authority)
 #user = Query(Authority).update('urn:publicid:IDN+onelab:upmc2+authority+sa',{'name':'UPMC2'})
 
 #
-#api = Api(s.endpoints, s.credential)
+#api = Api(s.endpoints, s.authentication)
 #
 # res = api.version()
 #

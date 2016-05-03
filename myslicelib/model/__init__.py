@@ -97,7 +97,7 @@ class Entity(object):
             _setup = s
 
         # using _type instead of _class as project is an authority in SFA Reg
-        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._type)()
+        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
         if not self.id:
             # id can be None it will be forged based on the attributes (hrn...)
@@ -124,7 +124,7 @@ class Entity(object):
 
         # But it means errors will stay in logs until we use a new instance
         # using _type instead of _class as project is an authority in SFA Reg
-        self._api = getattr(Api(_setup.endpoints, _setup.credential), self._type)()
+        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
         res = self._api.delete(self.id)
         

@@ -27,7 +27,7 @@ hrn = "onelab.upmc.cscognamiglio"
 email = "cscognamiglio@gmail.com"
 cert = path + "cscognamiglio_onelab.cert"
 
-s.credential = Credential(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
 
 
 class TestbedNew(Testbed):
