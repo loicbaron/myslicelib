@@ -85,7 +85,8 @@ credentials = None
 user_setup.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
 creds = u.getCredentials(setup=user_setup)
-pprint(creds)
+print("-"*20)
+pprint(u)
 exit(1)
 #a = q(Resource).get()
 #pprint(a)
