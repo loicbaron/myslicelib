@@ -58,7 +58,7 @@ class SfaAm(SfaApi):
 
                     'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                 }
-        slice_credential = self.registry.get_credential(urn)
+        slice_credential = self.registry.get_credential(urn, raw=True)
 
         if self.version()['version'] == 2:
             options['geni_slice_urn'] = urn
@@ -136,7 +136,7 @@ class SfaAm(SfaApi):
                 raise NotImplementedError('Not implemented')
             
             hrn = urn_to_hrn(urn)[0]
-            self.slice_credential = self.registry.get_credential(urn)
+            self.slice_credential = self.registry.get_credential(urn, raw=True)
             #*self.ois(server, api_options) to check server if uuid supported
             api_options = {}
             res = self._proxy.Delete([urn], [self.slice_credential], api_options)
@@ -187,7 +187,7 @@ class SfaAm(SfaApi):
         try:
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')
-            self.slice_credential = self.registry.get_credential(urn)
+            self.slice_credential = self.registry.get_credential(urn, raw=True)
             
             # slice_cred would be a dict, here for simple test, we just return cred
 

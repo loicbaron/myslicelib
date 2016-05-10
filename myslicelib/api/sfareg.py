@@ -337,7 +337,7 @@ class SfaReg(SfaApi):
                             })
         return {'data':result,'errors':self.logs}
 
-    def get_credential(self, urn, delegated_to=None):
+    def get_credential(self, urn, delegated_to=None, raw=False):
         hrn, entity = urn_to_hrn(urn)
 
         if delegated_to:
@@ -368,7 +368,10 @@ class SfaReg(SfaApi):
                 cred = credential.delegate(delegate_gid, user_pkey, user_gid)
             else:
                 cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
-            
+
+        if raw:
+            return cred
+
         d = [{
             'id': urn,
             'type': entity,

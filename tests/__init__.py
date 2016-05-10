@@ -14,8 +14,8 @@ s.endpoints = [
 ]
 
 
-if os.path.exists("/root/.sfi/"):
-    path = "/root/.sfi/"
+if os.path.exists(os.path.expanduser("~/.sfi/")):
+    path = os.path.expanduser("~/.sfi/")
     pkey = path + "onelab.upmc.loic_baron.pkey"
     hrn = "onelab.upmc.loic_baron"
     email = "loic.baron@lip6.fr"
@@ -28,7 +28,7 @@ if os.path.exists("/root/.sfi/"):
 #    hrn = "onelab.upmc.joshzhou16"
 #    email = "joshzhou16@gmail.com"
 else:
-    path = "/root/"
+    path = os.path.expanduser("~/")
     pkey = path + "myslice.pkey"
     hrn = "onelab.myslice"
     email = "support@myslice.info"

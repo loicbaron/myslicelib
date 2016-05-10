@@ -64,6 +64,7 @@ class TestSlice(unittest.TestCase):
     
     def test_05_delete_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
+        #pprint(res)
         self.assertEqual({'errors':[],'data':[]}, res)
 
     def test_06_clear_up(self):
@@ -79,6 +80,8 @@ class TestSlice(unittest.TestCase):
                                                         'geni_users': [{'urn':user.id,'keys':user.keys,'email':user.email}],
                                                         'resources': [],
                                                         })
+
+        #pprint(res)
         self.assertIsInstance(res, Slices)
         for sli in res:
             self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
