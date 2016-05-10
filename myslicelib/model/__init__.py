@@ -30,7 +30,7 @@ class Entity(object):
         try:
             return self._attributes[name]
         except KeyError :
-            raise AttributeError('Entity object has no attribute %s' % 'name')  
+            raise AttributeError('Entity object has no attribute %s' % name)
     
     def setattribute(self, name, value):
         if name != '_api':
