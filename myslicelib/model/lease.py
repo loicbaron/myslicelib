@@ -25,7 +25,7 @@ class Lease(Entity):
         return self
 
     def removeResource(self, resource):
-        self.resources = list(set(self.resources) - set(resource.id))
+        self.resources = list(set(self.resources) - set([resource.id]))
         return self
 
     def removeResources(self):

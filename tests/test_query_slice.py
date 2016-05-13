@@ -40,13 +40,14 @@ class TestSlice(unittest.TestCase):
 
     def test_02_create_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
-                                                'users': [hrn],
+                                                'users': [user.id],
                                                 'geni_users': [{'urn':user.id,'keys':user.keys,'email':user.email}],
                                                 'resources': [],
                                                 })
         self.assertIsInstance(res, Slices)
         for sli in res:
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
+            self.assertIn(user.id, sli.users)
+            self.assertIn(user.id, sli.users)
 
     def test_03_get_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       
@@ -55,12 +56,12 @@ class TestSlice(unittest.TestCase):
 
     def test_04_update_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').update({
-                                                'users': [hrn, 'onelab.inria.aaaa'],
+                                                'users': [user.id, hrn_to_urn('onelab.inria.aaaa','user')],
                                                 'geni_users': [{'urn':user.id,'keys':user.keys,'email':user.email}],
                                                 'resources': [],
                                                 })
         for sli in res:
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
+            self.assertIn(user.id, sli.users)
     
     def test_05_delete_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').delete()
@@ -76,7 +77,7 @@ class TestSlice(unittest.TestCase):
                                                                     'name': 'Apitest'
                                                                     })
         res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').update({
-                                                        'users': [hrn],
+                                                        'users': [user.id],
                                                         'geni_users': [{'urn':user.id,'keys':user.keys,'email':user.email}],
                                                         'resources': [],
                                                         })
@@ -85,7 +86,7 @@ class TestSlice(unittest.TestCase):
         self.assertIsInstance(res, Slices)
         for sli in res:
             self.assertEqual('urn:publicid:IDN+onelab:inria:authx+slice+slicex', sli.id)
-            self.assertIn(hrn_to_urn(hrn, 'user'), sli.users)
+            self.assertIn(user.id, sli.users)
 
         res = q(Slice).id('urn:publicid:IDN+onelab:inria:authx+slice+slicex').delete()
         self.assertEqual({'data': [], 'errors': []}, res)

@@ -57,7 +57,7 @@ class Authority(Entity):
         return self
 
     def removePi(self, user):
-        self.pi_users = set(self.pi_users) - set(user.id)
+        self.pi_users = set(self.pi_users) - set([user.id])
         return self
 
     def isPi(self, user):
