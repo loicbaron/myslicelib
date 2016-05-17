@@ -10,10 +10,9 @@ class Lease(Entity):
 
     _generator = ['start_time', 'end_time', 'duration']
 
-    def __init__(self, data = None):
+    def __init__(self, data = {}):
         super().__init__(data)
-        if data is None:
-            self.resources = []
+        self.resources = data.get('resources', [])
 
     def addResource(self, resource):
         self.resources.append(resource.id)

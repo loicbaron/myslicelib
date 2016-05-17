@@ -8,7 +8,7 @@ class Entity(object):
     _api = None
     _generator = ['id', 'hrn', 'authority', 'shortname']
 
-    def __init__(self, data = None):
+    def __init__(self, data = {}):
         if self._attributes:
             self._attributes = {}
         if data:
@@ -89,15 +89,17 @@ class Entity(object):
         self._api = None
         self.attribute = {}
 
-    def save(self, setup=None):
-
+    def _setup_api(self, setup):
         if setup and isinstance(setup, Setup):
             _setup = setup
         else:
             _setup = s
 
         # using _type instead of _class as project is an authority in SFA Reg
-        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
+        return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
+
+    def save(self, setup=None):
+        self._api = self._setup_api(setup)
 
         if not self.id:
             # id can be None it will be forged based on the attributes (hrn...)
@@ -114,17 +116,10 @@ class Entity(object):
 
     def delete(self, setup=None):
 
-        if setup and isinstance(setup, Setup):
-            _setup = setup
-        else:
-            _setup = s
+        self._api = self._setup_api(setup)
 
         if not self.id:
             raise Exception("No element specified")
-
-        # But it means errors will stay in logs until we use a new instance
-        # using _type instead of _class as project is an authority in SFA Reg
-        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
         res = self._api.delete(self.id)
         
