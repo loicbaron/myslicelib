@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.5
-import sys
-import time
+import os, sys, time
 
 from myslicelib.util import Endpoint, Authentication
 from myslicelib.api import Api
@@ -22,12 +21,12 @@ s.endpoints = [
     #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     #Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
-    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
-    #Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
+    #Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+    Endpoint(url="https://localhost:6080",type="Reg", name="OneLab Reg"),
     #Endpoint(url="https://sfa-fed4fire.pl.sophia.inria.fr:443",type="Reg")
 ]
 
-path = "/root/.sfi/"
+path = os.path.expanduser("~/.sfi/")
 pkey = path + "onelab.upmc.loic_baron.pkey"
 hrn = "onelab.upmc.loic_baron"
 email = "loic.baron@lip6.fr"
@@ -57,6 +56,39 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+#print("1 - GET Slice")
+#s1 = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+s1').get().first()
+#pprint(s1)
+#print("2 - GET User & ADD to Slice")
+print("GET User")
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#s1.addUser(u)
+#pprint(s1)
+#print("3 - Save Slice")
+#s1.save()
+print("4 - GET Slice")
+s2 = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+s1').get().first()
+#pprint(s2)
+#print("5 - REMOVE User from Slice")
+#s2.removeUser(u)
+#pprint(s2)
+#print("6 - Save Slice")
+#s2.save()
+#pprint(s2)
+
+print("7 - GET resources in Spain")
+resources = q(Resource).filter('country','Spain').get()
+pprint(resources)
+print("8 - ADD resources to Slice & Save")
+s2.addResources(resources)
+s2.save()
+print("9 - REMOVE resources from Slice & Save")
+for r in resources:
+    if r.name not in ['planetlab1.tlm.unavarra.es','planetlab2.tlm.unavarra.es']:
+        s2.removeResource(r)
+s2.save()
+pprint(s2)
+exit(1)
 #a = q(Authority).id('urn:publicid:IDN+onelab:toto+authority+sa').get().first()
 #pprint(a)
 #a = q(Authority).id('urn:publicid:IDN+onelab:upmc+authority+sa').get().first()
@@ -67,27 +99,27 @@ s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, privat
 #pprint(a)
 
 #u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
-u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
-pprint(u)
-
-user_setup = Setup()
-user_setup.endpoints = [
-    #Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
-    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
-]
-path = "/root/.sfi/"
-pkey = path + "onelab.upmc.joshzhou16.pkey"
-#cert = path + "onelab.upmc.joshzhou16.sscert"
-cert = path + "onelab.upmc.joshzhou16.user.gid"
-hrn = "onelab.upmc.joshzhou16"
-email = "joshzhou16@gmail.com"
-credentials = None
-user_setup.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
-
-creds = u.getCredentials(setup=user_setup)
-print("-"*20)
-pprint(u)
-exit(1)
+#u = q(User).id('urn:publicid:IDN+onelab:upmc+user+joshzhou16').get().first()
+#pprint(u)
+#
+#user_setup = Setup()
+#user_setup.endpoints = [
+#    #Endpoint(url="https://localhost:12345",type="Reg", name="OneLab Reg"),
+#    Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
+#]
+#path = "/root/.sfi/"
+#pkey = path + "onelab.upmc.joshzhou16.pkey"
+##cert = path + "onelab.upmc.joshzhou16.sscert"
+#cert = path + "onelab.upmc.joshzhou16.user.gid"
+#hrn = "onelab.upmc.joshzhou16"
+#email = "joshzhou16@gmail.com"
+#credentials = None
+#user_setup.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+#
+#creds = u.getCredentials(setup=user_setup)
+#print("-"*20)
+#pprint(u)
+#exit(1)
 #a = q(Resource).get()
 #pprint(a)
 #a = q(Lease).get()

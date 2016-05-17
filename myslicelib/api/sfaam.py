@@ -187,13 +187,9 @@ class SfaAm(SfaApi):
         try:
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')
-            self.slice_credential = self.registry.get_credential(urn, raw=True)
-            
+
             # slice_cred would be a dict, here for simple test, we just return cred
-
-
-            parser = get_testbed_type(self.version()['id'])
-            rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
+            self.slice_credential = self.registry.get_credential(urn, raw=True)
 
             api_options = {
                 'call_id': unique_call_id(),
@@ -201,20 +197,25 @@ class SfaAm(SfaApi):
                 'geni_users': record_dict['geni_users'],
                 # api_options['append'] = True
             }
+
             if 'expiration_date' in record_dict:
-                result = self._renew_slice(urn, rspec, api_options)           
-            
-            elif self.version()['version'] == 2:
-                result = self._update_slice_v2(urn, rspec, api_options)
-            
-            elif self.version()['version'] == 3:
-                result = self._update_slice_v3(urn, rspec, api_options)
-            
-            else:
-                raise NotImplementedError('geni_ api version not supported')
-            
-            result = self._parse_xml(result, 'slice')
-                
+                result = self._renew_slice(urn, record_dict, api_options)
+
+            if record_dict['run_am']:
+                parser = get_testbed_type(self.version()['id'])
+                rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
+
+                if self.version()['version'] == 2:
+                    result = self._update_slice_v2(urn, rspec, api_options)
+
+                elif self.version()['version'] == 3:
+                    result = self._update_slice_v3(urn, rspec, api_options)
+
+                else:
+                    raise NotImplementedError('geni_ api version not supported')
+
+                result = self._parse_xml(result, 'slice')
+
         except Exception as e:
             traceback.print_exc()
             self.logs.append({
@@ -224,6 +225,7 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': str(e)
                             })
+            print(self.logs)
         return {'data':result,'errors':self.logs}
 
     def execute(self, urn, action, obj_type):

@@ -114,8 +114,11 @@ class SfaReg(SfaApi):
 
             # users urn
             users = []
-            for u in d.get('reg-researchers', []):
-                users.append(hrn_to_urn(u, 'user'))
+            geni_users = []
+            for r in d.get('reg-researchers', []):
+                u = self._user(self._get_entity(r))
+                geni_users.append({'urn':u[0]['id'],'keys':u[0]['keys'],'email':u[0]['email']})
+                users.append(hrn_to_urn(r, 'user'))
 
             slices.append({
                 'id' : d.get('reg-urn'),
@@ -124,6 +127,7 @@ class SfaReg(SfaApi):
                 'created': self._datetime(d['date_created']),
                 'updated': self._datetime(d['last_updated']),
                 'users': users,
+                'geni_users': geni_users,
                 'authority': hrn_to_urn(d['authority'], 'authority'),
                 'project': hrn_to_urn('.'.join(d['hrn'].split('.')[:-1]), 'authority'),
             })
@@ -347,7 +351,7 @@ class SfaReg(SfaApi):
 
         if local_cred:
             print('already defined %s' % urn)
-            cred = local_cred
+            cred = local_cred[0]['xml']
         else:
             if delegated_to:
                 # XXX To be removed
@@ -444,7 +448,7 @@ class SfaReg(SfaApi):
         mapped_dict = {
                     'hrn': hrn,
                     'type': 'slice',          
-                    'reg-researchers': record_dict.get('users', []),
+                    'reg-researchers': [urn_to_hrn(user)[0] for user in record_dict.get('users', [])],
         }
 
         # filter key have empty value
