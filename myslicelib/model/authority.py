@@ -21,8 +21,10 @@ class Authority(Entity):
     _type = "authority"
     _collection ="Authorities"
 
-    def __init__(self, data= {}):
+    def __init__(self, data = {}):
         super().__init__(data)
+        if data is None:
+            data = {}
         self.pi_users = data.get('pi_users', [])
         self.slices = data.get('slices', [])
 
@@ -45,7 +47,7 @@ class Authority(Entity):
         return result
 
     def getSlices(self):
-        from myslicelib.model.slice import Slice
+        Slice = myslicelib.model.slice.Slice
         result = []
         for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
@@ -63,21 +65,20 @@ class Authority(Entity):
         return user.id in self.pi_users
 
     def delete(self, setup=None):
+        User = myslicelib.model.user.User
+        Project = myslicelib.model.project.Project
 
-        self._api = self._setup_api(setup)
+        for user in self.users:
+            User({"id":user}).delete()
+
+        for proj in self.projects:
+            Project({"id":proj}).delete()
 
         if not self.id:
             raise Exception("No element specified")
         
-        for user in self.users:
-            self._api.delete(user)
+        self._api = self._setup_api(setup)
 
-        for sli in self.slices:
-            self._api.delete(sli)
-
-        for proj in self.projects:
-            self._api.delete(proj)
-            
         res = self._api.delete(self.id)
 
         result = {

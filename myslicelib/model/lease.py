@@ -12,6 +12,8 @@ class Lease(Entity):
 
     def __init__(self, data = {}):
         super().__init__(data)
+        if data is None:
+            data = {}
         self.resources = data.get('resources', [])
 
     def addResource(self, resource):

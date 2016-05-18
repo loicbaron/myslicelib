@@ -31,14 +31,15 @@ class Project(Authority):
         return self
 
     def delete(self, setup=None):
+        Slice = myslicelib.model.user.Slice
+
+        for sli in self.slices:
+            Slice({"id": sli}).delete()
 
         self._api = self._setup_api(setup)
 
         if not self.id:
             raise Exception("No element specified")
-
-        for sli in self.slices:
-            self._api.delete(sli)
             
         res = self._api.delete(self.id)
 

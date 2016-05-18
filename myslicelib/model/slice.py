@@ -15,6 +15,7 @@ class Slice(Entity):
 
     def __init__(self, data = {}):
         super().__init__(data)
+        data = data if data is not None else {}
         self.users = data.get('users', [])
         self.geni_users = data.get('geni_users', [])
         self.resources = data.get('resources', [])
