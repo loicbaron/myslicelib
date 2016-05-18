@@ -47,7 +47,7 @@ class Authority(Entity):
         return result
 
     def getSlices(self):
-        Slice = myslicelib.model.slice.Slice
+        from myslicelib.model.slice import Slice 
         result = []
         for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
