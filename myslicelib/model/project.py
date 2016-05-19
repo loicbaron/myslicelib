@@ -31,7 +31,7 @@ class Project(Authority):
         return self
 
     def delete(self, setup=None):
-        Slice = myslicelib.model.user.Slice
+        Slice = myslicelib.model.slice.Slice
 
         for sli in self.slices:
             Slice({"id": sli}).delete()
