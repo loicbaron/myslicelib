@@ -24,9 +24,29 @@ class Project(Authority):
         return self
 
     def removePi(self, user):
-        self.pi_users = set(self.pi_users) - set([user.id])
+        self.pi_users = list(set(self.pi_users) - set(user.id))
         sl = self.getSlices()
         for s in sl:
             s.removeUser(user)
         return self
+
+    def delete(self, setup=None):
+        Slice = myslicelib.model.user.Slice
+
+        for sli in self.slices:
+            Slice({"id": sli}).delete()
+
+        self._api = self._setup_api(setup)
+
+        if not self.id:
+            raise Exception("No element specified")
+            
+        res = self._api.delete(self.id)
+
+        result = {
+                'data': res.get('data', []),
+                'errors': res.get('errors', []),
+        }
+
+        return result
 

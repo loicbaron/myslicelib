@@ -13,23 +13,14 @@ class Slice(Entity):
     _type = "slice"
     _collection = "Slices"
 
-    def __init__(self, data = None):
+    def __init__(self, data = {}):
         super().__init__(data)
+        data = data if data is not None else {}
+        self.users = data.get('users', [])
+        self.geni_users = data.get('geni_users', [])
+        self.resources = data.get('resources', [])
+        self.leases = data.get('leases', [])
         self.run_am = False
-        if data is None:
-            self.users = []
-            self.geni_users = []
-            self.resources = []
-            self.leases = []
-        else:
-            if not 'users' in data:
-                self.users = []
-            if not 'geni_users' in data:
-                self.geni_users = []
-            if not 'resources' in data:
-                self.resources = []
-            if not 'leases' in data:
-                self.leases = []
 
     def getUsers(self):
         User = myslicelib.model.user.User

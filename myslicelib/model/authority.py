@@ -21,11 +21,12 @@ class Authority(Entity):
     _type = "authority"
     _collection ="Authorities"
 
-    def __init__(self, data=None):
+    def __init__(self, data = {}):
         super().__init__(data)
         if data is None:
-            self.pi_users = []
-            self.slices = []
+            data = {}
+        self.pi_users = data.get('pi_users', [])
+        self.slices = data.get('slices', [])
 
     def getUsers(self, pis = False):
         User = myslicelib.model.user.User
@@ -46,7 +47,7 @@ class Authority(Entity):
         return result
 
     def getSlices(self):
-        from myslicelib.model.slice import Slice
+        from myslicelib.model.slice import Slice 
         result = []
         for urn in self.attribute('slices'):
             result += q(Slice).id(urn).get()
@@ -57,8 +58,32 @@ class Authority(Entity):
         return self
 
     def removePi(self, user):
-        self.pi_users = set(self.pi_users) - set([user.id])
+        self.pi_users = list(set(self.pi_users) - set(user.id))
         return self
 
     def isPi(self, user):
         return user.id in self.pi_users
+
+    def delete(self, setup=None):
+        User = myslicelib.model.user.User
+        Project = myslicelib.model.project.Project
+
+        for user in self.users:
+            User({"id":user}).delete()
+
+        for proj in self.projects:
+            Project({"id":proj}).delete()
+
+        if not self.id:
+            raise Exception("No element specified")
+        
+        self._api = self._setup_api(setup)
+
+        res = self._api.delete(self.id)
+
+        result = {
+                'data': res.get('data', []),
+                'errors': res.get('errors', []),
+        }
+
+        return result
