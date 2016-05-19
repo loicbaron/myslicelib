@@ -56,6 +56,13 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+print("1. GET User")
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+pprint(u)
+u.getCredentials()
+u.getCredentials(delegate_to="onelab.myslice")
+pprint(u)
+exit(1)
 #print("1 - GET Slice")
 #s1 = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+s1').get().first()
 #pprint(s1)

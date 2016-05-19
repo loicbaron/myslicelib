@@ -58,6 +58,11 @@ class Api(object):
         except ssl.SSLError as e:
             exit("Problem with certificate and/or key")
 
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            exit("Problem Authenticating with certificate and/or key")
+
         # DEFAULT TIMEOUT is set in Endpoint
         socket.setdefaulttimeout(self.endpoint.timeout)
 

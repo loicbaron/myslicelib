@@ -1,6 +1,9 @@
-import os
-import traceback
+import os, tempfile
 import pytz
+import traceback
+
+from sfa.trust.credential import Credential
+from sfa.trust.gid import GID
 
 from pprint import pprint
 
@@ -369,7 +372,7 @@ class SfaReg(SfaApi):
                 # gid of the delegated_to user
                 delegate_user = self._proxy.Resolve(delegated_to, self.user_credential, {})[0]
                 delegate_gid = GID(string=delegate_user['gid'], hrn=delegated_to)
-                cred = credential.delegate(delegate_gid, user_pkey, user_gid)
+                cred = self.delegate(credential, user_pkey, user_gid, delegate_gid)
             else:
                 cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
 
@@ -386,6 +389,51 @@ class SfaReg(SfaApi):
         self.user_credentials += d
 
         return {'data':d,'errors':self.logs}
+
+    def delegate(self, object_cred, private_key, from_gid, to_gid):
+        pkey = None
+        f_gid = None
+        t_gid = None
+
+        if isinstance(object_cred, str):
+            if os.path.exists(object_cred):
+                object_cred = Credential(filename=object_cred)
+            else:
+                object_cred = Credential(string=object_cred)
+
+        if isinstance(private_key, str):
+            if not os.path.exists(private_key):
+                pkey = tempfile.NamedTemporaryFile(mode='w',delete=False)
+                pkey.write(private_key)
+                private_key = pkey.name
+                pkey.close()
+
+        if isinstance(from_gid, GID):
+                from_gid = from_gid.save_to_string()
+        if isinstance(from_gid, str):
+            if not os.path.exists(from_gid):
+                f_gid = tempfile.NamedTemporaryFile(mode='w',delete=False)
+                f_gid.write(from_gid)
+                from_gid = f_gid.name
+                f_gid.close()
+
+        if isinstance(to_gid, GID):
+                to_gid = to_gid.save_to_string()
+        if isinstance(to_gid, str):
+            if not os.path.exists(to_gid):
+                t_gid = tempfile.NamedTemporaryFile(mode='w',delete=False)
+                t_gid.write(to_gid)
+                to_gid = t_gid.name
+                t_gid.close()
+
+        dcred = object_cred.delegate(to_gid, private_key, from_gid)
+        if pkey:
+            os.unlink(pkey.name)
+        if f_gid:
+            os.unlink(f_gid.name)
+        if t_gid:
+            os.unlink(t_gid.name)
+        return dcred.save_to_string(save_parents=True)
 
     # look up to see the upper has the credential
     def search_credential(self, hrn, entity):
