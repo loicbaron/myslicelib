@@ -39,7 +39,7 @@ class SfaReg(SfaApi):
                     c['id'] = hrn_to_urn(c['hrn'],c['type'])
                 if 'hrn' not in c:
                     c['hrn'],c['type'] = urn_to_hrn(c['id'])
-                if os.path.isfile(c['xml']):
+                if 'xml' in c and isinstance(c['xml'], str) and os.path.isfile(c['xml']):
                     with open(c['xml'], "r") as myfile:
                         c['xml'] = myfile.read()
                 # Check if the credential is expired
