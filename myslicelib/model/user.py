@@ -13,7 +13,7 @@ class User(Entity):
     _class = "User"
     _type = "user"
     _collection = "Users"
-    
+   
     def getAuthority(self):
         Authority = myslicelib.model.authority.Authority
         urn = self.attribute('authority')
