@@ -3,93 +3,96 @@ from myslicelib.api import Api
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
 
 class Entity(object):
-    _attributes = {}
     _type = 'entity'
-    _api = None
-    _generator = ['id', 'hrn', 'authority', 'shortname']
 
     def __init__(self, data = {}):
-        if self._attributes:
-            self._attributes = {}
-        if data:
-            self._attributes = data
+        # prevents infinite recursion from self._attributes = {}
+        # as now we have __setattr__, which will call __getattr__ when the line
+        # self._attributes[k] tries to access self.data, won't find it in the instance
+        # dictionary and return self._attributes[k] will in turn call __getattr__
+        # for the same reason and so on.... so we manually set _attributes initially
+        super().__setattr__('_attributes', data)
 
     def __repr__(self):
-        return "%s" % (self.attributes())
+        return "%s" % (self.getAttributes())
 
     def __getattr__(self, name):
-        return self.attribute(name)
+        # we avoid recursion
+        if name.startswith('get'):
+            raise AttributeError
+
+        try:
+            ##
+            # Check if a getter function is defined
+            return getattr(self, 'get' + name.capitalize())()
+        except:
+            return self.getAttribute(name)
 
     def __setattr__(self, name, value):
-        self.setattribute(name, value)
+        try:
+            super().__getattr__(self, 'set' + name.capitalize())(value)
+        except:
+            self.setAttribute(name, value)
 
-    def attributes(self):
+
+    def hasAttribute(self, name):
+        try:
+            return self._attributes[name]
+        except KeyError:
+            return False
+
+    def getAttributes(self):
         return self._attributes
 
-    def attribute(self, name):
+    def getAttribute(self, name):
         try:
             return self._attributes[name]
         except KeyError :
             raise AttributeError('Entity object has no attribute %s' % name)
     
-    def setattribute(self, name, value):
-        if name != '_api':
-            self._attributes[name] = value
-        super().__setattr__(name, value)
-        if name in self._generator:
-            group = getattr(self, '_generate_with_' + name)()
-            self._group_settaribute(group)
+    def setAttribute(self, name, value):
+        self._attributes[name] = value
 
-    def _group_settaribute(self, group):
-        for k, v in group.items():
-            super().__setattr__(k, v)
-            self._attributes[k] = v
+    ##
+    # ID (URN)
+    def getId(self):
+        if not self.hasAttribute('id') and self.hrn:
+            self.setAttribute('id', hrn_to_urn(self.hrn, self._type))
 
-    def _generate_with_id(self):
-        hrn = urn_to_hrn(self.id)[0]
-        group = dict(
-                hrn = hrn,
-                authority = '.'.join(hrn.split('.')[:-1]),
-                shortname = hrn.split('.')[-1]
-                )
-        return group
+        return self.getAttribute('id')
 
-    def _generate_with_hrn(self):
-        group = dict(
-                id = hrn_to_urn(self.hrn, self._type),
-                authority = '.'.join(self.hrn.split('.')[:-1]),
-                shortname = self.hrn.split('.')[-1]
-                )
-        return group
+    def setId(self, value):
+        self.setAttribute('id', value)
 
-    def _generate_with_shortname(self):
-        if 'authority' in self._attributes:
-            hrn = self.authority + '.' + self.shortname
-            group = dict(
-                hrn = hrn,
-                id = hrn_to_urn(hrn, self._type)
-                )
-            return group
-        return {}
+    ##
+    # HRN
+    def getHrn(self):
+        if not self.hasAttribute('hrn') and self.hasAttribute('id'):
+            self.setAttribute('hrn', urn_to_hrn(self.id)[0])
 
-    def _generate_with_authority(self):
-        if 'shortname' in self._attributes:
-            hrn = self.authority + '.' + self.shortname
-            group = dict(
-                hrn = hrn,
-                id = hrn_to_urn(hrn, self._type)
-                )
-            return group
-        return {}
+        return self.getAttribute('hrn')
+
+    def setHrn(self, value):
+        self.setAttribute('hrn', value)
+
+    ##
+    # SHORTNAME
+    def getShortname(self):
+        if not self.hasAttribute('shortname'):
+            self.setAttribute('shortname', self.hrn.split('.')[-1])
+
+        return self.getAttribute('shortname')
+
+    def setShortname(self, value):
+        self.setAttribute('shortname', value)
 
     def dict(self):
         return self._attributes
 
     def clear(self):
-        self._api = None
         self.attribute = {}
 
-    def _setup_api(self, setup):
+    def _api(self, setup):
         if setup and isinstance(setup, Setup):
             _setup = setup
         else:
@@ -99,29 +102,30 @@ class Entity(object):
         return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
     def save(self, setup=None):
-        self._api = self._setup_api(setup)
-
+        # the following will trigger the automatic eneration of the id, hrn and
+        # shortname if they don't exist
         if not self.id:
-            # id can be None it will be forged based on the attributes (hrn...)
-            self.id = None
+            pass
 
-        res = self._api.update(self.id, self.attributes())
+        if not self.hrn:
+            pass
 
-        result = {
+        if not self.shortname:
+            pass
+
+        res = self._api(setup).update(self.id, self.getAttributes())
+
+        return {
                 'data': res.get('data', []),
                 'errors': res.get('errors', []),
         }
 
-        return result
-
     def delete(self, setup=None):
-
-        self._api = self._setup_api(setup)
 
         if not self.id:
             raise Exception("No element specified")
 
-        res = self._api.delete(self.id)
+        res = self._api(setup).delete(self.id)
         
         result = {
                 'data': res.get('data', []),
