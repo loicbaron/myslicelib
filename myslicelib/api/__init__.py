@@ -93,7 +93,6 @@ class Api(object):
                 raise NotImplementedError("Invalid object {} or not implemented".format(entity))
 
             self._entity = entity
-
             return self
 
         return method_handler

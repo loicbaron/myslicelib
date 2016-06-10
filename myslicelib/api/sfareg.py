@@ -52,10 +52,11 @@ class SfaReg(SfaApi):
                     if c['type'] == 'user':
                         self.user_credential = c['xml']
                 else:
-                    print(c['id'] +': is expired')
+                    #print(c['id'] +': is expired')
+                    pass
 
         if not self.user_credential:
-            print('GetSelfCredential from Registry')
+            #print('GetSelfCredential from Registry')
             self.user_credential = self._proxy.GetSelfCredential(
                                         certificate,
                                         self.authentication.hrn,
@@ -98,7 +99,7 @@ class SfaReg(SfaApi):
         return self._proxy.List(hrn, self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
-        return self._proxy.Resolve(hrn, self.user_credential, {})
+        self._proxy.Resolve(hrn, self.user_credential, {})
 
     def _datetime(self, date):
         '''
@@ -334,7 +335,6 @@ class SfaReg(SfaApi):
             else:
                 result = getattr(self, "_" + entity)(result)
         except Exception as e:
-            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -446,7 +446,7 @@ class SfaReg(SfaApi):
                     # If credentials were provided don't call the Registry
                     c = self._getXmlCredential(hrn, entity)
                     if c: return c
-                    print('GetCredential hrn: '+hrn+' from Registry')
+                    #print('GetCredential hrn: '+hrn+' from Registry')
                     cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
                     if cred:
                         return cred
@@ -457,7 +457,7 @@ class SfaReg(SfaApi):
                 # if not upper_hrn or obj_type is None:
                 #     upper_hrn = hrn
                 
-                print('GetCredential upper: '+upper_hrn+' from Registry')
+                #print('GetCredential upper: '+upper_hrn+' from Registry')
                 return self._proxy.GetCredential(self.user_credential, upper_hrn, entity)
             return False
         except Exception as e:
@@ -517,7 +517,6 @@ class SfaReg(SfaApi):
             else:
                 raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
-            traceback.print_exc()
 
             result = []
             self.logs.append({
@@ -549,7 +548,6 @@ class SfaReg(SfaApi):
             else:
                 raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
-            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -569,13 +567,13 @@ class SfaReg(SfaApi):
             auth_cred = self.search_credential(hrn, 'authority')
             if entity == 'authority':
                 # Remove everything under it
-                print('remove everything under %s' % urn)
+                #print('remove everything under %s' % urn)
+                pass
             if auth_cred:
                 res = self._proxy.Remove(hrn, auth_cred, entity)
                 if res != 1:
                     raise Exception(res)
         except Exception as e:
-            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
