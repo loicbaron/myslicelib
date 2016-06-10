@@ -297,6 +297,9 @@ class SfaReg(SfaApi):
             'pi_authorities': [ 
                                 hrn_to_urn(pi_auth, 'authority') for pi_auth in d.get('reg-pi-authorities', [])
                                ],
+            'projects': [ 
+                                hrn_to_urn(pi_auth, 'authority') for pi_auth in filter(lambda x: len(x.split('.')) > 2, d.get('reg-pi-authorities', []))
+                               ],
             'slices': [
                         hrn_to_urn(sli, 'slice') for sli in d.get('reg-slices', [])
                     ],
@@ -462,6 +465,8 @@ class SfaReg(SfaApi):
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
+            import traceback
+            traceback.print_exc()
             return self.search_credential(upper_hrn, 'authority')
 
     def _user_mappings(self, hrn, record_dict):
@@ -506,6 +511,7 @@ class SfaReg(SfaApi):
     def create(self, entity, urn, record_dict):
         try:
             hrn = urn_to_hrn(urn)[0]
+            print(hrn)
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)

@@ -56,9 +56,21 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+p = q(Project).id('urn:publicid:IDN+onelab:upmc:z8+authority+sa').get()
+#p = Project()
+#p.id = 'urn:publicid:IDN+onelab:upmc:z8+authority+sa'
+#ret = p.save()
+#pprint(ret)
+pprint(p)
+exit(1)
+print("7 - GET resources in Spain")
+resources = q(Resource).filter('country','Spain').get()
+pprint(resources)
+exit(1)
 print("1. GET User")
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 pprint(u)
+exit(1)
 u.getCredentials()
 u.getCredentials(delegate_to="onelab.myslice")
 pprint(u)
