@@ -47,7 +47,7 @@ class Slice(Entity):
         return self
     
     def addResource(self, resource):
-        self.resources.append(resource.attributes())
+        self.resources.append(resource.getAttributes())
         self.run_am = True
         return self
 
@@ -67,7 +67,7 @@ class Slice(Entity):
         return self
 
     def addLease(self, lease):
-        self.leases.append(lease.attributes())
+        self.leases.append(lease.getAttributes())
         self.run_am = True
         return self
 
