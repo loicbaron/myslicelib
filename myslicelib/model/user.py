@@ -19,10 +19,13 @@ class User(Entity):
     _type = "user"
     _collection = "Users"
    
-    # def getAuthority(self):
-    #     Authority = myslicelib.model.authority.Authority
-    #     urn = self.getAttribute('authority')
-    #     return q(Authority).id(urn).get()
+    def getAuthority(self, attribute=False):
+        if attribute:
+            return self.getAttribute('authority')
+        else:
+            Authority = myslicelib.model.authority.Authority
+            urn = self.getAttribute('authority')
+            return q(Authority).id(urn).get()
 
     def getPiAuthorities(self):
         Authority = myslicelib.model.authority.Authority
@@ -33,12 +36,15 @@ class User(Entity):
             result += q(Authority).id(urn).get()
         return result
 
-    def getSlices(self):
-        Slice = myslicelib.model.slice.Slice
-        result = []
-        for urn in self.getAttribute('slices'):
-            result += q(Slice).id(urn).get()
-        return result
+    def getSlices(self, attribute=False):
+        if attribute == False:
+            return self.getAttribute('slices')
+        else:
+            Slice = myslicelib.model.slice.Slice
+            result = []
+            for urn in self.getAttribute('slices'):
+                result += q(Slice).id(urn).get()
+            return result
 
     def getCredential(self, id, delegate_to=None, setup=None):
         return self.getCredentials(id, delegate_to, setup)

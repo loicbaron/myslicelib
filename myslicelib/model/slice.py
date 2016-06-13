@@ -22,17 +22,23 @@ class Slice(Entity):
         self.leases = data.get('leases', [])
         self.run_am = False
 
-    def getUsers(self):
-        User = myslicelib.model.user.User
-        result = []
-        for urn in self.getAttribute('users'):
-            result += q(User).id(urn).get()
-        return result
+    def getUsers(self, attribute=False):
+        if attribute:
+            return self.getAttribute('users')
+        else:
+            User = myslicelib.model.user.User
+            result = []
+            for urn in self.getAttribute('users'):
+                result += q(User).id(urn).get()
+            return result
 
-    def getAuthority(self):
-        Authority = myslicelib.model.authority.Authority
-        urn = self.getAttribute('authority')
-        return q(Authority).id(urn).get()
+    def getAuthority(self, attribute=False):
+        if attribute:
+            return self.getAttribute('authority')
+        else:
+            Authority = myslicelib.model.authority.Authority
+            urn = self.getAttribute('authority')
+            return q(Authority).id(urn).get()
        
     def addUser(self, user):
         self.users.append(user.id)
