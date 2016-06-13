@@ -29,6 +29,10 @@ class Entity(object):
             return self.getAttribute(name)
 
     def __setattr__(self, name, value):
+        # we avoid recursion
+        if name.startswith('set'):
+            raise AttributeError
+
         try:
             getattr(self, 'set' + name.capitalize())(value)
         except:
