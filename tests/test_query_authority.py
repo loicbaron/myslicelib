@@ -66,7 +66,7 @@ class TestAuthority(unittest.TestCase):
     # def test_get_authority_from_root_authority(self):
     #     res = q(Authority).get()
     #     for auth in res:
-    #         self.assertIsNotNone(auth.attribute('pi_users'))
+    #         self.assertIsNotNone(auth.getAttribute('pi_users'))
 
 if __name__ == '__main__':
     #print(q(User).get())

@@ -201,7 +201,7 @@ class SfaAm(SfaApi):
             if 'expiration_date' in record_dict:
                 result = self._renew_slice(urn, record_dict, api_options)
 
-            if record_dict['run_am']:
+            if 'run_am' in record_dict and record_dict['run_am']:
                 parser = get_testbed_type(self.version()['id'])
                 rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
 

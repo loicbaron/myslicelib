@@ -99,7 +99,7 @@ class SfaReg(SfaApi):
         return self._proxy.List(hrn, self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
-        self._proxy.Resolve(hrn, self.user_credential, {})
+        return self._proxy.Resolve(hrn, self.user_credential, {})
 
     def _datetime(self, date):
         '''
@@ -465,8 +465,8 @@ class SfaReg(SfaApi):
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             return self.search_credential(upper_hrn, 'authority')
 
     def _user_mappings(self, hrn, record_dict):

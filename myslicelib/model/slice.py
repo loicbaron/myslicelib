@@ -25,13 +25,13 @@ class Slice(Entity):
     def getUsers(self):
         User = myslicelib.model.user.User
         result = []
-        for urn in self.attribute('users'):
+        for urn in self.getAttribute('users'):
             result += q(User).id(urn).get()
         return result
 
     def getAuthority(self):
         Authority = myslicelib.model.authority.Authority
-        urn = self.attribute('authority')
+        urn = self.getAttribute('authority')
         return q(Authority).id(urn).get()
        
     def addUser(self, user):
@@ -47,7 +47,7 @@ class Slice(Entity):
         return self
     
     def addResource(self, resource):
-        self.resources.append(resource.attributes())
+        self.resources.append(resource.getAttributes())
         self.run_am = True
         return self
 
@@ -67,7 +67,7 @@ class Slice(Entity):
         return self
 
     def addLease(self, lease):
-        self.leases.append(lease.attributes())
+        self.leases.append(lease.getAttributes())
         self.run_am = True
         return self
 
