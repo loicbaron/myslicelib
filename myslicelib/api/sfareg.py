@@ -465,8 +465,8 @@ class SfaReg(SfaApi):
             return False
         except Exception as e:
             # if Error, go to upper level until reach the root level
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             return self.search_credential(upper_hrn, 'authority')
 
     def _user_mappings(self, hrn, record_dict):
