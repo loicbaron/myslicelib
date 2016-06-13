@@ -45,7 +45,7 @@ class Authority(Entity):
                     result += q(User).id(urn).get()
             return result
 
-    def getPiUsers(self):
+    def getPiUsers(self, attribute=False):
         User = myslicelib.model.user.User
         result = []
         for urn in self.getAttribute('pi_users'):

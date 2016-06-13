@@ -27,7 +27,7 @@ class User(Entity):
             urn = self.getAttribute('authority')
             return q(Authority).id(urn).get()
 
-    def getPiAuthorities(self):
+    def getPiAuthorities(self, attribute=False):
         Authority = myslicelib.model.authority.Authority
         pi_auths = self.getAttribute('pi_authorities')
         # TODO parallel requests using MultiProcess     

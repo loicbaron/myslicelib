@@ -47,7 +47,6 @@ class TestSlice(unittest.TestCase):
         self.assertIsInstance(res, Slices)
         for sli in res:
             self.assertIn(user.id, sli.users)
-            self.assertIn(user.id, sli.users)
 
     def test_03_get_slice(self):
         res = q(Slice).id('urn:publicid:IDN+onelab:upmc:authx+slice+slicex').get()       

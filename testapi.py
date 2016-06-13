@@ -57,6 +57,17 @@ credentials = None
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+print(u.id)
+# Quite long to Query AMs
+#sl = u.getSlices()
+#pprint(sl)
+sl = u.slices
+pprint(sl)
+exit(1)
+p1 = q(Project).id('urn:publicid:IDN+onelab:upmc:z2+authority+sa').get().first()
+print(p1.id)
+exit(1)
 p1 = q(Project).id('urn:publicid:IDN+onelab:upmc:z2+authority+sa').get()
 pprint(p1)
 

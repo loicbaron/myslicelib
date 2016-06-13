@@ -24,7 +24,8 @@ class Entity(object):
         try:
             ##
             # Check if a getter function is defined
-            return getattr(self, 'get' + name.capitalize())(True)
+            camelName = ''.join(x for x in name.replace('_',' ').title() if not x.isspace())
+            return getattr(self, 'get' + camelName)(True)
         except:
             return self.getAttribute(name)
 
@@ -34,7 +35,8 @@ class Entity(object):
             raise AttributeError
 
         try:
-            getattr(self, 'set' + name.capitalize())(value)
+            camelName = ''.join(x for x in name.replace('_',' ').title() if not x.isspace())
+            getattr(self, 'set' + camelName)(value)
         except:
             #import traceback
             #traceback.print_exc()
