@@ -22,7 +22,7 @@ class TestUser(unittest.TestCase):
         u = User()
         u.id = 'urn:publicid:IDN+onelab:upmc+user+lbaron'
         self.assertEqual(u.id, 'urn:publicid:IDN+onelab:upmc+user+lbaron')
-        self.assertEqual(u.authority, 'onelab.upmc')
+        self.assertEqual(u.authority, 'urn:publicid:IDN+onelab:upmc+authority+sa')
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
@@ -30,16 +30,16 @@ class TestUser(unittest.TestCase):
         u = User()
         u.hrn = 'onelab.upmc.lbaron'
         self.assertEqual(u.id, 'urn:publicid:IDN+onelab:upmc+user+lbaron')
-        self.assertEqual(u.authority, 'onelab.upmc')
+        self.assertEqual(u.authority, 'urn:publicid:IDN+onelab:upmc+authority+sa')
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
     def test_3_setter_auth_and_shrtnm(self):
         u = User()
-        u.authority = 'onelab.upmc'
+        u.authority = 'urn:publicid:IDN+onelab:upmc+authority+sa'
         u.shortname = 'lbaron'
         self.assertEqual(u.id, 'urn:publicid:IDN+onelab:upmc+user+lbaron')
-        self.assertEqual(u.authority, 'onelab.upmc')
+        self.assertEqual(u.authority, 'urn:publicid:IDN+onelab:upmc+authority+sa')
         self.assertEqual(u.hrn, 'onelab.upmc.lbaron')
         self.assertEqual(u.shortname, 'lbaron')
 
