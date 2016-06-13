@@ -99,7 +99,7 @@ class SfaReg(SfaApi):
         return self._proxy.List(hrn, self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
-        self._proxy.Resolve(hrn, self.user_credential, {})
+        return self._proxy.Resolve(hrn, self.user_credential, {})
 
     def _datetime(self, date):
         '''
