@@ -12,9 +12,12 @@ class Project(Authority):
     _type = "project"
     _collection = "Projects"
 
-    def getAuthority(self):
-        auth_id = self.id.replace(':'+self.id.split('+')[1].split(':')[-1],'')
-        return q(Authority).id(auth_id).get().first()
+    def getAuthority(self, attribute=False):
+        if attribute:
+            return self.getAttribute('authority')
+        else:
+            auth_id = self.id.replace(':'+self.id.split('+')[1].split(':')[-1],'')
+            return q(Authority).id(auth_id).get().first()
 
     def addPi(self, user):
         self.pi_users.append(user.id)

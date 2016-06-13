@@ -28,16 +28,22 @@ class Authority(Entity):
         self.pi_users = data.get('pi_users', [])
         self.slices = data.get('slices', [])
 
-    def getUsers(self, pis = False):
-        User = myslicelib.model.user.User
-        result = []
-        if pis:
-            for urn in self.getAttribute('pi_users'):
-                result += q(User).id(urn).get()
+    def getUsers(self, attribute=False, pis = False):
+        if attribute:
+            if pis:
+                return self.getAttribute('pi_users')
+            else:
+                return self.getAttribute('users')
         else:
-            for urn in self.getAttribute('users'):
-                result += q(User).id(urn).get()
-        return result
+            User = myslicelib.model.user.User
+            result = []
+            if pis:
+                for urn in self.getAttribute('pi_users'):
+                    result += q(User).id(urn).get()
+            else:
+                for urn in self.getAttribute('users'):
+                    result += q(User).id(urn).get()
+            return result
 
     def getPiUsers(self):
         User = myslicelib.model.user.User
@@ -46,12 +52,15 @@ class Authority(Entity):
             result += q(User).id(urn).get()
         return result
 
-    def getSlices(self):
-        from myslicelib.model.slice import Slice 
-        result = []
-        for urn in self.getAttribute('slices'):
-            result += q(Slice).id(urn).get()
-        return result
+    def getSlices(self, attribute=False):
+        if attribute:
+            return self.getAttribute('slices')
+        else:
+            from myslicelib.model.slice import Slice
+            result = []
+            for urn in self.getAttribute('slices'):
+                result += q(Slice).id(urn).get()
+            return result
 
     def addPi(self, user):
         self.pi_users.append(user.id)
