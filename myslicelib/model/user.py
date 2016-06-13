@@ -37,7 +37,7 @@ class User(Entity):
         return result
 
     def getSlices(self, attribute=False):
-        if attribute == False:
+        if attribute:
             return self.getAttribute('slices')
         else:
             Slice = myslicelib.model.slice.Slice
