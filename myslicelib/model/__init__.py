@@ -30,10 +30,11 @@ class Entity(object):
 
     def __setattr__(self, name, value):
         try:
-            super().__getattr__(self, 'set' + name.capitalize())(value)
+            getattr(self, 'set' + name.capitalize())(value)
         except:
+            #import traceback
+            #traceback.print_exc()
             self.setAttribute(name, value)
-
 
     def hasAttribute(self, name):
         try:
@@ -49,9 +50,6 @@ class Entity(object):
             return self._attributes[name]
         except KeyError :
             raise AttributeError('Entity object has no attribute %s' % name)
-    
-    def setAttribute(self, name, value):
-        self._attributes[name] = value
 
     ##
     # ID (URN)
@@ -63,6 +61,11 @@ class Entity(object):
 
     def setId(self, value):
         self.setAttribute('id', value)
+        hrn = urn_to_hrn(value)[0]
+        self.setAttribute('hrn', hrn)
+        auth = hrn_to_urn('.'.join(hrn.split('.')[:-1]), 'authority')
+        self.setAttribute('authority', auth)
+        self.setAttribute('shortname', hrn.split('.')[-1])
 
     ##
     # HRN
@@ -74,6 +77,10 @@ class Entity(object):
 
     def setHrn(self, value):
         self.setAttribute('hrn', value)
+        self.setAttribute('id', hrn_to_urn(value, self._type))
+        auth = hrn_to_urn('.'.join(value.split('.')[:-1]), 'authority')
+        self.setAttribute('authority', auth)
+        self.setAttribute('shortname', value.split('.')[-1])
 
     ##
     # SHORTNAME
@@ -85,6 +92,21 @@ class Entity(object):
 
     def setShortname(self, value):
         self.setAttribute('shortname', value)
+        if 'authority' in self._attributes:
+            auth_hrn = urn_to_hrn(self.authority)[0]
+            hrn = auth_hrn + '.' + value
+            self.setAttribute('hrn', hrn)
+            self.setAttribute('id', hrn_to_urn(hrn, self._type))
+
+    def setAuthority(self, value):
+        self.setAttribute('authority', value)
+        if 'shortname' in self._attributes:
+            hrn = value + '.' + self.shortname
+            self.setAttribute('hrn', hrn)
+            self.setAttribute('id', hrn_to_urn(hrn, self._type))
+
+    def setAttribute(self, name, value):
+        self._attributes[name] = value
 
     def dict(self):
         return self._attributes
