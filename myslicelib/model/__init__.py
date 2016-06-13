@@ -24,7 +24,7 @@ class Entity(object):
         try:
             ##
             # Check if a getter function is defined
-            return getattr(self, 'get' + name.capitalize())()
+            return getattr(self, 'get' + name.capitalize())(True)
         except:
             return self.getAttribute(name)
 
@@ -169,18 +169,18 @@ class Entities(set):
         :return:
         '''
         list = []
-        for e in self:
-            list.append(e.attributes())
+        for el in self:
+            list.append(el.getAttributes())
 
         return list
 
     def save(self):
-        for e in self:
-            e.save()
+        for el in self:
+            el.save()
 
     def delete(self):
-        for e in self:
-            e.delete()
+        for el in self:
+            el.delete()
 
     # def filter(self, key, value):
     #     self.f[key] = value

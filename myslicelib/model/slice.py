@@ -78,3 +78,13 @@ class Slice(Entity):
         self.leases = []
         self.run_am = True
         return self
+
+    def save(self, setup=None):
+        # check if we have the email
+        if not self.hasAttribute('name'):
+            raise Exception('User email must be specified')
+
+        if not self.hasAttribute('authority'):
+            raise Exception('Authority for the user must be specified')
+
+        return super().save()
