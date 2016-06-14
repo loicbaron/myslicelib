@@ -46,6 +46,7 @@ class Authority(Entity):
             return result
 
     def getPiUsers(self, attribute=False):
+        print("getPiUsers called")
         User = myslicelib.model.user.User
         result = []
         for urn in self.getAttribute('pi_users'):
@@ -63,15 +64,15 @@ class Authority(Entity):
             return result
 
     def addPi(self, user):
-        self.pi_users.append(user.id)
+        self.appendAttribute('pi_users',user.id)
         return self
 
     def removePi(self, user):
-        self.pi_users = list(set(self.pi_users) - set(user.id))
+        self.setAttribute('pi_users', list(set(self.pi_users) - set(user.id)))
         return self
 
     def isPi(self, user):
-        return user.id in self.pi_users
+        return user.id in self.getAttribute('pi_users')
 
     def delete(self, setup=None):
         User = myslicelib.model.user.User

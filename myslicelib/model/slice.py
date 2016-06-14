@@ -41,20 +41,20 @@ class Slice(Entity):
             return q(Authority).id(urn).get()
        
     def addUser(self, user):
-        self.users.append(user.id)
-        self.geni_users.append({'urn':user.id,'keys':user.keys,'email':user.email})
-        self.run_am = True
+        self.appendAttribute('users', user.id)
+        self.appendAttribute('geni_users', {'urn':user.id,'keys':user.keys,'email':user.email})
+        self.setAttribute('run_am', True)
         return self
     
     def removeUser(self, user):
-        self.geni_users = list(filter(lambda x: x['urn']!=user.id, self.geni_users))
-        self.users = list(set(self.users) - set([user.id]))
-        self.run_am = True
+        self.setAttribute('geni_users', list(filter(lambda x: x['urn']!=user.id, self.geni_users)))
+        self.setAttribute('users', list(set(self.users) - set([user.id])))
+        self.setAttribute('run_am', True)
         return self
     
     def addResource(self, resource):
-        self.resources.append(resource.getAttributes())
-        self.run_am = True
+        self.appendAttribute('resources', resource.getAttributes())
+        self.setAttribute('run_am', True)
         return self
 
     def addResources(self, resources):
@@ -63,26 +63,26 @@ class Slice(Entity):
         return self
 
     def removeResource(self, resource):
-        self.resources = list(filter(lambda x: x['id']!=resource.id, self.resources))
-        self.run_am = True
+        self.setAttribute('resources', list(filter(lambda x: x['id']!=resource.id, self.resources)))
+        self.setAttribute('run_am', True)
         return self
 
     def removeResources(self):
-        self.resources = [] 
-        self.run_am = True
+        self.setAttribute('resources', [] )
+        self.setAttribute('run_am', True)
         return self
 
     def addLease(self, lease):
-        self.leases.append(lease.getAttributes())
-        self.run_am = True
+        self.appendAttribute('leases', lease.getAttributes())
+        self.setAttribute('run_am', True)
         return self
 
     def removeLease(self, lease):
         raise NotImplemented("not implemented yet") 
 
     def removeLeases(self, lease):
-        self.leases = []
-        self.run_am = True
+        self.setAttribute('leases', [])
+        self.setAttribute('run_am', True)
         return self
 
     def save(self, setup=None):
@@ -91,6 +91,6 @@ class Slice(Entity):
             raise Exception('Slice shortname must be specified')
 
         if not self.hasAttribute('authority'):
-            raise Exception('Authority of the slice must be specified')
+            raise Exception('Slice authority must be specified')
 
         return super().save()

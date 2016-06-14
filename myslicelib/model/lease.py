@@ -17,7 +17,7 @@ class Lease(Entity):
         self.resources = data.get('resources', [])
 
     def addResource(self, resource):
-        self.resources.append(resource.id)
+        self.appendAttribute('resources', resource.id)
         return self
 
     def addResources(self, resources):
@@ -26,63 +26,33 @@ class Lease(Entity):
         return self
 
     def removeResource(self, resource):
-        self.resources = list(set(self.resources) - set([resource.id]))
+        self.setAttribute('resources', list(set(self.resources) - set([resource.id])))
         return self
 
     def removeResources(self):
         self.resources = [] 
         return self
 
-    def _generate_with_start_time(self):
+    def setStartTime(self, value):
+        self.setAttribute('start_time', value)
         if 'duration' in self._attributes:
-            group = dict(
-                start_time = self.start_time,
-                duration = self.duration,
-                end_time = self.start_time + self.duration
-            )
-            return group
+            self.setAttribute('end_time', self.start_time + self.duration)
         if 'end_time' in self._attributes:
-            group = dict(
-                start_time = self.start_time,
-                duration = self.end_time - self.start_time,
-                end_time = self.end_time
-            )
-            return group
-        return {}
+            self.setAttribute('duration', self.end_time - self.start_time)
 
-    def _generate_with_end_time(self):
+    def setEndTime(self, value):
+        self.setAttribute('end_time', value)
         if 'duration' in self._attributes:
-            group = dict(
-                start_time = self.end_time - self.duration,
-                duration = self.duration,
-                end_time = self.end_time
-            )
-            return group
+            self.setAttribute('start_time', self.end_time - self.duration)
         if 'start_time' in self._attributes:
-            group = dict(
-                start_time = self.start_time,
-                duration = self.end_time - self.start_time,
-                end_time = self.end_time
-            )
-            return group
-        return {}
+            self.setAttribute('duration', self.end_time - self.start_time)
 
-    def _generate_with_duration(self):
+    def setDuration(self, value):
+        self.setAttribute('duration', value)
         if 'start_time' in self._attributes:
-            group = dict(
-                start_time = self.start_time,
-                duration = self.duration,
-                end_time = self.start_time + self.duration
-            )
-            return group
+            self.setAttribute('end_time', self.start_time + self.duration)
         if 'end_time' in self._attributes:
-            group = dict(
-                start_time = self.end_time - self.duration,
-                duration = self.duration,
-                end_time = self.end_time
-            )
-            return group
-        return {}
+            self.setAttribute('start_time', self.end_time - self.duration)
 
     def get_end_time(self, start_time, duration):
         return start_time + duration

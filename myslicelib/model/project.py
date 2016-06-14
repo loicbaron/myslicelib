@@ -20,14 +20,14 @@ class Project(Authority):
             return q(Authority).id(auth_id).get().first()
 
     def addPi(self, user):
-        self.pi_users.append(user.id)
+        self.appendAttribute('pi_users', user.id)
         sl = self.getSlices()
         for s in sl:
             s.addUser(user)
         return self
 
     def removePi(self, user):
-        self.pi_users = list(set(self.pi_users) - set(user.id))
+        self.setAttribute('pi_users', list(set(self.pi_users) - set(user.id)))
         sl = self.getSlices()
         for s in sl:
             s.removeUser(user)

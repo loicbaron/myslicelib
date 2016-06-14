@@ -114,6 +114,9 @@ class Entity(object):
     def setAttribute(self, name, value):
         self._attributes[name] = value
 
+    def appendAttribute(self, name, value):
+        self._attributes[name].append(value)
+
     def dict(self):
         return self._attributes
 
