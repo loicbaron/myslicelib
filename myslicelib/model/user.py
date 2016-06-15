@@ -28,13 +28,16 @@ class User(Entity):
             return q(Authority).id(urn).get()
 
     def getPiAuthorities(self, attribute=False):
-        Authority = myslicelib.model.authority.Authority
-        pi_auths = self.getAttribute('pi_authorities')
-        # TODO parallel requests using MultiProcess     
-        result = []
-        for urn in pi_auths:
-            result += q(Authority).id(urn).get()
-        return result
+        if attribute:
+            return self.getAttribute('authority')
+        else:
+            Authority = myslicelib.model.authority.Authority
+            pi_auths = self.getAttribute('pi_authorities')
+            # TODO parallel requests using MultiProcess
+            result = []
+            for urn in pi_auths:
+                result += q(Authority).id(urn).get()
+            return result
 
     def getSlices(self, attribute=False):
         if attribute:
