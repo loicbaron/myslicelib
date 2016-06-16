@@ -417,7 +417,6 @@ class Certificate:
     # Load the certificate from a file
 
     def load_from_file(self, filename):
-        print(filename)
         file = open(filename)
         string = file.read()
         self.load_from_string(string)
