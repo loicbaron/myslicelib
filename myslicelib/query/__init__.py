@@ -70,7 +70,7 @@ class Query(object):
 
     def get(self):
         res = self.api.get(self._id)
-        
+
         if self._filter:
             res['data'] = [x for x in res['data'] if checker(x, self._filter)]
 
