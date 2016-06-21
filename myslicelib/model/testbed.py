@@ -5,6 +5,7 @@ from myslicelib.model import Entity, Entities
 
 class Testbed(Entity):
     _class = "Testbed"
+    _type = "testbed"
     _collection = "Testbeds"
 
     @property
