@@ -26,7 +26,7 @@ class SfaAm(SfaApi):
 
     def _lease(self, urn=None):
         # lease don't have urn, it has a lease_id in OMF (hash), but no id in IoT-Lab
-        if self.version()['version'] == 2:
+        if self._version['geni_api'] == 2:
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
@@ -38,7 +38,7 @@ class SfaAm(SfaApi):
                                         })
 
     def _resource(self, urn=None):
-        if self.version()['version'] == 2:
+        if self._version['geni_api'] == 2:
             cred = self.registry.user_credential
         else:
             cred = {'geni_value': self.registry.user_credential, 'geni_version': '3', 'geni_type': 'geni_sfa'}
@@ -60,11 +60,11 @@ class SfaAm(SfaApi):
                 }
         slice_credential = self.registry.get_credential(urn, raw=True)
 
-        if self.version()['version'] == 2:
+        if self._version['geni_api'] == 2:
             options['geni_slice_urn'] = urn
             # XXX Check result
             return self._proxy.ListResources([slice_credential], options)
-        elif self.version()['version'] == 3:
+        elif self._version['geni_api'] == 3:
             # XXX Check result
             return self._proxy.Describe([urn], [slice_credential], options)
         else:
@@ -104,7 +104,7 @@ class SfaAm(SfaApi):
                     xml_string = result['value']
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
-                testbed = get_testbed_type(self.version()['id']) 
+                testbed = get_testbed_type(self._version['urn']) 
                 result = Parser(testbed, xml_string).parse(entity)
                 return result
                 # XXX Check result
@@ -202,13 +202,13 @@ class SfaAm(SfaApi):
                 result = self._renew_slice(urn, record_dict, api_options)
 
             if 'run_am' in record_dict and record_dict['run_am']:
-                parser = get_testbed_type(self.version()['id'])
-                rspec = Builder(parser, self.version()['id']).build(urn, record_dict)
+                parser = get_testbed_type(self._version['urn'])
+                rspec = Builder(parser, self._version['urn']).build(urn, record_dict)
 
-                if self.version()['version'] == 2:
+                if self._version['geni_api'] == 2:
                     result = self._update_slice_v2(urn, rspec, api_options)
 
-                elif self.version()['version'] == 3:
+                elif self._version['geni_api'] == 3:
                     result = self._update_slice_v3(urn, rspec, api_options)
 
                 else:
@@ -236,7 +236,7 @@ class SfaAm(SfaApi):
                 # XXX Check res
                 # TODO: raise Exception(res)
             else:
-                if self.version()['version'] == 3:
+                if self._version['geni_api'] == 3:
                     res = self._proxy.PerformOperationalAction([urn], [object_cred], action, api_options)
                     # XXX Check res
                     # TODO: raise Exception(res)

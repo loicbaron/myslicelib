@@ -9,6 +9,7 @@ from myslicelib.model.resource import Resources, Resource
 from myslicelib.model.lease import Leases, Lease
 from myslicelib.model.slice import Slices, Slice
 from myslicelib.model.user import Users, User
+from myslicelib.model.testbed import Testbed
 from myslicelib.model.authority import Authorities, Authority
 from myslicelib.model.project import Projects, Project
 from myslicelib.query import q
@@ -56,6 +57,11 @@ credentials = None
 #cert = path + "fed4fire.upmc.loic_baron.sscert"
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
+
+v = q(User).get()
+#v = q(Testbed).filter('name','iotlab').get()
+pprint(v)
+exit(1)
 
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 print(u.id)

@@ -46,12 +46,14 @@ class Authority(Entity):
             return result
 
     def getPiUsers(self, attribute=False):
-        print("getPiUsers called")
-        User = myslicelib.model.user.User
-        result = []
-        for urn in self.getAttribute('pi_users'):
-            result += q(User).id(urn).get()
-        return result
+        if attribute:
+            return self.getAttribute('pi_users')
+        else:
+            User = myslicelib.model.user.User
+            result = []
+            for urn in self.getAttribute('pi_users'):
+                result += q(User).id(urn).get()
+            return result
 
     def getSlices(self, attribute=False):
         if attribute:

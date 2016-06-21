@@ -2,6 +2,7 @@ import ssl
 import socket
 import os.path
 import sys, tempfile, time
+from urllib.parse import urlparse
 
 from pprint import pprint
 
@@ -67,49 +68,64 @@ class Api(object):
         socket.setdefaulttimeout(self.endpoint.timeout)
 
         self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, use_datetime=True, context=context)
+
         # version call
-        self._version = self._version()
+        self._version = self.version(raw=True)
 
         # logs
         self.logs = []
 
-    def version(self):
-        return self._version
-
-    def _version(self):
+    def version(self, raw=False):
         try:
             result = self._proxy.GetVersion()
-            if 'interface' in result and result['interface'] == 'registry':
-                return {
+            # XXX Cope with the difference between AM & Registry responses
+            if 'value' in result:
+                result = result['value']
+            else:
+                result['geni_api'] = result['sfa']
+
+            if raw:
+                return result
+
+            return {'data': [{
                     'status': {
                         'online' : True,
                         'message' : None
                     },
                     'id': result['urn'],
-                    'version': result['sfa'],
-                    'type': 'registry'
-                }
-            else :
-                return {
-                    'status': {
-                        'online' : True,
-                        'message' : None
+                    'version': result['geni_api'],
+                    'type': self.endpoint.type,
+                    'url' : self.endpoint.url,
+                    'hostname' : urlparse(self.endpoint.url).hostname,
+                    'name' : self.endpoint.name,
+                    'api' : {
+                        "type" : self.endpoint.type,
+                        "protocol" : self.endpoint.protocol,
+                        'version': result['geni_api'],
                     },
-                    'id': result['value']['urn'],
-                    'version' : result['value']['geni_api'],
-                    'type' : 'am'
-                }
-        except Exception as e:
-            return {
-                'status': {
-                    'online' : False,
-                    'message' : e
-                },
-                'id': None,
-                'version' : None,
-                'type' : None
+                }],
+            'errors':[],
             }
-
+        except Exception as e:
+            return {'data':[{
+                    'status': {
+                        'online' : False,
+                        'message' : e
+                    },
+                    'id': None,
+                    'version' : None,
+                    'type' : None,
+                    'url' : self.endpoint.url,
+                    'hostname' : urlparse(self.endpoint.url).hostname,
+                    'name' : self.endpoint.name,
+                    'api' : {
+                        "type" : self.endpoint.type,
+                        "protocol" : self.endpoint.protocol,
+                        "version" : None,
+                    },
+                }],
+            'errors':[e],
+            }
 
 class SfaError(Exception):
 

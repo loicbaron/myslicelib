@@ -4,7 +4,6 @@ Base API Class
 '''
 import threading
 from queue import Queue
-from urllib.parse import urlparse
 from myslicelib.util import Endpoint, Authentication
 from myslicelib.api.sfaam import SfaAm
 from myslicelib.api.sfareg import SfaReg
@@ -124,44 +123,8 @@ class Api(object):
                  [self._thread_handler(am.version) for am in self.ams]
 
         res = self._parallel_request(threads)
-
-        reg_version = res['data'][0]
-        del res['data'][0]
-        result = {}
-        result['data'] = {
-                "myslicelib" : {
-                    "version" : "1.0"
-                },
-                "registry" : {
-                    "url" : self.registry.endpoint.url,
-                    "hostname" : urlparse(self.registry.endpoint.url).hostname,
-                    "name" : self.registry.endpoint.name,
-                    "status" : reg_version['status'],
-                    "api" : {
-                        "type" : "registry",
-                        "protocol" : self.registry.endpoint.protocol,
-                        "version" : reg_version['version'],
-                    },
-                    "id" : reg_version['id'],
-                },
-                "ams" : []
-            }
-
-        for i, am in enumerate(self.ams):
-            result['data']["ams"].append( {
-                "url" : am.endpoint.url,
-                "hostname" : urlparse(am.endpoint.url).hostname,
-                "name" : am.endpoint.name,
-                "status" : res['data'][i]['status'],
-                "api" : {
-                    "type" : am.endpoint.type,
-                    "protocol" : am.endpoint.protocol,
-                    "version" : res['data'][i]['version'],
-                },
-                "id" : res['data'][i]['id'],
-            } )
-        result['errors'] = res['errors']
-        return result
+        #pprint(res)
+        return res
 
     def get_credentials(self, ids, delegated_to=None):
         result = {}

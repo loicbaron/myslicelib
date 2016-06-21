@@ -18,6 +18,7 @@ class User(Entity):
     _class = "User"
     _type = "user"
     _collection = "Users"
+    credentials = []
    
     def getAuthority(self, attribute=False):
         if attribute:
@@ -49,33 +50,38 @@ class User(Entity):
                 result += q(Slice).id(urn).get()
             return result
 
-    def getCredential(self, id, delegate_to=None, setup=None):
+    def getCredential(self, id, delegate_to=None, setup=None, attribute=False):
         return self.getCredentials(id, delegate_to, setup)
 
-    def getCredentials(self, id=None, delegate_to=None, setup=None):
-
-        if setup and isinstance(setup, Setup):
-            _setup = setup
+    def getCredentials(self, id=None, delegate_to=None, setup=None, attribute=False):
+        if attribute:
+            return self.getAttribute('credentials')
         else:
-            _setup = s
+            try:
+                if setup and isinstance(setup, Setup):
+                    _setup = setup
+                else:
+                    _setup = s
 
-        self._api = getattr(Api(_setup.endpoints, _setup.authentication), self._class.lower())()
+                if id:
+                    ids = [id]
+                else:
+                    ids =[]
+                    ids.append(self.id)
 
-        if id:
-            ids = [id]
-        else:
-            ids =[]
-            ids.append(self.id)
+                    for urn in self.getAttribute('slices'):
+                        ids.append(urn)
 
-            for urn in self.getAttribute('slices'):
-                ids.append(urn)
+                    for urn in self.getAttribute('pi_authorities'):
+                        ids.append(urn)
 
-            for urn in self.getAttribute('pi_authorities'):
-                ids.append(urn)
-
-        res = self._api.get_credentials(ids, delegate_to)
-        self.credentials = res['data']
-        self.logs = res['errors']
+                res = self._api(_setup).get_credentials(ids, delegate_to)
+                self.credentials = res['data']
+                self.logs = res['errors']
+            except Exception as e:
+                #import traceback
+                #traceback.print_exc()
+                raise Exception('Failed to fetch the Credentials')
 
         return self
 
