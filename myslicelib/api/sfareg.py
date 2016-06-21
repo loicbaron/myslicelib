@@ -93,7 +93,7 @@ class SfaReg(SfaApi):
 
     def _list_entity(self, hrn=None):
         if hrn is None:
-            hrn = self.version()['id']
+            hrn = self._version['urn']
         # attept to list the hrn first if it is an authority
         # if hrn is not an authority, it will list all elements
         return self._proxy.List(hrn, self.user_credential, {'recursive':True})

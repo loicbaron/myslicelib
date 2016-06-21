@@ -68,16 +68,14 @@ class Api(object):
         socket.setdefaulttimeout(self.endpoint.timeout)
 
         self._proxy = xmlrpcclient.ServerProxy(self.endpoint.url, allow_none=True, verbose=False, use_datetime=True, context=context)
+
         # version call
-        self._version = self._version()
+        self._version = self.version(raw=True)
 
         # logs
         self.logs = []
 
-    def version(self):
-        return self._version
-
-    def _version(self):
+    def version(self, raw=False):
         try:
             result = self._proxy.GetVersion()
             # XXX Cope with the difference between AM & Registry responses
@@ -85,6 +83,10 @@ class Api(object):
                 result = result['value']
             else:
                 result['geni_api'] = result['sfa']
+
+            if raw:
+                return result
+
             return {'data': [{
                     'status': {
                         'online' : True,

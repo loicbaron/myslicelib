@@ -58,7 +58,8 @@ credentials = None
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
-v = q(Testbed).filter('name','iotlab').get()
+v = q(User).get()
+#v = q(Testbed).filter('name','iotlab').get()
 pprint(v)
 exit(1)
 
