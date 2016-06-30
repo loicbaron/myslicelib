@@ -25,6 +25,8 @@ class Entity(object):
             ##
             # Check if a getter function is defined
             camelName = ''.join(x for x in name.replace('_',' ').title() if not x.isspace())
+            if camelName in ['Id', 'Hrn', 'Shortname']:
+                getattr(self, 'get'+ camelName)()
             return getattr(self, 'get' + camelName)(True)
         except:
             return self.getAttribute(name)
