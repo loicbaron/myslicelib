@@ -70,7 +70,7 @@ class Authority(Entity):
         return self
 
     def removePi(self, user):
-        self.setAttribute('pi_users', list(set(self.pi_users) - set(user.id)))
+        self.setAttribute('pi_users', list(set(self.getAttribute('pi_users')) - set([user.id])))
         return self
 
     def isPi(self, user):
@@ -80,10 +80,10 @@ class Authority(Entity):
         User = myslicelib.model.user.User
         Project = myslicelib.model.project.Project
 
-        for user in self.users:
+        for user in self.getAttribute('users'):
             User({"id":user}).delete()
 
-        for proj in self.projects:
+        for proj in self.getAttribute('projects'):
             Project({"id":proj}).delete()
 
         if not self.id:

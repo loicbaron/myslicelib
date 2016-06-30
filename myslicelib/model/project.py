@@ -12,6 +12,9 @@ class Project(Authority):
     _type = "project"
     _collection = "Projects"
 
+    def getUsers(self, attribute=False, pis = True):
+        return super(Project, self).getUsers(attribute, pis)
+
     def getAuthority(self, attribute=False):
         if attribute:
             return self.getAttribute('authority')
@@ -27,7 +30,7 @@ class Project(Authority):
         return self
 
     def removePi(self, user):
-        self.setAttribute('pi_users', list(set(self.pi_users) - set(user.id)))
+        self.setAttribute('pi_users', list(set(self.getAttribute('pi_users')) - set([user.id])))
         sl = self.getSlices()
         for s in sl:
             s.removeUser(user)

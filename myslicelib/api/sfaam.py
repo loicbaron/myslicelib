@@ -77,7 +77,7 @@ class SfaAm(SfaApi):
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             result = []
-            traceback.print_exc()
+            #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
                             'url': self.endpoint.url,

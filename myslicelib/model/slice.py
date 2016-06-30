@@ -48,7 +48,7 @@ class Slice(Entity):
     
     def removeUser(self, user):
         self.setAttribute('geni_users', list(filter(lambda x: x['urn']!=user.id, self.geni_users)))
-        self.setAttribute('users', list(set(self.users) - set([user.id])))
+        self.setAttribute('users', list(set(self.getAttribute('users')) - set([user.id])))
         self.setAttribute('run_am', True)
         return self
     
