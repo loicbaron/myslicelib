@@ -14,13 +14,13 @@ class Slice(Entity):
     _collection = "Slices"
 
     def __init__(self, data = {}):
-        super().__init__(data)
         data = data if data is not None else {}
-        self.users = data.get('users', [])
-        self.geni_users = data.get('geni_users', [])
-        self.resources = data.get('resources', [])
-        self.leases = data.get('leases', [])
-        self.run_am = False
+        data['users'] = data.get('users', [])
+        data['geni_users'] = data.get('geni_users', [])
+        data['resources'] = data.get('resources', [])
+        data['leases'] = data.get('leases', [])
+        data['run_am'] = data.get('run_am', False)
+        super().__init__(data)
 
     def getUsers(self, attribute=False):
         if attribute:

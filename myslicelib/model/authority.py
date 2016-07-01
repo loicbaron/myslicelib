@@ -22,11 +22,10 @@ class Authority(Entity):
     _collection ="Authorities"
 
     def __init__(self, data = {}):
+        data = data if data is not None else {}
+        data['pi_users'] = data.get('pi_users', [])
+        data['slices'] = data.get('slices', [])
         super().__init__(data)
-        if data is None:
-            data = {}
-        self.pi_users = data.get('pi_users', [])
-        self.slices = data.get('slices', [])
 
     def getUsers(self, attribute=False, pis = False):
         if attribute:
