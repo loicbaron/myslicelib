@@ -62,13 +62,29 @@ class Entity(object):
     ##
     # ID (URN)
     def getId(self):
-        if not self.hasAttribute('id') and self.hrn:
-            self.setAttribute('id', hrn_to_urn(self.hrn, self._type))
-
+        if not self.hasAttribute('id'):
+            # Trying to generate the id based on other parameters
+            self.setId(None)
         return self.getAttribute('id')
 
     def setId(self, value):
-        self.setAttribute('id', value)
+        if value is not None:
+            self.setAttribute('id', value)
+
+        else:
+            # generate id based on hrn
+            if self.getAttribute('hrn'):
+                self.setAttribute('id', hrn_to_urn(self.getAttribute('hrn'), self._type))
+            # generate id based on authority and shortname
+            elif self.getAttribute('authority') and self.getAttribute('shortname'):
+                hrn = urn_to_hrn(self.getAttribute('authority'))[0]+"."+self.getAttribute('shortname')
+                self.setAttribute('id', hrn_to_urn(hrn, self._type))
+            else:
+                raise Exception('id must be specified')
+
+            value = self.getAttribute('id')
+
+        # Set other parameters accordingly
         hrn = urn_to_hrn(value)[0]
         self.setAttribute('hrn', hrn)
         auth = hrn_to_urn('.'.join(hrn.split('.')[:-1]), 'authority')
@@ -78,40 +94,73 @@ class Entity(object):
     ##
     # HRN
     def getHrn(self):
-        if not self.hasAttribute('hrn') and self.hasAttribute('id'):
-            self.setAttribute('hrn', urn_to_hrn(self.id)[0])
-
+        if not self.hasAttribute('hrn'):
+            # Trying to generate hrn based on other parameters
+            self.setHrn(None)
         return self.getAttribute('hrn')
 
     def setHrn(self, value):
-        self.setAttribute('hrn', value)
+        if value is not None:
+            self.setAttribute('hrn', value)
+        else:
+            if self.hasAttribute('id'):
+                self.setAttribute('hrn', urn_to_hrn(self.getAttribute('id'))[0])
+
+            elif self.hasAttribute('authority') and self.hasAttribute('shortname'):
+                self.setAttribute('hrn', urn_to_hrn(self.getAttribute('authority'))[0]+"."+self.getAttribute('shortname'))
+            else:
+                raise Exception('id must be specified')
+
+            value = self.getAttribute('hrn')
+
+        # Set other parameters accordingly
         self.setAttribute('id', hrn_to_urn(value, self._type))
         auth = hrn_to_urn('.'.join(value.split('.')[:-1]), 'authority')
         self.setAttribute('authority', auth)
         self.setAttribute('shortname', value.split('.')[-1])
 
+
     ##
     # SHORTNAME
     def getShortname(self):
         if not self.hasAttribute('shortname'):
-            self.setAttribute('shortname', self.hrn.split('.')[-1])
+            # Trying to generate hrn based on other parameters
+            self.setShortname(None)
 
         return self.getAttribute('shortname')
 
     def setShortname(self, value):
-        self.setAttribute('shortname', value)
-        if 'authority' in self._attributes:
-            auth_hrn = urn_to_hrn(self.authority)[0]
+        if value is not None:
+            self.setAttribute('shortname', value)
+        else:
+            if self.hasAttribute('id'):
+                hrn = urn_to_hrn(self.getAttribute('id'))[0]
+                self.setAttribute('shortname', hrn.split('.')[-1])
+            elif self.hasAttribute('hrn'):
+                self.setAttribute('shortname', self.getAttribute('hrn').split('.')[-1])
+            else:
+                raise Exception('shortname must be specified')
+
+            value = self.getAttribute('shortname')
+
+        # Set other parameters accordingly
+        if self.hasAttribute('authority'):
+            auth_hrn = urn_to_hrn(self.getAttribute('authority'))[0]
             hrn = auth_hrn + '.' + value
             self.setAttribute('hrn', hrn)
             self.setAttribute('id', hrn_to_urn(hrn, self._type))
 
     def setAuthority(self, value):
         self.setAttribute('authority', value)
-        if 'shortname' in self._attributes:
+        auth_hrn = urn_to_hrn(value)[0]
+
+        if self.hasAttribute('shortname'):
             hrn = value + '.' + self.shortname
-            self.setAttribute('hrn', hrn)
-            self.setAttribute('id', hrn_to_urn(hrn, self._type))
+            self.setHrn(hrn)
+        elif self.hasAttribute('hrn'):
+            shortname = self.getAttribute('hrn').split('.')[-1]
+            hrn = value + '.' + self.shortname
+            self.setHrn(hrn)
 
     def setAttribute(self, name, value):
         self._attributes[name] = value

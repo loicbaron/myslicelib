@@ -102,6 +102,8 @@ class User(Entity):
                                         self.generateHrn()
                                     ])
                                   )
+            if not self.hasAttribute('shortname'):
+                self.setAttribute('shortname', self.getAttribute('hrn').split('.')[-1])
 
         return self.getAttribute('hrn')
 
