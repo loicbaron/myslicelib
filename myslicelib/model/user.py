@@ -67,7 +67,7 @@ class User(Entity):
                     ids = [id]
                 else:
                     ids =[]
-                    ids.append(self.id)
+                    ids.append(self.getAttribute('id'))
 
                     for urn in self.getAttribute('slices'):
                         ids.append(urn)
@@ -76,7 +76,7 @@ class User(Entity):
                         ids.append(urn)
 
                 res = self._api(_setup).get_credentials(ids, delegate_to)
-                self.credentials = res['data']
+                self.setAttribute('credentials', res['data'])
                 self.logs = res['errors']
             except Exception as e:
                 #import traceback
