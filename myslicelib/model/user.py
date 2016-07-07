@@ -30,7 +30,7 @@ class User(Entity):
 
     def getPiAuthorities(self, attribute=False):
         if attribute:
-            return self.getAttribute('authority')
+            return self.getAttribute('pi_authorities')
         else:
             Authority = myslicelib.model.authority.Authority
             pi_auths = self.getAttribute('pi_authorities')
