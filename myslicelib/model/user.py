@@ -79,8 +79,8 @@ class User(Entity):
                 self.setAttribute('credentials', res['data'])
                 self.logs = res['errors']
             except Exception as e:
-                #import traceback
-                #traceback.print_exc()
+                import traceback
+                traceback.print_exc()
                 raise Exception('Failed to fetch the Credentials')
 
         return self

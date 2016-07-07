@@ -42,12 +42,10 @@ class Project(Authority):
         for sli in self.slices:
             Slice({"id": sli}).delete()
 
-        self._api = self._setup_api(setup)
-
         if not self.id:
             raise Exception("No element specified")
             
-        res = self._api.delete(self.id)
+        res = self._api(setup).delete(self.id)
 
         result = {
                 'data': res.get('data', []),

@@ -88,9 +88,7 @@ class Authority(Entity):
         if not self.id:
             raise Exception("No element specified")
         
-        self._api = self._setup_api(setup)
-
-        res = self._api.delete(self.id)
+        res = self._api(setup).delete(self.id)
 
         result = {
                 'data': res.get('data', []),

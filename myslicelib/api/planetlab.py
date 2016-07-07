@@ -42,8 +42,9 @@ class Api(object):
             logging.debug("Using API on %s" % self.url)
             self.api = xmlrpc.ServerProxy(self.url, allow_none=True)
         except TypeError :
-            logging.error("Invalid configuration")
-            exit(1)
+            msg = "Invalid configuration"
+            logging.error(msg)
+            raise TypeError(msg)
 
     def _method(self, a, b):
         if not self._map[a][b]:

@@ -84,9 +84,7 @@ class Api(object):
             if (endpoint.protocol == "SFA") and (endpoint.type == "AM"):
                 self.ams.append( SfaAm(endpoint,  SfaReg(registry_endpoint, authentication)) )
 
-
     def __getattr__(self, entity):
-
         def method_handler():
             if not entity in self._entities:
                 raise NotImplementedError("Invalid object {} or not implemented".format(entity))

@@ -37,7 +37,6 @@ class Authentication(object):
     def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None, credentials=None):
         if not private_key or not email or not hrn:
             raise ValueError("private key, email and hrn must be specified")
-            exit(1)
 
         self.email = email
         self.hrn = hrn

@@ -179,7 +179,6 @@ class Entity(object):
             _setup = setup
         else:
             _setup = s
-
         # using _type instead of _class as project is an authority in SFA Reg
         return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 

@@ -348,49 +348,59 @@ class SfaReg(SfaApi):
         return {'data':result,'errors':self.logs}
 
     def get_credential(self, urn, delegated_to=None, raw=False):
-        hrn, entity = urn_to_hrn(urn)
+        try:
+            hrn, entity = urn_to_hrn(urn)
 
-        if delegated_to:
-            local_cred = list(filter(lambda c: c['id'] == urn and c['delegated_to']==delegated_to, self.user_credentials))
-        else:
-            local_cred = list(filter(lambda c: c['id'] == urn, self.user_credentials))
-
-        if local_cred:
-            print('already defined %s' % urn)
-            cred = local_cred[0]['xml']
-        else:
             if delegated_to:
-                # XXX To be removed
-                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
-                from sfa.trust.credential import Credential
-                from sfa.trust.gid import GID
-                credential = Credential(string=cred)
-                # TODO
-                # delegate(cred)
-                # use the private key of the user to sign the delegation of credentials
-                user_pkey = self.authentication.private_key
-                # gid of user
-                user = self._proxy.Resolve(self.authentication.hrn, self.user_credential, {})[0]
-                user_gid = GID(string=user['gid'], hrn=self.authentication.hrn)
-                # gid of the delegated_to user
-                delegate_user = self._proxy.Resolve(delegated_to, self.user_credential, {})[0]
-                delegate_gid = GID(string=delegate_user['gid'], hrn=delegated_to)
-                cred = self.delegate(credential, user_pkey, user_gid, delegate_gid)
+                local_cred = list(filter(lambda c: c['id'] == urn and c['delegated_to']==delegated_to, self.user_credentials))
             else:
-                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                local_cred = list(filter(lambda c: c['id'] == urn, self.user_credentials))
 
-        if raw:
-            return cred
+            if local_cred:
+                cred = local_cred[0]['xml']
+            else:
+                if delegated_to:
+                    # XXX To be removed
+                    cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                    from sfa.trust.credential import Credential
+                    from sfa.trust.gid import GID
+                    credential = Credential(string=cred)
+                    # TODO
+                    # delegate(cred)
+                    # use the private key of the user to sign the delegation of credentials
+                    user_pkey = self.authentication.private_key
+                    # gid of user
+                    user = self._proxy.Resolve(self.authentication.hrn, self.user_credential, {})[0]
+                    user_gid = GID(string=user['gid'], hrn=self.authentication.hrn)
+                    # gid of the delegated_to user
+                    delegate_user = self._proxy.Resolve(delegated_to, self.user_credential, {})[0]
+                    delegate_gid = GID(string=delegate_user['gid'], hrn=delegated_to)
+                    cred = self.delegate(credential, user_pkey, user_gid, delegate_gid)
+                else:
+                    cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
 
-        d = [{
-            'id': urn,
-            'type': entity,
-            'xml': cred, 
-            'delegated_to': delegated_to,
-        }]
-        
-        self.user_credentials += d
+            if raw:
+                return cred
 
+            d = [{
+                'id': urn,
+                'type': entity,
+                'xml': cred, 
+                'delegated_to': delegated_to,
+            }]
+            self.user_credentials += d
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            result = []
+            self.logs.append({
+                                'endpoint': self.endpoint.name,
+                                'url': self.endpoint.url,
+                                'protocol': self.endpoint.protocol,
+                                'type': self.endpoint.type,
+                                'exception': str(e)
+                            })
         return {'data':d,'errors':self.logs}
 
     def delegate(self, object_cred, private_key, from_gid, to_gid):
@@ -511,7 +521,6 @@ class SfaReg(SfaApi):
     def create(self, entity, urn, record_dict):
         try:
             hrn = urn_to_hrn(urn)[0]
-            print(hrn)
             auth_cred = self.search_credential(hrn, 'authority')
             if auth_cred:
                 mapped_dict = getattr(self, '_'+entity+'_mappings')(hrn, record_dict)
@@ -523,7 +532,6 @@ class SfaReg(SfaApi):
             else:
                 raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
-
             result = []
             self.logs.append({
                                 'endpoint': self.endpoint.name,
