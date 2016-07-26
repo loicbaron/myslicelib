@@ -238,6 +238,20 @@ class Entities(set):
         '''
         return any(el.id == id for el in self)
 
+    def get(self, id):
+        '''
+        Returns the element with id or None
+
+        :param id:
+        :return:
+        '''
+
+        for el in self:
+            if el.id == id:
+                return el
+
+        return None
+
     def hasErrors(self):
         if self.logs:
             return True
