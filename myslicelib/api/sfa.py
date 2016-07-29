@@ -78,24 +78,47 @@ class Api(object):
         self.logs = []
 
     def version(self, raw=False):
+        message = None
+        version = None
+        urn = None
+        online = False
+
         try:
-            result = self._proxy.GetVersion()
-            # XXX Cope with the difference between AM & Registry responses
-            if 'value' in result:
-                result = result['value']
+            ret = self._proxy.GetVersion()
+        except Exception as e:
+            message = e
+
+        if 'value' in ret:
+            # AM
+            version = ret['value']['geni_api']
+            ##
+            # FIX: Some AMs (e.g. PLE) put "am" instead of "cm" at the end of the URN
+            # We need it to be "cm" so that can be used as ID and referenced from the resources
+            # "manager" field
+            if (ret['value']['urn'].endswith('am')):
+                urn = "{}{}".format(ret['value']['urn'][:-2], 'cm')
             else:
-                result['geni_api'] = result['sfa']
+                urn = ret['value']['urn']
+            online = True
+        elif 'sfa' in ret:
+            # Registry
+            version = ret['sfa']
+            urn = ret['urn']
+            online = True
+        else:
+            message = "Error parsing returned value"
 
-            if raw:
-                return result
-
-            return {'data': [{
+        if raw:
+            return ret
+        else:
+            return {
+                'data': [{
                     'status': {
-                        'online' : True,
-                        'message' : None
+                        'online' : online,
+                        'message' : message
                     },
-                    'id': result['urn'],
-                    'version': result['geni_api'],
+                    'id': urn,
+                    'version': version,
                     'type': self.endpoint.type,
                     'url' : self.endpoint.url,
                     'hostname' : urlparse(self.endpoint.url).hostname,
@@ -103,31 +126,12 @@ class Api(object):
                     'api' : {
                         "type" : self.endpoint.type,
                         "protocol" : self.endpoint.protocol,
-                        'version': result['geni_api'],
+                        'version': version,
                     },
                 }],
-            'errors':[],
+                'errors':[message],
             }
-        except Exception as e:
-            return {'data':[{
-                    'status': {
-                        'online' : False,
-                        'message' : e
-                    },
-                    'id': None,
-                    'version' : None,
-                    'type' : None,
-                    'url' : self.endpoint.url,
-                    'hostname' : urlparse(self.endpoint.url).hostname,
-                    'name' : self.endpoint.name,
-                    'api' : {
-                        "type" : self.endpoint.type,
-                        "protocol" : self.endpoint.protocol,
-                        "version" : None,
-                    },
-                }],
-            'errors':[e],
-            }
+
 
 class SfaError(Exception):
 
