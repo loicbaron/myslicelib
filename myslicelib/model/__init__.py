@@ -29,6 +29,9 @@ class Entity(object):
                 getattr(self, 'get'+ camelName)()
             return getattr(self, 'get' + camelName)(True)
         except:
+            #print("get attr {}".format(name))
+            #import traceback
+            #traceback.print_exc()
             return self.getAttribute(name)
 
     def __setattr__(self, name, value):
@@ -40,6 +43,7 @@ class Entity(object):
             camelName = ''.join(x for x in name.replace('_',' ').title() if not x.isspace())
             getattr(self, 'set' + camelName)(value)
         except:
+            #print("set attr {} = {}".format(name,value))
             #import traceback
             #traceback.print_exc()
             self.setAttribute(name, value)
@@ -57,6 +61,8 @@ class Entity(object):
         try:
             return self._attributes[name]
         except KeyError :
+            #import traceback
+            #traceback.print_exc()
             raise AttributeError('Entity object has no attribute %s' % name)
 
     ##
@@ -70,19 +76,26 @@ class Entity(object):
     def setId(self, value):
         if value is not None:
             self.setAttribute('id', value)
-
         else:
-            # generate id based on hrn
-            if self.getAttribute('hrn'):
-                self.setAttribute('id', hrn_to_urn(self.getAttribute('hrn'), self._type))
-            # generate id based on authority and shortname
-            elif self.getAttribute('authority') and self.getAttribute('shortname'):
-                hrn = urn_to_hrn(self.getAttribute('authority'))[0]+"."+self.getAttribute('shortname')
-                self.setAttribute('id', hrn_to_urn(hrn, self._type))
-            else:
-                raise Exception('id must be specified')
-
-            value = self.getAttribute('id')
+            try:
+                if self.hasAttribute('hrn') and self.getAttribute('hrn'):
+                    # generate id based on hrn
+                    self.setAttribute('id', hrn_to_urn(self.getAttribute('hrn'), self._type))
+                elif self.hasAttribute('authority') and self.hasAttribute('shortname') \
+                and self.getAttribute('authority') and self.getAttribute('shortname'):
+                    # generate id based on authority and shortname
+                    hrn = urn_to_hrn(self.getAttribute('authority'))[0]+"."+self.getAttribute('shortname')
+                    self.setAttribute('id', hrn_to_urn(hrn, self._type))
+                elif self.hasAttribute('authority') and self.hasAttribute('email') \
+                and self.getAttribute('authority') and self.getAttribute('email'):
+                    self.setAttribute('id', hrn_to_urn(self.hrn, self._type))
+                else:
+                    raise Exception('id must be specified')
+                value = self.getAttribute('id')
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise AttributeError('Could not set id attribute')
 
         # Set other parameters accordingly
         hrn = urn_to_hrn(value)[0]
@@ -183,7 +196,7 @@ class Entity(object):
         return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
     def save(self, setup=None):
-        # the following will trigger the automatic eneration of the id, hrn and
+        # the following will trigger the automatic generation of the id, hrn and
         # shortname if they don't exist
         if not self.id:
             pass
