@@ -104,7 +104,10 @@ class SfaAm(SfaApi):
                     xml_string = result['value']
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
-                testbed = get_testbed_type(self._version['urn']) 
+                if 'value' in self._version:
+                    testbed = get_testbed_type(self._version['value']['urn'])
+                else:
+                    testbed = get_testbed_type(self._version['urn'])
                 result = Parser(testbed, xml_string).parse(entity)
                 return result
                 # XXX Check result
