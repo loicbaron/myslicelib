@@ -393,7 +393,7 @@ class SfaReg(SfaApi):
         except Exception as e:
             import traceback
             traceback.print_exc()
-            result = []
+            d = []
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,

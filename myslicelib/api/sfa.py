@@ -49,6 +49,8 @@ class Api(object):
                 pkey_fn = tempfile.NamedTemporaryFile(mode='w',delete=False)
                 pkey_fn.write(self.authentication.private_key)
                 pkey_fn.close()
+                #print(pkey_fn.name)
+                #print(cert_fn.name)
                 context.load_cert_chain(
                         cert_fn.name,
                         keyfile=pkey_fn.name,

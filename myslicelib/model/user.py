@@ -2,6 +2,8 @@ import random
 import string
 import myslicelib
 
+from pprint import pprint
+
 from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 
@@ -74,7 +76,6 @@ class User(Entity):
 
                     for urn in self.getAttribute('pi_authorities'):
                         ids.append(urn)
-
                 res = self._api(_setup).get_credentials(ids, delegate_to)
                 self.setAttribute('credentials', res['data'])
                 self.logs = res['errors']
