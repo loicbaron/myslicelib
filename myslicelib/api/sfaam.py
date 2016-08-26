@@ -55,10 +55,9 @@ class SfaAm(SfaApi):
         hrn = urn_to_hrn(urn)[0]
         options = {
                     'list_leases' : 'all',
-
                     'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                 }
-        slice_credential = self.registry.get_credential(urn, raw=True)
+        slice_credential = self.registry.search_credential(hrn)
 
         if self._version['geni_api'] == 2:
             options['geni_slice_urn'] = urn
@@ -72,7 +71,6 @@ class SfaAm(SfaApi):
 
 
     def get(self, entity, urn=None, raw=False):
-
         try:
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
@@ -104,10 +102,7 @@ class SfaAm(SfaApi):
                     xml_string = result['value']
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
-                if 'value' in self._version:
-                    testbed = get_testbed_type(self._version['value']['urn'])
-                else:
-                    testbed = get_testbed_type(self._version['urn'])
+                testbed = get_testbed_type(self._version['urn'])
                 result = Parser(testbed, xml_string).parse(entity)
                 return result
                 # XXX Check result
@@ -139,10 +134,11 @@ class SfaAm(SfaApi):
                 raise NotImplementedError('Not implemented')
             
             hrn = urn_to_hrn(urn)[0]
-            self.slice_credential = self.registry.get_credential(urn, raw=True)
+            slice_credential = self.registry.search_credential(hrn)
+
             #*self.ois(server, api_options) to check server if uuid supported
             api_options = {}
-            res = self._proxy.Delete([urn], [self.slice_credential], api_options)
+            res = self._proxy.Delete([urn], [slice_credential], api_options)
             if self.isResultOk(res):
                 result = []
             else:
@@ -164,7 +160,7 @@ class SfaAm(SfaApi):
 
         date = record_dict['expiration_date']
         
-        return self._proxy.Renew([urn], [self.slice_credential], date, api_options)
+        return self._proxy.Renew([urn], [slice_credential], date, api_options)
 
     def _update_slice_v2(self, urn, rspec, api_options):
         # v2 sfa update
@@ -191,20 +187,19 @@ class SfaAm(SfaApi):
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')
 
-            # slice_cred would be a dict, here for simple test, we just return cred
-            self.slice_credential = self.registry.get_credential(urn, raw=True)
-
-            api_options = {
-                'call_id': unique_call_id(),
-                'sfa_users': record_dict['geni_users'],
-                'geni_users': record_dict['geni_users'],
-                # api_options['append'] = True
-            }
-
-            if 'expiration_date' in record_dict:
-                result = self._renew_slice(urn, record_dict, api_options)
-
             if 'run_am' in record_dict and record_dict['run_am']:
+                # slice_cred would be a dict, here for simple test, we just return cred
+                self.slice_credential = self.registry.get_credential(urn, raw=True)
+
+                api_options = {
+                    'call_id': unique_call_id(),
+                    'sfa_users': record_dict['geni_users'],
+                    'geni_users': record_dict['geni_users'],
+                    # api_options['append'] = True
+                }
+
+                if 'expiration_date' in record_dict:
+                    result = self._renew_slice(urn, record_dict, api_options)
                 parser = get_testbed_type(self._version['urn'])
                 rspec = Builder(parser, self._version['urn']).build(urn, record_dict)
 
@@ -228,7 +223,6 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': str(e)
                             })
-            print(self.logs)
         return {'data':result,'errors':self.logs}
 
     def execute(self, urn, action, obj_type):

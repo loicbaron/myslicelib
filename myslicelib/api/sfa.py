@@ -111,6 +111,8 @@ class Api(object):
             message = "Error parsing returned value"
 
         if raw:
+            if 'value' in ret:
+                return ret['value']
             return ret
         else:
             return {
