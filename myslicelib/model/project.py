@@ -1,5 +1,7 @@
 import myslicelib
+from pprint import pprint
 
+from myslicelib.model.user import User
 from myslicelib.model.authority import Authorities, Authority
 from myslicelib.query import q
 
@@ -11,6 +13,24 @@ class Project(Authority):
     # XXX TBD either use class name lower or use type???
     _type = "project"
     _collection = "Projects"
+
+    def save(self, setup=None):
+
+        # Adding/Removing Users to/from the slices when project.save()
+        sl = self.getSlices()
+        for s in sl:
+            adding = list(set(self.getAttribute('pi_users')) - set(s.getAttribute('users')))
+            deleting = list(set(s.getAttribute('users')) - set(self.getAttribute('pi_users')))
+            for u in adding:
+                user = q(User).id(u).get().first()
+                s.addUser(user)
+            for u in deleting:
+                user = q(User).id(u).get().first()
+                print(user)
+                s.removeUser(user)
+            s.save(setup)
+
+        return super().save(setup)
 
     def getUsers(self, attribute=False, pis = True):
         return super(Project, self).getUsers(attribute, pis)
@@ -24,16 +44,10 @@ class Project(Authority):
 
     def addPi(self, user):
         self.appendAttribute('pi_users', user.id)
-        sl = self.getSlices()
-        for s in sl:
-            s.addUser(user)
         return self
 
     def removePi(self, user):
         self.setAttribute('pi_users', list(set(self.getAttribute('pi_users')) - set([user.id])))
-        sl = self.getSlices()
-        for s in sl:
-            s.removeUser(user)
         return self
 
     def delete(self, setup=None):
@@ -53,4 +67,3 @@ class Project(Authority):
         }
 
         return result
-
