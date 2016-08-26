@@ -282,13 +282,13 @@ class Entities(set):
 
         return list
 
-    def save(self):
+    def save(self, setup=None):
         for el in self:
-            el.save()
+            el.save(setup)
 
-    def delete(self):
+    def delete(self, setup=None):
         for el in self:
-            el.delete()
+            el.delete(setup)
 
     # def filter(self, key, value):
     #     self.f[key] = value

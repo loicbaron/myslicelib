@@ -116,4 +116,4 @@ class User(Entity):
         if not self.hasAttribute('authority'):
             raise Exception('Authority for the user must be specified')
 
-        return super().save()
+        return super().save(setup)
