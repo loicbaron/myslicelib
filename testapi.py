@@ -58,6 +58,14 @@ credentials = None
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+pprint(u)
+u.getCredentials()
+pprint(u)
+u.getCredentials(delegate_to="onelab.myslice")
+pprint(u)
+exit(1)
+
 v = q(User).get()
 #v = q(Testbed).filter('name','iotlab').get()
 pprint(v)

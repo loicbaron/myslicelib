@@ -24,6 +24,8 @@ class TestbedQuery(Query):
         c.logs = res['errors']
         return c
 
+    def version(self):
+        return self.get()
 
     def update(self):
         raise MysNotSupportedError("This function is not supported")

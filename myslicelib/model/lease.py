@@ -61,10 +61,10 @@ class Lease(Entity):
     def get_duration(self, start_time, end_time):
         return end_time - start_time
 
-    def save(self):
+    def save(self, setup=None):
         raise NotImplemented("A Lease has to be part of a slice to be saved slice.save()")
 
-    def delete(self):
+    def delete(self, setup=None):
         raise NotImplemented("A Lease has to be part of a slice to be removed slice.removeLease()")
 
     def update(self):

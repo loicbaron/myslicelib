@@ -2,6 +2,8 @@ import random
 import string
 import myslicelib
 
+from pprint import pprint
+
 from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 
@@ -74,13 +76,12 @@ class User(Entity):
 
                     for urn in self.getAttribute('pi_authorities'):
                         ids.append(urn)
-
                 res = self._api(_setup).get_credentials(ids, delegate_to)
                 self.setAttribute('credentials', res['data'])
                 self.logs = res['errors']
             except Exception as e:
-                #import traceback
-                #traceback.print_exc()
+                import traceback
+                traceback.print_exc()
                 raise Exception('Failed to fetch the Credentials')
 
         return self
@@ -115,4 +116,4 @@ class User(Entity):
         if not self.hasAttribute('authority'):
             raise Exception('Authority for the user must be specified')
 
-        return super().save()
+        return super().save(setup)

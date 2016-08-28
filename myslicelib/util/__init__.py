@@ -1,7 +1,6 @@
 from OpenSSL import crypto, SSL
 import os.path
 from myslicelib.util.url import validateUrl
-#from myslicelib.util.certificate import Keypair, Certificate
 
 class Endpoint(object):
     """
@@ -37,25 +36,28 @@ class Authentication(object):
     def __init__(self, userid=None, password=None, email=None, hrn=None, private_key=None, certificate=None, credentials=None):
         if not private_key or not email or not hrn:
             raise ValueError("private key, email and hrn must be specified")
-            exit(1)
 
         self.email = email
         self.hrn = hrn
         self.private_key = private_key
 
         if not certificate:
-            self.certificate = self.create_self_signed_cert()
-        else:
-            self.certificate = certificate
+            certificate = self.create_self_signed_cert(private_key)
+        if not isinstance(certificate, str):
+            certificate = certificate.decode()
+
+        self.certificate = certificate
 
         if credentials:
             self.credentials = credentials
 
-    def create_self_signed_cert(self):
-
-        # create a key pair
-        k = crypto.PKey()
-        k.generate_key(crypto.TYPE_RSA, 1024)
+    def create_self_signed_cert(self, private_key=None):
+        if not private_key:
+            # create a key pair
+            k = crypto.PKey()
+            k.generate_key(crypto.TYPE_RSA, 1024)
+        else:
+            k = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
 
         # create a self-signed cert
         cert = crypto.X509()
@@ -79,6 +81,7 @@ class Authentication(object):
         #     crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
 
     def sign_certificate(self):
+        from myslicelib.util.certificate import Keypair, Certificate
         keypair = Keypair(filename = self.private_key.encode('latin1'))
         self_signed = Certificate(subject = self.hrn)
         self_signed.set_pubkey(keypair)

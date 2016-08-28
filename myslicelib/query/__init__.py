@@ -19,8 +19,9 @@ def q(entity: Entity, setup=None):
         module = __import__(QueryModule, fromlist=[QueryClass])
         return getattr(module, QueryClass)(entity, setup)
     except ImportError:
-        logging.error("Class {} not found".format(QueryClass))
-        exit(1)
+        msg = "Class {} not found".format(QueryClass)
+        logging.error(msg)
+        raise Exception(msg)
 
 class Query(object):
 

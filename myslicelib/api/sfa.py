@@ -49,6 +49,8 @@ class Api(object):
                 pkey_fn = tempfile.NamedTemporaryFile(mode='w',delete=False)
                 pkey_fn.write(self.authentication.private_key)
                 pkey_fn.close()
+                #print(pkey_fn.name)
+                #print(cert_fn.name)
                 context.load_cert_chain(
                         cert_fn.name,
                         keyfile=pkey_fn.name,
@@ -57,12 +59,14 @@ class Api(object):
                 os.unlink(cert_fn.name)
                 os.unlink(pkey_fn.name)
         except ssl.SSLError as e:
-            exit("Problem with certificate and/or key")
+            import traceback
+            traceback.print_exc()
+            raise Exception("Problem with certificate and/or key")
 
         except Exception as e:
             import traceback
             traceback.print_exc()
-            exit("Problem Authenticating with certificate and/or key")
+            raise Exception("Problem Authenticating with certificate and/or key")
 
         # DEFAULT TIMEOUT is set in Endpoint
         socket.setdefaulttimeout(self.endpoint.timeout)
@@ -76,24 +80,49 @@ class Api(object):
         self.logs = []
 
     def version(self, raw=False):
+        message = None
+        version = None
+        urn = None
+        online = False
+
         try:
-            result = self._proxy.GetVersion()
-            # XXX Cope with the difference between AM & Registry responses
-            if 'value' in result:
-                result = result['value']
+            ret = self._proxy.GetVersion()
+        except Exception as e:
+            message = e
+
+        if 'value' in ret:
+            # AM
+            version = ret['value']['geni_api']
+            ##
+            # FIX: Some AMs (e.g. PLE) put "am" instead of "cm" at the end of the URN
+            # We need it to be "cm" so that can be used as ID and referenced from the resources
+            # "manager" field
+            if (ret['value']['urn'].endswith('am')):
+                urn = "{}{}".format(ret['value']['urn'][:-2], 'cm')
             else:
-                result['geni_api'] = result['sfa']
+                urn = ret['value']['urn']
+            online = True
+        elif 'sfa' in ret:
+            # Registry
+            version = ret['sfa']
+            urn = ret['urn']
+            online = True
+        else:
+            message = "Error parsing returned value"
 
-            if raw:
-                return result
-
-            return {'data': [{
+        if raw:
+            if 'value' in ret:
+                return ret['value']
+            return ret
+        else:
+            return {
+                'data': [{
                     'status': {
-                        'online' : True,
-                        'message' : None
+                        'online' : online,
+                        'message' : message
                     },
-                    'id': result['urn'],
-                    'version': result['geni_api'],
+                    'id': urn,
+                    'version': version,
                     'type': self.endpoint.type,
                     'url' : self.endpoint.url,
                     'hostname' : urlparse(self.endpoint.url).hostname,
@@ -101,31 +130,12 @@ class Api(object):
                     'api' : {
                         "type" : self.endpoint.type,
                         "protocol" : self.endpoint.protocol,
-                        'version': result['geni_api'],
+                        'version': version,
                     },
                 }],
-            'errors':[],
+                'errors':[message],
             }
-        except Exception as e:
-            return {'data':[{
-                    'status': {
-                        'online' : False,
-                        'message' : e
-                    },
-                    'id': None,
-                    'version' : None,
-                    'type' : None,
-                    'url' : self.endpoint.url,
-                    'hostname' : urlparse(self.endpoint.url).hostname,
-                    'name' : self.endpoint.name,
-                    'api' : {
-                        "type" : self.endpoint.type,
-                        "protocol" : self.endpoint.protocol,
-                        "version" : None,
-                    },
-                }],
-            'errors':[e],
-            }
+
 
 class SfaError(Exception):
 

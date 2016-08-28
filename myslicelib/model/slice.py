@@ -93,4 +93,4 @@ class Slice(Entity):
         if not self.hasAttribute('authority'):
             raise Exception('Slice authority must be specified')
 
-        return super().save()
+        return super().save(setup)
