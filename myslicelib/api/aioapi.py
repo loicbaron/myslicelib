@@ -26,6 +26,29 @@ class Aioapi(object):
     - User creation, update, delete
 
     """
+    _entities = [
+        'testbed',
+        'resource',
+        'slice',
+        'user',
+        'authority',
+        'lease',
+        'project'
+    ]
+
+    _am = [
+        'resource',
+        'slice',
+        'lease'
+    ]
+
+    _registry = [
+        'slice',
+        'user',
+        'authority',
+        'project'
+    ]
+
     def __init__(self, endpoints: Endpoint, authentication: Authentication, loop=None) -> None:
         if (not isinstance(endpoints, list) or
             not all(isinstance(endpoint, Endpoint) for endpoint in endpoints)):
@@ -55,31 +78,40 @@ class Aioapi(object):
                 # self.ams.append(SfaAm(endpoint,
                 #                     SfaReg(registry_endpoint, authentication)))
 
+        self.agents = self.ams + list(registry)
+
         self._loop = loop or asyncio.get_event_loop()
 
-    def _async_tasks(self, sfas, method, *args):
+    def _async_tasks(self, agents, method, *args):
         if args:
             tasks = [
                 asyncio.ensure_future(
-                        getattr(sfa, method)(args)
-                    ) for sfa in sfas
+                        getattr(agent, method)(args)
+                    ) for agent in agents
                 ]
         else:
             tasks = [
                 asyncio.ensure_future(
-                        getattr(sfa, method)(args)
-                    ) for sfa in sfas
+                        getattr(agent, method)()
+                    ) for agent in agents
                 ]
         result = self._loop.run_until_complete(asyncio.gather(*tasks))
         return result
 
     def version(self):
-        sfas = [self.registry] + self.ams
-        return self._async_tasks(sfas, method='version')
+        return self._async_tasks(self.agents, method='version')
 
     def get(self):
-        sfas = [self.registry] + self.ams
-        return self._async_tasks(sfas, method='get')
+        return self._async_tasks(self.agents, method='get')
+
+    def update(self):
+        return self._async_tasks(self.agents, method='update')
+
+    def delete(self):
+        return self._async_tasks(self.agents, method='delete')
+
+
+
 
 
 
