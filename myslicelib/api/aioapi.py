@@ -78,7 +78,7 @@ class Aioapi(object):
                 # self.ams.append(SfaAm(endpoint,
                 #                     SfaReg(registry_endpoint, authentication)))
 
-        self.agents = self.ams + list(registry)
+        self.agents = self.ams + [self.registry]
 
         self._loop = loop or asyncio.get_event_loop()
 
