@@ -1,8 +1,9 @@
-MySlice Python module
+MySliceLib Python module
 =======================
 
-MySlice python module, for more information: `<https://myslice.info>`
+MySliceLib python module, for more information: `<https://myslice.info>`
 
+This module is a Library that alows to send Queries to SFA Registry and AMs
 
 Install
 =======================
