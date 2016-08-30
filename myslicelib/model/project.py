@@ -11,7 +11,12 @@ class Projects(Authorities):
 class Project(Authority):
     _class = "Project"
     # XXX TBD either use class name lower or use type???
-    _type = "project"
+
+    # Don't change this!
+    # Project is considered as a sub-authority in SFA Reg
+    # urn must use _type authority
+    _type = "authority"
+
     _collection = "Projects"
 
     def save(self, setup=None):

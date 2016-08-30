@@ -89,6 +89,11 @@ class Entity(object):
                 elif self.hasAttribute('authority') and self.hasAttribute('email') \
                 and self.getAttribute('authority') and self.getAttribute('email'):
                     self.setAttribute('id', hrn_to_urn(self.hrn, self._type))
+                elif self.hasAttribute('authority') and self.hasAttribute('name') \
+                and self.getAttribute('authority') and self.getAttribute('name'):
+                    # generate id based on authority and name
+                    hrn = urn_to_hrn(self.getAttribute('authority'))[0]+"."+self.getAttribute('name')
+                    self.setAttribute('id', hrn_to_urn(hrn, self._type))
                 else:
                     raise Exception('id must be specified')
                 value = self.getAttribute('id')
@@ -192,8 +197,8 @@ class Entity(object):
             _setup = setup
         else:
             _setup = s
-        # using _type instead of _class as project is an authority in SFA Reg
-        return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
+
+        return getattr(Api(_setup.endpoints, _setup.authentication), self._class.lower())()
 
     def save(self, setup=None):
         # the following will trigger the automatic generation of the id, hrn and
@@ -206,9 +211,7 @@ class Entity(object):
 
         if not self.shortname:
             pass
-
         res = self._api(setup).update(self.id, self.getAttributes())
-
         return {
                 'data': res.get('data', []),
                 'errors': res.get('errors', []),
