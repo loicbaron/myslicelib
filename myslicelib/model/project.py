@@ -26,7 +26,6 @@ class Project(Authority):
                 s.addUser(user)
             for u in deleting:
                 user = q(User).id(u).get().first()
-                print(user)
                 s.removeUser(user)
             s.save(setup)
 

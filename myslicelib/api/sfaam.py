@@ -57,7 +57,7 @@ class SfaAm(SfaApi):
                     'list_leases' : 'all',
                     'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
                 }
-        slice_credential = self.registry.search_credential(hrn)
+        slice_credential = self.registry.search_credential(hrn, 'slice')
 
         if self._version['geni_api'] == 2:
             options['geni_slice_urn'] = urn
@@ -134,7 +134,7 @@ class SfaAm(SfaApi):
                 raise NotImplementedError('Not implemented')
             
             hrn = urn_to_hrn(urn)[0]
-            slice_credential = self.registry.search_credential(hrn)
+            slice_credential = self.registry.search_credential(hrn, 'slice')
 
             #*self.ois(server, api_options) to check server if uuid supported
             api_options = {}
