@@ -21,6 +21,6 @@ You need a valid Private Key and Certificate matching a user account in SFA Regi
 
 ::
 
-    /root/myslice.pkey
-    /root/myslice.cert
+    /var/myslice/myslice.pkey
+    /var/myslice/myslice.cert
 
