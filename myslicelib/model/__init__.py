@@ -198,7 +198,7 @@ class Entity(object):
         else:
             _setup = s
 
-        return getattr(Api(_setup.endpoints, _setup.authentication), self._class.lower())()
+        return getattr(Api(_setup.endpoints, _setup.authentication), self._type)()
 
     def save(self, setup=None):
         # the following will trigger the automatic generation of the id, hrn and

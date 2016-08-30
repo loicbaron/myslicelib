@@ -11,7 +11,12 @@ def unique_call_id(): return uuid.uuid4().urn
 def get_leaf(hrn): return Xrn(hrn).get_leaf()
 def get_authority(hrn): return Xrn(hrn).get_authority_hrn()
 def urn_to_hrn(urn): xrn=Xrn(urn); return (xrn.hrn, xrn.type)
-def hrn_to_urn(hrn,type): return Xrn(hrn, type=type).urn
+
+def hrn_to_urn(hrn,type):
+    if type=='project':
+        type='authority'
+    return Xrn(hrn, type=type).urn
+
 def hrn_authfor_hrn(parenthrn, hrn): return Xrn.hrn_is_auth_for_hrn(parenthrn, hrn)
 
 class Xrn:
