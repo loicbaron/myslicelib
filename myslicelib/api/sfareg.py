@@ -318,7 +318,6 @@ class SfaReg(SfaApi):
                     result = self._extract_with_entity(entity, self._list_entity())
             else:
                 hrn, urn_type = urn_to_hrn(urn)
-
                 if urn_type not in ['slice', 'user', 'authority']:
                     raise MysNotUrnFormatError
                 # entity is query object
@@ -338,6 +337,8 @@ class SfaReg(SfaApi):
             else:
                 result = getattr(self, "_" + entity)(result)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -519,6 +520,7 @@ class SfaReg(SfaApi):
         return mapped_dict
 
     def create(self, entity, urn, record_dict):
+        result = []
         try:
             hrn = urn_to_hrn(urn)[0]
             auth_cred = self.search_credential(hrn, 'authority')
@@ -532,7 +534,8 @@ class SfaReg(SfaApi):
             else:
                 raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
-            result = []
+            import traceback
+            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -544,8 +547,8 @@ class SfaReg(SfaApi):
 
     def update(self, entity, urn, record_dict):
         result = []
-        hrn = urn_to_hrn(urn)[0]
         try:
+            hrn = urn_to_hrn(urn)[0]
             if entity == 'user' and hrn == self.authentication.hrn:
                 cred = self.user_credential
             elif entity == 'slice':
@@ -562,6 +565,8 @@ class SfaReg(SfaApi):
             else:
                 raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
