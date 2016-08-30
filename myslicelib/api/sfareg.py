@@ -337,8 +337,8 @@ class SfaReg(SfaApi):
             else:
                 result = getattr(self, "_" + entity)(result)
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -392,8 +392,8 @@ class SfaReg(SfaApi):
             self.user_credentials += d
 
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             d = []
             self.logs.append({
                                 'endpoint': self.endpoint.name,
@@ -534,8 +534,8 @@ class SfaReg(SfaApi):
             else:
                 raise SfaError('No Authority Credential for %s' % hrn)
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
@@ -565,8 +565,8 @@ class SfaReg(SfaApi):
             else:
                 raise Exception("No Credential to update this Or Urn is Not Right", urn)
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
             self.logs.append({
                                 'endpoint': self.endpoint.name,
                                 'url': self.endpoint.url,
