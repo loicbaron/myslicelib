@@ -113,6 +113,7 @@ class ServerProxy(xmlrpc.ServerProxy):
         self._loop = loop or asyncio.get_event_loop()
         if not transport:
             transport = AioTransport(uri.startswith('https://'),
+                                     use_datetime=True,
                                      loop=self._loop,
                                      context=context)
         super().__init__(uri, transport, encoding, verbose, allow_none,

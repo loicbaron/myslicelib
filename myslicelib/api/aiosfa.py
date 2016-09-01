@@ -11,9 +11,12 @@ from myslicelib.api.aioclient import ServerProxy
 
 class Sfa(object):
 
-    def __init__(self, endpoint=None, authentication=None):
+    def __init__(self, endpoint=None, authentication=None,
+                 timeout=10):
+
         self.endpoint = endpoint
         self.authentication = authentication
+        self.logs = []
 
         if hasattr(ssl, '_create_unverified_context'):
             context = ssl._create_unverified_context()
@@ -60,6 +63,7 @@ class Sfa(object):
     async def version(self, raw=False):
         try:
             result = await self._proxy.GetVersion()
+
             self._proxy.close()
             # XXX Cope with the difference between AM & Registry responses
             if 'value' in result:

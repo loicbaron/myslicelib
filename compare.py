@@ -6,6 +6,9 @@ from myslicelib.util import Endpoint, Authentication
 from myslicelib.api import Api
 from myslicelib.api.aioapi import Aioapi
 
+from myslicelib.api.sfareg import SfaReg
+from myslicelib.api.aiosfareg import AiosfaReg
+
 path = "/var/myslice/"
 pkey = path + "myslice.pkey"
 hrn = "onelab.myslice"
@@ -36,8 +39,8 @@ def timeit(method=None):
 @timeit
 def async_api(loop):
     instance = Aioapi(endpoints=endpoints,
-                   authentication=authentication,
-                   loop=loop)
+                      authentication=authentication,
+                      loop=loop)
 
     result = instance.version()
     return result 
@@ -48,12 +51,44 @@ def sync_api():
                    authentication=authentication)
     return instance.version()
 
+# @timeit
+# def async_reg(loop):
+#     endpoint = Endpoint(url="https://portal.onelab.eu:6080", type="Reg", name="OneLab Reg", timeout=10)
+#     authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+#     instance = AiosfaReg(endpoint, authentication)
+#     get = asyncio.gather(instance.get('project'), return_exceptions=True)
+#     loop.run_until_complete(get)
+#     return get.result()
+
+@timeit
+def async_reg(loop):
+    endpoint = Endpoint(url="https://portal.onelab.eu:6080", type="Reg", name="OneLab Reg", timeout=10)
+    authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+    instance = AiosfaReg(endpoint, authentication)
+    get = asyncio.gather(instance.get('slice', urn='urn:publicid:IDN+onelab:asdas:yasintest+slice+sliceyasin'), return_exceptions=True)
+    loop.run_until_complete(get)
+    return get.result()
+
+@timeit
+def sync_reg():
+    endpoint = Endpoint(url="https://portal.onelab.eu:6080", type="Reg", name="OneLab Reg", timeout=10)
+    authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey)
+    instance = SfaReg(endpoint, authentication)
+    return instance.get('slice', urn='urn:publicid:IDN+onelab:asdas:yasintest+slice+sliceyasin')
+
 if __name__ == '__main__':
+    from pprint import pprint
     loop = asyncio.get_event_loop()
-    print(async_api(loop))
-    print(sync_api())
-    print(async_api(loop))
-    loop.close()
+    # print(async_api(loop))
+    # print(sync_api())
+    # print(async_api(loop))
+    # loop.close()
+
+    #pprint(sync_reg())
+    pprint(async_reg(loop))
+    #async_reg(loop)
+
+
 
 
 
