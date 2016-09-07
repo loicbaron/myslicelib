@@ -11,7 +11,8 @@ Install
 ::
 
     git clone git@gitlab.noc.onelab.eu:onelab/myslicelib.git
-    sudo apt-get install libssl-dev #installing OpenSSL Dev: 
+    sudo apt-get install libssl-dev libcurl4-openssl-dev #installing OpenSSL Dev and libcurl
+    sudo pip3.5 install --upgrade pip
     sudo pip3 install -r requirements.txt
     sudo python3.5 setup.py develop
 
