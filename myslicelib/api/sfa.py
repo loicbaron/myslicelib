@@ -83,32 +83,33 @@ class Api(object):
         message = None
         version = None
         urn = None
+        ret = {}
         online = False
 
         try:
             ret = self._proxy.GetVersion()
+            if 'value' in ret:
+                # AM
+                version = ret['value']['geni_api']
+                ##
+                # FIX: Some AMs (e.g. PLE) put "am" instead of "cm" at the end of the URN
+                # We need it to be "cm" so that can be used as ID and referenced from the resources
+                # "manager" field
+                if (ret['value']['urn'].endswith('am')):
+                    urn = "{}{}".format(ret['value']['urn'][:-2], 'cm')
+                else:
+                    urn = ret['value']['urn']
+                online = True
+            elif 'sfa' in ret:
+                # Registry
+                version = ret['sfa']
+                urn = ret['urn']
+                online = True
+            else:
+                message = "Error parsing returned value"
+
         except Exception as e:
             message = e
-
-        if 'value' in ret:
-            # AM
-            version = ret['value']['geni_api']
-            ##
-            # FIX: Some AMs (e.g. PLE) put "am" instead of "cm" at the end of the URN
-            # We need it to be "cm" so that can be used as ID and referenced from the resources
-            # "manager" field
-            if (ret['value']['urn'].endswith('am')):
-                urn = "{}{}".format(ret['value']['urn'][:-2], 'cm')
-            else:
-                urn = ret['value']['urn']
-            online = True
-        elif 'sfa' in ret:
-            # Registry
-            version = ret['sfa']
-            urn = ret['urn']
-            online = True
-        else:
-            message = "Error parsing returned value"
 
         if raw:
             if 'value' in ret:
