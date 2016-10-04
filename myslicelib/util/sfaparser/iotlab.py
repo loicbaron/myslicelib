@@ -2,26 +2,27 @@ from myslicelib.util.sfaparser import SfaParser
 
 class Iotlab(SfaParser):
 
-    def lease_parser(self, rspec):
+    def lease_parser(self, rspec, source):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
 
         for lease in rspec.findall('{http://www.geni.net/resources/rspec/3}lease'):
             lease = {
                 'slice_id': lease.attrib['slice_id'],
-                'start_time': lease.attrib['start_time'],
+                'start_time': int(lease.attrib['start_time']),
                 'duration': int(lease.attrib['duration']) * 60,
                 'end_time': int(lease.attrib['start_time']) + \
                             int(lease.attrib['duration']),
 
                 'resources': [node.attrib['component_id'] for node in list(lease)],
+                'testbed': source,
                 'parser':self.__class__.__name__.lower(),
             }
             result.append(lease)
         return result
 
 
-    def resource_parser(self, rspec):
+    def resource_parser(self, rspec, source):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
 
@@ -31,6 +32,7 @@ class Iotlab(SfaParser):
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
                 'manager': node.attrib['component_manager_id'],
+                'testbed': source,
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],
                 'interfaces': [],

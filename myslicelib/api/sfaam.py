@@ -75,6 +75,7 @@ class SfaAm(SfaApi):
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             result = []
+            print(self.endpoint.name)
             #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -102,13 +103,14 @@ class SfaAm(SfaApi):
                     xml_string = result['value']
                 # pprint(xml_string)
                 # XXX if urn is not None we need to Filter - in the parser??? 
-                testbed = get_testbed_type(self._version['urn'])
-                result = Parser(testbed, xml_string).parse(entity)
+                testbed_type = get_testbed_type(self._version['urn'])
+                result = Parser(testbed_type, self._version['urn'], xml_string).parse(entity)
                 return result
                 # XXX Check result
             else:
                 raise SfaError(result)
         except Exception as e:
+            print(self.endpoint.name)
             traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -145,6 +147,7 @@ class SfaAm(SfaApi):
                 raise Exception(res)
             # XXX Check result
         except Exception as e:
+            print(self.endpoint.name)
             traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -215,6 +218,7 @@ class SfaAm(SfaApi):
                 result = self._parse_xml(result, 'slice')
 
         except Exception as e:
+            print(self.endpoint.name)
             traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -240,6 +244,7 @@ class SfaAm(SfaApi):
                 else:
                     raise NotImplementedError('This AM version does not support PerformOperationalAction')
         except Exception as e:
+            print(self.endpoint.name)
             traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,

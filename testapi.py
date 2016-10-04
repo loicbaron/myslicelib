@@ -58,6 +58,19 @@ credentials = None
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
+l = q(Lease).get()
+pprint(l)
+r = q(Resource).get()
+pprint(r)
+exit(1)
+
+u = q(User).get()
+pprint(u)
+u = q(Authority).get()
+pprint(u)
+
+exit(1)
+
 u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
 pprint(u)
 u.getCredentials()

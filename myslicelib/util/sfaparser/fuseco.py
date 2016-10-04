@@ -2,7 +2,7 @@ from myslicelib.util.sfaparser import SfaParser
 
 class Fuseco(SfaParser):
 
-    def resource_parser(self, rspec):
+    def resource_parser(self, rspec, source):
 
         result = []
 
@@ -12,6 +12,7 @@ class Fuseco(SfaParser):
             'id': node.attrib['component_id'],
             'name': node.attrib['component_name'],
             'manager': node.attrib['component_manager_id'],
+            'testbed': source,
             'parser':self.__class__.__name__.lower(),
             }
             for element in list(node):

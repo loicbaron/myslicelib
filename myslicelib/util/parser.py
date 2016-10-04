@@ -21,13 +21,14 @@ class Parser(object):
         'geni_rspec_version' : {'type': 'GENI', 'version': '3'}
     }
 
-    def __init__(self, testbed, xml_rspec, options=None):
+    def __init__(self, testbed_type, source, xml_rspec, options=None):
         if not options:
             self.options = self._options
         else:
             self.options = options
 
-        self.testbed = testbed    
+        self.testbed = testbed_type
+        self.source = source
         self.rspec = xml.etree.ElementTree.fromstring(xml_rspec)
 
         el = self.rspec.find('{http://www.geni.net/resources/rspec/3}node')
@@ -41,6 +42,6 @@ class Parser(object):
             parser_module = __import__("myslicelib.util.sfaparser." + self.testbed, fromlist=[''])
             class_ = getattr(parser_module, self.testbed.title())
             instance_ = class_()
-            return getattr(instance_, entity + '_parser')(self.rspec)
+            return getattr(instance_, entity + '_parser')(self.rspec, self.source)
         except Exception as e:
             raise NotImplementedError("Parser not implemented")
