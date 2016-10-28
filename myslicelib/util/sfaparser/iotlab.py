@@ -46,6 +46,7 @@ class Iotlab(SfaParser):
 
                 if 'location' in element.tag:
                     resource['location'] = element.attrib
+                    resource['location']['city'] = node.attrib['component_name'].split('.')[1].title()
 
                 if 'available' in element.tag:
                     resource['available'] = element.attrib['now']
