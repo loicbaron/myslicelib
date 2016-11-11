@@ -10,9 +10,9 @@ class Iotlab(SfaParser):
             lease = {
                 'slice_id': lease.attrib['slice_id'],
                 'start_time': int(lease.attrib['start_time']),
-                'duration': int(lease.attrib['duration']) * 60,
+                'duration': int(lease.attrib['duration'])*60,
                 'end_time': int(lease.attrib['start_time']) + \
-                            int(lease.attrib['duration']),
+                            int(lease.attrib['duration'])*60,
 
                 'resources': [node.attrib['component_id'] for node in list(lease)],
                 'testbed': source,
