@@ -169,8 +169,8 @@ class SfaAm(SfaApi):
         # v2 sfa update
         
         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '2'}
-        
-        return self._proxy.CreateSliver([urn] ,[self.slice_credential], rspec, api_options)
+        users = api_options['geni_users']
+        return self._proxy.CreateSliver(urn, [self.slice_credential], rspec, users, api_options)
         
     def _update_slice_v3(self, urn, rspec, api_options):
         # v3 sfa update

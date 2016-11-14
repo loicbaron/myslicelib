@@ -16,9 +16,9 @@ from myslicelib.query import q
 from pprint import pprint
 
 s.endpoints = [
-    Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM", name="ple"),
-    Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
-    Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM",name="WiLab.t"),
+    #Endpoint(url="https://sfa3.planet-lab.eu:12346",type="AM", name="ple"),
+    #Endpoint(url="https://194.199.16.164:12346",type="AM", name="iotlab"),
+    #Endpoint(url="https://www.wilab2.ilabt.iminds.be:12369/protogeni/xmlrpc/am/3.0",type="AM",name="WiLab.t"),
     #Endpoint(url="https://fuseco.fokus.fraunhofer.de/api/sfa/am/v3",type="AM"),
     Endpoint(url="https://griffin.ipv6.lip6.fr:8001/RPC2",type="AM"),
     Endpoint(url="https://portal.onelab.eu:6080",type="Reg", name="OneLab Reg"),
@@ -57,16 +57,40 @@ credentials = None
 
 s.authentication = Authentication(hrn=hrn, email=email, certificate=cert, private_key=pkey, credentials=credentials)
 
-s1 = q(Slice).id('urn:publicid:IDN+onelab:upmc:mobicom+slice+mobicom_demo').get().first()
+#print("Leases in AMs")
+#l = q(Lease).get()
+#pprint(l)
+
+r = q(Resource).get().first()
+
+import time
+u = q(User).id('urn:publicid:IDN+onelab:upmc+user+loic_baron').get().first()
+pprint(u)
+print("Get Slice")
+s = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicetest').get().first()
+pprint(s)
+l = Lease()
+l.slice_id = s.id
+l.start_time = int(time.time())
+l.duration = 3600
+#l.end_time = 1458324000
+# XXX In builder check that resources belong to the right testbed
+l.addResource(r)
+pprint(l)
+s.addLease(l)
+s.addResource(r)
+pprint(s)
+s = s.save()
+pprint(s)
+exit(1)
+
+s = q(Slice).id('urn:publicid:IDN+onelab:upmc:apitest+slice+slicetest').get().first()
 pprint(s1)
 exit(1)
 t = q(Testbed).get()
 pprint(t)
 #l = q(Lease).get()
 #pprint(l)
-r = q(Resource).get()
-pprint(r)
-exit(1)
 
 u = q(User).get()
 pprint(u)
