@@ -20,8 +20,16 @@ class User(Entity):
     _class = "User"
     _type = "user"
     _collection = "Users"
-    credentials = []
-   
+
+    def __init__(self, data = {}):
+        data = data if data is not None else {}
+        data['pi_authorities'] = data.get('pi_authorities', [])
+        data['slices'] = data.get('slices', [])
+        data['projects'] = data.get('projects', [])
+        data['certificate'] = data.get('certificate', [])
+        data['credentials'] = data.get('credentials', [])
+        super().__init__(data)
+
     def getAuthority(self, attribute=False):
         if attribute:
             return self.getAttribute('authority')
