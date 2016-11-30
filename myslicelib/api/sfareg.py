@@ -55,6 +55,9 @@ class SfaReg(SfaApi):
                     #print(c['id'] +': is expired')
                     pass
 
+        # TODO: Catch errors, for instance connection error
+        # log that and manage that (i.e. terminate cleanly)
+        # right now we get an exception stack that is not very useful
         if not self.user_credential:
             #print('GetSelfCredential from Registry')
             self.user_credential = self._proxy.GetSelfCredential(
