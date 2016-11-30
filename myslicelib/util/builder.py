@@ -30,5 +30,5 @@ class Builder(object):
                     
             return getattr(instance_, 'builder')(urn, record)
         except Exception as e:
-            raise NotImplementedError("Parser not implemented")
+            raise NotImplementedError("Parser %s not implemented" % self.parser)
 

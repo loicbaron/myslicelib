@@ -52,6 +52,9 @@ class Authentication(object):
         if credentials:
             self.credentials = credentials
 
+    def __repr__(self):
+        print("email: {}, hrn: {}, pkey: {}".format(self.email,self.hrn,self.private_key))
+
     def create_self_signed_cert(self, private_key=None):
         if not private_key:
             # create a key pair

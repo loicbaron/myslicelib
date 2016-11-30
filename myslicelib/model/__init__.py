@@ -98,6 +98,8 @@ class Entity(object):
                     raise Exception('id must be specified')
                 value = self.getAttribute('id')
             except Exception as e:
+                from pprint import pprint
+                pprint(self)
                 import traceback
                 traceback.print_exc()
                 raise AttributeError('Could not set id attribute')

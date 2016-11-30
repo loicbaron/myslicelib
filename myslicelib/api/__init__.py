@@ -172,6 +172,7 @@ class Api(object):
                 threads += [self._thread_handler(am.update, self._entity, id, params)]
 
         res_am = self._parallel_request(threads)
+        res_am['data'] = merge_dicts(res_am['data'])
         res_am['data'] += res_reg['data']
         res_am['errors'] += res_reg['errors']
         result = res_am
@@ -202,3 +203,20 @@ class Api(object):
                 raise NotImplementedError('Not implemented')
 
         return result
+
+
+def merge_dicts(res):
+    result = {}
+    # element could be slice from reg
+    # could be resources from am, leases from am
+    for element in res:
+        if isinstance(element, dict):
+            for key, value in element.items():
+                if key in result:
+                    # append
+                    result[key] += value
+                else:
+                    result[key] = value
+        else:
+            result = res
+    return [result]

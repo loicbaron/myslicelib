@@ -2,7 +2,7 @@ from myslicelib.util.sfaparser import SfaParser
 
 class Emulab(SfaParser):
 
-    def resource_parser(self, rspec):
+    def resource_parser(self, rspec, source):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
         testbed = el.attrib['component_id'].split("+")[1]
@@ -15,6 +15,7 @@ class Emulab(SfaParser):
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
                 'manager': node.attrib['component_manager_id'],
+                'testbed': source,
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],
                 'interfaces': [],

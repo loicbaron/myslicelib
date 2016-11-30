@@ -3,7 +3,7 @@ from myslicelib.util.sfaparser import SfaParser
 
 class Omf(SfaParser):
 
-    def lease_parser(self, rspec):
+    def lease_parser(self, rspec, source):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
 
@@ -26,6 +26,7 @@ class Omf(SfaParser):
                 'end_time': end_time,
                 'duration': duration,
                 'resources': [],
+                'testbed': source,
             }        
             for node in nodes:
                 leases_in_node = node.findall('{http://nitlab.inf.uth.gr/schema/sfa/rspec/1}lease_ref')
@@ -38,7 +39,7 @@ class Omf(SfaParser):
             result.append(l)
         return result
 
-    def resource_parser(self, rspec):
+    def resource_parser(self, rspec, source):
         result = []
         el = rspec.find('{http://www.geni.net/resources/rspec/3}node')
 
@@ -48,6 +49,7 @@ class Omf(SfaParser):
                 'id': node.attrib['component_id'],
                 'name': node.attrib['component_name'],
                 'manager': node.attrib['component_manager_id'],
+                'testbed': source,
                 'parser':self.__class__.__name__.lower(),
                 'exclusive': node.attrib['exclusive'],
                 'hardware_types': [],

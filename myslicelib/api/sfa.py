@@ -3,6 +3,7 @@ import socket
 import os.path
 import sys, tempfile, time
 from urllib.parse import urlparse
+from myslicelib.util.sfa import hrn_to_urn
 
 from pprint import pprint
 
@@ -91,14 +92,10 @@ class Api(object):
             if 'value' in ret:
                 # AM
                 version = ret['value']['geni_api']
-                ##
-                # FIX: Some AMs (e.g. PLE) put "am" instead of "cm" at the end of the URN
-                # We need it to be "cm" so that can be used as ID and referenced from the resources
-                # "manager" field
-                if (ret['value']['urn'].endswith('am')):
-                    urn = "{}{}".format(ret['value']['urn'][:-2], 'cm')
-                else:
+                if 'urn' in ret['value']:
                     urn = ret['value']['urn']
+                else:
+                    urn = hrn_to_urn(ret['value']['hrn'], 'authority')
                 online = True
             elif 'sfa' in ret:
                 # Registry
