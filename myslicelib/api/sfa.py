@@ -86,6 +86,7 @@ class Api(object):
         urn = None
         ret = {}
         online = False
+        status = "offline"
 
         try:
             ret = self._proxy.GetVersion()
@@ -97,11 +98,13 @@ class Api(object):
                 else:
                     urn = hrn_to_urn(ret['value']['hrn'], 'authority')
                 online = True
+                status = "online"
             elif 'sfa' in ret:
                 # Registry
                 version = ret['sfa']
                 urn = ret['urn']
                 online = True
+                status = "online"
             else:
                 message = "Error parsing returned value"
 
@@ -115,7 +118,8 @@ class Api(object):
         else:
             return {
                 'data': [{
-                    'status': {
+                    'status': status,
+                    "connection":{
                         'online' : online,
                         'message' : message
                     },
