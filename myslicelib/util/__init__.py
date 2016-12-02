@@ -20,6 +20,8 @@ class Endpoint(object):
 
         if technologies:
             self.technologies = technologies.split(',')
+        else:
+            self.technologies = []
 
         if timeout:
             self.timeout = timeout
