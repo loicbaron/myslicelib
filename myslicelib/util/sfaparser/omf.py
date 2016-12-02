@@ -59,8 +59,14 @@ class Omf(SfaParser):
                 'technologies':['Wireless','Wifi'],
             }
             for element in list(node):
+                if 'hardware_type' in element.tag:
+                    resource['hardware_types'].append(element.attrib['name'])
+
                 if 'location' in element.tag:
                     resource['location'] = element.attrib
+
+                if 'available' in element.tag:
+                    resource['available'] = element.attrib['now']
             result.append(resource)
 
             # TODO channel?
