@@ -127,6 +127,7 @@ class Api(object):
                     'version': version,
                     'type': self.endpoint.type,
                     'url' : self.endpoint.url,
+                    'technologies' : self.endpoint.technologies,
                     'hostname' : urlparse(self.endpoint.url).hostname,
                     'name' : self.endpoint.name,
                     'api' : {

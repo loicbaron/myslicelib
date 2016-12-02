@@ -13,15 +13,20 @@ class Endpoint(object):
 
     """
 
-    def __init__(self, type="AM", protocol="SFA", url=None, name=None, timeout=None):
+    def __init__(self, type="AM", protocol="SFA", url=None, name=None, timeout=None, technologies=None):
         self.name = name
         self.type = type
         self.protocol = protocol
+
+        if technologies:
+            self.technologies = technologies.split(',')
+
         if timeout:
             self.timeout = timeout
         else:
             # DEFAULT TIMEOUT
-            self.timeout = 10 
+            self.timeout = 10
+
         if not url or not validateUrl(url):
             raise ValueError("URL not valid")
         else:

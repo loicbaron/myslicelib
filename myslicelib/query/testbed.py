@@ -16,6 +16,7 @@ class TestbedQuery(Query):
 
         res = self.api.version()
 
+        # TODO: Explain the checker function?!?
         if self._filter:
             res['data'] = [x for x in res['data'] if checker(x, self._filter)]
 
