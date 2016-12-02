@@ -108,8 +108,11 @@ class Api(object):
             else:
                 message = "Error parsing returned value"
 
+        except socket.timeout:
+            message = "Connection timed out"
+
         except Exception as e:
-            message = e
+            message = str(e)
 
         if raw:
             if 'value' in ret:
