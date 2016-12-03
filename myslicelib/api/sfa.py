@@ -109,7 +109,10 @@ class Api(object):
                 message = "Error parsing returned value"
 
         except socket.timeout:
-            message = "Connection timed out"
+            message = "Connection timed out ({})".format(self.endpoint.url)
+
+        except socket.gaierror:
+            message = "Server name/address not provided or unknown ({})".format(self.endpoint.url)
 
         except Exception as e:
             message = str(e)
