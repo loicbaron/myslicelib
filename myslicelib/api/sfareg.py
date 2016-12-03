@@ -60,10 +60,12 @@ class SfaReg(SfaApi):
         # right now we get an exception stack that is not very useful
         if not self.user_credential:
             #print('GetSelfCredential from Registry')
+            # TODO: manage exception here like socket.timeout
             self.user_credential = self._proxy.GetSelfCredential(
-                                        certificate,
-                                        self.authentication.hrn,
-                                        'user')
+                                    certificate,
+                                    self.authentication.hrn,
+                                    'user')
+
 
     def _getXmlCredential(self, hrn, obj_type):
         for c in self.user_credentials:
@@ -99,9 +101,11 @@ class SfaReg(SfaApi):
             hrn = self._version['urn']
         # attept to list the hrn first if it is an authority
         # if hrn is not an authority, it will list all elements
+        # TODO: manage exception here like socket.timeout
         return self._proxy.List(hrn, self.user_credential, {'recursive':True})
 
     def _get_entity(self, hrn):
+        # TODO: manage exception here like socket.timeout
         return self._proxy.Resolve(hrn, self.user_credential, {})
 
     def _datetime(self, date):
