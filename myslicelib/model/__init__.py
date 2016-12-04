@@ -78,6 +78,7 @@ class Entity(object):
             self.setAttribute('id', value)
         else:
             try:
+                # TODO: ?!?!?!?!?!?!?!?!
                 if self.hasAttribute('hrn') and self.getAttribute('hrn'):
                     # generate id based on hrn
                     self.setAttribute('id', hrn_to_urn(self.getAttribute('hrn'), self._type))
