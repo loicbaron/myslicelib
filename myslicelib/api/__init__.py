@@ -172,8 +172,9 @@ class Api(object):
                 threads += [self._thread_handler(am.update, self._entity, id, params)]
 
         res_am = self._parallel_request(threads)
-        res_am['data'] = merge_dicts(res_am['data'])
-        res_am['data'] += res_reg['data']
+        res_am['data'] = res_reg['data']
+        if res_am['data']:
+            res_am['data'] += merge_dicts(res_am['data'])
         res_am['errors'] += res_reg['errors']
         result = res_am
 
