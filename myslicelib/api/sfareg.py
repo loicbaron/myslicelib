@@ -66,7 +66,6 @@ class SfaReg(SfaApi):
                                     self.authentication.hrn,
                                     'user')
 
-
     def _getXmlCredential(self, hrn, obj_type):
         for c in self.user_credentials:
             if c['hrn']==hrn and c['type']==obj_type:
@@ -463,14 +462,12 @@ class SfaReg(SfaApi):
         try:
             upper_hrn = '.'.join(hrn.split('.')[:-1])
             if hrn:
-                if entity == 'slice':
-                    # If credentials were provided don't call the Registry
-                    c = self._getXmlCredential(hrn, entity)
-                    if c: return c
-                    #print('GetCredential hrn: '+hrn+' from Registry')
-                    cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
-                    if cred:
-                        return cred
+                # If credentials were provided don't call the Registry
+                c = self._getXmlCredential(hrn, entity)
+                if c: return c
+                #print('GetCredential hrn: '+hrn+' from Registry')
+                cred = self._proxy.GetCredential(self.user_credential, hrn, entity)
+                if cred: return cred
                 # If credentials were provided don't call the Registry
                 c = self._getXmlCredential(upper_hrn, 'authority')
                 if c: return c
