@@ -172,11 +172,12 @@ class Api(object):
                 threads += [self._thread_handler(am.update, self._entity, id, params)]
 
         res_am = self._parallel_request(threads)
-        res_am['data'] = res_reg['data']
+        result['data'] = res_reg['data']
+        result['errors'] = res_reg['errors']
         if res_am['data']:
-            res_am['data'] += merge_dicts(res_am['data'])
-        res_am['errors'] += res_reg['errors']
-        result = res_am
+            result['data'] += merge_dicts(res_am['data'])
+        if res_am['errors']:
+            result['errors'] += res_am['errors']
 
         if self._entity not in self._am and self._entity not in self._registry:
             raise NotImplementedError('Not implemented')
