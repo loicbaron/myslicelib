@@ -61,10 +61,10 @@ class Api(object):
 
     def __init__(self, endpoints: Endpoint, authentication: Authentication) -> None:
         if not isinstance(endpoints, list) or not all(isinstance(endpoint, Endpoint) for endpoint in endpoints):
-            raise ValueError("API needs an object of type Endpoint")
+            raise ValueError("API needs an object of type Endpoint, please check the configuration")
 
         if not isinstance(authentication, Authentication):
-            raise ValueError("API needs an object of type Authentication")
+            raise ValueError("API needs Authentication, please check your private key or generate a new one")
 
         self.registry = None # at least one registry endpoint must be present
         self.ams = [] # one or plus am must be present, this depends on the am to be present
