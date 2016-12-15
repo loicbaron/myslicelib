@@ -84,7 +84,7 @@ class SfaAm(SfaApi):
                             'type': self.endpoint.type,
                             'exception': str(e)
                             })
-
+        #pprint(result)
         if not raw:
             result = self._parse_xml(result, entity)
         
@@ -186,6 +186,9 @@ class SfaAm(SfaApi):
 
     def update(self, entity, urn, record_dict):
         result = []
+        if self._version['urn'] not in record_dict['testbeds']:
+            print("testbed %s is not concerned" % self._version['urn'])
+            return {'data':result,'errors':self.logs}
         try:
             if entity != 'slice':
                 raise NotImplementedError('Not implemented')

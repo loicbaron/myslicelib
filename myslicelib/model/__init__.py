@@ -1,3 +1,4 @@
+from pprint import pprint
 from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
@@ -99,7 +100,6 @@ class Entity(object):
                     raise Exception('id must be specified')
                 value = self.getAttribute('id')
             except Exception as e:
-                from pprint import pprint
                 pprint(self)
                 import traceback
                 traceback.print_exc()

@@ -18,6 +18,10 @@ class Slice(Entity):
         data['users'] = data.get('users', [])
         data['geni_users'] = data.get('geni_users', [])
         data['resources'] = data.get('resources', [])
+        data['testbeds'] = data.get('testbeds', [])
+        for r in data['resources']:
+            data['testbeds'].append(r['testbed'])
+        data['initial_testbeds'] = data['testbeds']
         data['leases'] = data.get('leases', [])
         data['run_am'] = data.get('run_am', False)
         super().__init__(data)
@@ -54,6 +58,7 @@ class Slice(Entity):
     
     def addResource(self, resource):
         self.appendAttribute('resources', resource.getAttributes())
+        self.appendAttribute('testbeds', resource.getAttribute('testbed'))
         self.setAttribute('run_am', True)
         return self
 
@@ -64,6 +69,10 @@ class Slice(Entity):
 
     def removeResource(self, resource):
         self.setAttribute('resources', list(filter(lambda x: x['id']!=resource.id, self.resources)))
+        if resource.testbed in self.getAttribute('initial_testbeds'):
+            self.appendAttribute('testbeds', resource.getAttribute('testbed'))
+        else:
+            self.setAttribute('testbeds', list(filter(lambda x: x!=resource.testbed, self.testbeds)))
         self.setAttribute('run_am', True)
         return self
 
@@ -86,7 +95,8 @@ class Slice(Entity):
         return self
 
     def save(self, setup=None):
-        # check if we have the email
+
+        # check if we have the shortname & authority
         if not self.hasAttribute('shortname'):
             raise Exception('Slice shortname must be specified')
 
