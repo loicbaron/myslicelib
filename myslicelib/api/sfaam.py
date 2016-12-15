@@ -186,7 +186,7 @@ class SfaAm(SfaApi):
 
     def update(self, entity, urn, record_dict):
         result = []
-        if self._version['urn'] not in record_dict['testbeds']:
+        if 'testbeds' not in record_dict or self._version['urn'] not in record_dict['testbeds']:
             print("testbed %s is not concerned" % self._version['urn'])
             return {'data':result,'errors':self.logs}
         try:
