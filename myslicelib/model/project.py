@@ -19,7 +19,10 @@ class Project(Authority):
     def save(self, setup=None):
 
         # Adding/Removing Users to/from the slices when project.save()
-        sl = self.getSlices()
+        pprint(self.getAttribute('slices'))
+        sl = self.getSlices(setup=setup)
+        print("Slices to be updated within the project")
+        pprint(sl)
         for s in sl:
             adding = list(set(self.getAttribute('pi_users')) - set(s.getAttribute('users')))
             deleting = list(set(s.getAttribute('users')) - set(self.getAttribute('pi_users')))
@@ -30,7 +33,6 @@ class Project(Authority):
                 user = q(User).id(u).get().first()
                 s.removeUser(user)
             s.save(setup)
-
         return super().save(setup)
 
     def getUsers(self, attribute=False, pis = True):

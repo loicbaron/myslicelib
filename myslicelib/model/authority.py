@@ -54,14 +54,14 @@ class Authority(Entity):
                 result += q(User).id(urn).get()
             return result
 
-    def getSlices(self, attribute=False):
+    def getSlices(self, attribute=False, setup=None):
         if attribute:
             return self.getAttribute('slices')
         else:
             from myslicelib.model.slice import Slice
             result = []
             for urn in self.getAttribute('slices'):
-                result += q(Slice).id(urn).get()
+                result += q(Slice, setup=setup).id(urn).get()
             return result
 
     def addPi(self, user):
