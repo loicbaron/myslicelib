@@ -186,8 +186,10 @@ class SfaAm(SfaApi):
 
     def update(self, entity, urn, record_dict):
         result = []
-        if 'testbeds' not in record_dict or self._version['urn'] not in record_dict['testbeds']:
-            print("testbed %s is not concerned" % self._version['urn'])
+
+        if 'testbeds' not in record_dict or 'urn' not in self._version or self._version['urn'] not in record_dict['testbeds']:
+            print("testbed is not concerned or is offline")
+            pprint(self.version())
             return {'data':result,'errors':self.logs}
         try:
             if entity != 'slice':
