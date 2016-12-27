@@ -90,7 +90,7 @@ class User(Entity):
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-                raise Exception('Failed to fetch the Credentials')
+                raise Exception('Failed to fetch the Credentials for %s' % id)
 
         return self
 
