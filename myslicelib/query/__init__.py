@@ -75,6 +75,9 @@ class Query(object):
         if self._filter:
             res['data'] = [x for x in res['data'] if checker(x, self._filter)]
 
+        if self._id:
+            res['data'] = [x for x in res['data'] if checker(x, {'id':self._id})]
+
         # c is Entities object
         c = self.collection(res['data']) 
         c.logs = res['errors']
