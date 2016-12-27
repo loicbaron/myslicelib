@@ -87,6 +87,7 @@ class Query(object):
         if not self._id:
             raise Exception("No element specified")
         res = self.api.update(self._id, params)
+        res['data'] = [x for x in res['data'] if checker(x, {'id':self._id})]
         c = self.collection(res['data'])
         c.logs = res['errors']
         return c
