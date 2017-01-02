@@ -24,6 +24,7 @@ class Authority(Entity):
     def __init__(self, data = {}):
         data = data if data is not None else {}
         data['pi_users'] = data.get('pi_users', [])
+        data['users'] = data.get('users', [])
         data['slices'] = data.get('slices', [])
         super().__init__(data)
 
