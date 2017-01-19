@@ -29,10 +29,7 @@ class Endpoint(object):
             # DEFAULT TIMEOUT
             self.timeout = 10
 
-        if not url or not validateUrl(url):
-            raise ValueError("URL not valid")
-        else:
-            self.url = url
+        self.url = url
     
     def __str__(self):
         return self.url
