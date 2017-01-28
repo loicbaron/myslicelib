@@ -30,7 +30,7 @@ class Iotlab(SfaBuilder):
             raise SfaError('Leases must be specified to reserve FIT IoT-LAB resources')
 
         for l in record_dict['leases']:
-            rspec += '<lease slice_id="'+urn+'" start_time="'+str(l['start_time'])+'" duration="'+str(int(l['duration']/60))+'">'
+            rspec += '<lease slice_id="'+urn+'" start_time="'+str(l['start_time'])+'" duration="'+str(int(int(l['duration'])/60))+'">'
             for r in l['resources']:
                 rspec += '<node component_id="'+r+'"/>'
             rspec += '</lease>'
