@@ -13,10 +13,11 @@ class Endpoint(object):
 
     """
 
-    def __init__(self, type="AM", protocol="SFA", url=None, name=None, timeout=None, technologies=None):
+    def __init__(self, type="AM", protocol="SFA", url=None, name=None, timeout=None, technologies=None, hasLeases=False):
         self.name = name
         self.type = type
         self.protocol = protocol
+        self.hasLeases = hasLeases
 
         if technologies:
             self.technologies = technologies.split(',')

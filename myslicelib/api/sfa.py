@@ -141,6 +141,7 @@ class Api(object):
                         "protocol" : self.endpoint.protocol,
                         'version': version,
                     },
+                    'hasLeases': self.endpoint.hasLeases,
                 }],
                 'errors':[message],
             }
