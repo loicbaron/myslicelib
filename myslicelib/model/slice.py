@@ -19,9 +19,10 @@ class Slice(Entity):
         data['geni_users'] = data.get('geni_users', [])
         data['resources'] = data.get('resources', [])
         data['testbeds'] = data.get('testbeds', [])
+        data['initial_testbeds'] = data.get('initial_testbeds', [])
         for r in data['resources']:
-            data['testbeds'].append(r['testbed'])
-        data['initial_testbeds'] = data['testbeds']
+            if r['testbed'] not in data['initial_testbeds']:
+                data['initial_testbeds'].append(r['testbed'])
         data['leases'] = data.get('leases', [])
         data['run_am'] = data.get('run_am', False)
         super().__init__(data)
@@ -58,7 +59,8 @@ class Slice(Entity):
     
     def addResource(self, resource):
         self.appendAttribute('resources', resource.getAttributes())
-        self.appendAttribute('testbeds', resource.getAttribute('testbed'))
+        if resource.getAttribute('testbed') not in self.getAttribute('testbeds'):
+            self.appendAttribute('testbeds', resource.getAttribute('testbed'))
         self.setAttribute('run_am', True)
         return self
 
