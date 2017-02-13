@@ -18,6 +18,9 @@ from myslicelib.error import MysParameterIsRequiredError
 # self.Shutdown
 # self.Delete
 
+import logging
+logger = logging.getLogger(__name__)
+
 class SfaAm(SfaApi):
 
     def __init__(self, endpoint=None, registry=None):
@@ -75,7 +78,7 @@ class SfaAm(SfaApi):
             result = getattr(self, "_" + entity)(urn)
         except Exception as e:
             result = []
-            print(self.endpoint.name)
+            #print(self.endpoint.name)
             #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
@@ -110,8 +113,10 @@ class SfaAm(SfaApi):
             else:
                 raise SfaError(result)
         except Exception as e:
-            print(self.endpoint.name)
-            traceback.print_exc()
+            #print(self.endpoint.name)
+            logger.error(self.endpoint.name)
+            logger.exception(e)
+            #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
                             'url': self.endpoint.url,
@@ -147,8 +152,10 @@ class SfaAm(SfaApi):
                 raise Exception(res)
             # XXX Check result
         except Exception as e:
-            print(self.endpoint.name)
-            traceback.print_exc()
+            logger.error(self.endpoint.name)
+            logger.exception(e)
+            #print(self.endpoint.name)
+            #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
                             'url': self.endpoint.url,
@@ -176,6 +183,8 @@ class SfaAm(SfaApi):
         # v3 sfa update
         
         api_options['geni_rspec_version'] = {'type': 'GENI', 'version': '3'}
+        #print("-"*20)
+        #pprint(rspec)
         result = self._proxy.Allocate(urn, [self.slice_credential], rspec, api_options)
         if self.isResultOk(result):
             # another call id 
@@ -188,8 +197,8 @@ class SfaAm(SfaApi):
         result = []
 
         if 'testbeds' not in record_dict or 'urn' not in self._version or self._version['urn'] not in record_dict['testbeds']:
-            print("testbed is not concerned or is offline")
-            pprint(self.version())
+            #print("testbed is not concerned or is offline")
+            #pprint(self.version())
             return {'data':result,'errors':self.logs}
         try:
             if entity != 'slice':
@@ -223,8 +232,10 @@ class SfaAm(SfaApi):
                 result = self._parse_xml(result, 'slice')
 
         except Exception as e:
-            print(self.endpoint.name)
-            traceback.print_exc()
+            logger.error(self.endpoint.name)
+            logger.exception(e)
+            #print(self.endpoint.name)
+            #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
                             'url': self.endpoint.url,
@@ -249,8 +260,10 @@ class SfaAm(SfaApi):
                 else:
                     raise NotImplementedError('This AM version does not support PerformOperationalAction')
         except Exception as e:
-            print(self.endpoint.name)
-            traceback.print_exc()
+            logger.error(self.endpoint.name)
+            logger.exception(e)
+            #print(self.endpoint.name)
+            #traceback.print_exc()
             self.logs.append({
                             'endpoint': self.endpoint.name,
                             'url': self.endpoint.url,
