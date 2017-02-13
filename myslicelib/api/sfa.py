@@ -12,6 +12,9 @@ from pprint import pprint
 
 from xmlrpc import client as xmlrpcclient
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Api(object):
 
     def __init__(self, endpoint=None, authentication=None):
@@ -60,13 +63,15 @@ class Api(object):
                 os.unlink(cert_fn.name)
                 os.unlink(pkey_fn.name)
         except ssl.SSLError as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
+            logger.exception(e)
             raise Exception("Problem with certificate and/or key for user %s" % self.authentication.hrn)
 
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            #import traceback
+            #traceback.print_exc()
+            logger.exception(e)
             raise Exception("Problem Authenticating with certificate and/or key for user %s" % self.authentication.hrn)
 
         # DEFAULT TIMEOUT is set in Endpoint
