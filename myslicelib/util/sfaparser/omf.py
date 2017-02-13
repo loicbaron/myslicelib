@@ -55,6 +55,7 @@ class Omf(SfaParser):
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
+                'services': [],
                 'parser':self.__class__.__name__.lower(),
                 'technologies':['Wireless','Wifi'],
             }
@@ -67,6 +68,11 @@ class Omf(SfaParser):
 
                 if 'available' in element.tag:
                     resource['available'] = element.attrib['now']
+
+                if 'services' in element.tag:
+                    login = element.find('{http://www.geni.net/resources/rspec/3}login')
+                    resource['services'].append({'login':login.attrib})
+
             result.append(resource)
 
             # TODO channel?

@@ -13,6 +13,7 @@ class Fuseco(SfaParser):
             'name': node.attrib['component_name'],
             'manager': node.attrib['component_manager_id'],
             'testbed': source,
+            'services': [],
             'parser':self.__class__.__name__.lower(),
             }
             for element in list(node):

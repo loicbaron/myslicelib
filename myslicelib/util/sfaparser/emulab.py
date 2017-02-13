@@ -20,6 +20,7 @@ class Emulab(SfaParser):
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
+                'services': [],
                 'parser':self.__class__.__name__.lower(),
 
             }
@@ -44,6 +45,11 @@ class Emulab(SfaParser):
                     {'name':element.attrib['name'],
                     'disk_images':disk_images}
                     )
+
+                if 'services' in element.tag:
+                    login = element.find('{http://www.geni.net/resources/rspec/3}login')
+                    resource['services'].append({'login':login.attrib})
+
 
             if 'wilab' in testbed:
                 resource['technologies']=['Wireless', 'Wifi', 'IoT', 'Internet of Things', '802.15.4']

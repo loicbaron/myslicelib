@@ -37,6 +37,7 @@ class Iotlab(SfaParser):
                 'hardware_types': [],
                 'interfaces': [],
                 'sliver_types': [],
+                'services': [],
                 'parser':self.__class__.__name__.lower(),
                 'technologies':['IoT','Internet of Things'],
             }
@@ -50,6 +51,10 @@ class Iotlab(SfaParser):
 
                 if 'available' in element.tag:
                     resource['available'] = element.attrib['now']
+
+                if 'services' in element.tag:
+                    login = element.find('{http://www.geni.net/resources/rspec/3}login')
+                    resource['services'].append({'login':login.attrib})
 
             result.append(resource)
         return result
