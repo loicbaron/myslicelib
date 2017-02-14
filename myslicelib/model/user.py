@@ -27,7 +27,7 @@ class User(Entity):
         data['pi_authorities'] = data.get('pi_authorities', [])
         data['slices'] = data.get('slices', [])
         data['projects'] = data.get('projects', [])
-        data['certificate'] = data.get('certificate', [])
+        data['certificate'] = data.get('certificate', None)
         super().__init__(data)
 
     def getAuthority(self, attribute=False):
