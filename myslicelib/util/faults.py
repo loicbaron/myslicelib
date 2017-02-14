@@ -24,7 +24,7 @@
 # SFA API faults
 #
 
-import xmlrpclib
+import xmlrpc.client as xmlrpclib
 from myslicelib.util.genicode import GENICODE
 
 class SfaFault(xmlrpclib.Fault):
