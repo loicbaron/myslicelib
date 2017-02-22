@@ -1,5 +1,4 @@
 import myslicelib
-from pprint import pprint
 
 from myslicelib.model.user import User
 from myslicelib.model.authority import Authorities, Authority
@@ -19,10 +18,7 @@ class Project(Authority):
     def save(self, setup=None):
 
         # Adding/Removing Users to/from the slices when project.save()
-        pprint(self.getAttribute('slices'))
         sl = self.getSlices(setup=setup)
-        print("Slices to be updated within the project")
-        pprint(sl)
         for s in sl:
             adding = list(set(self.getAttribute('pi_users')) - set(s.getAttribute('users')))
             deleting = list(set(s.getAttribute('users')) - set(self.getAttribute('pi_users')))
