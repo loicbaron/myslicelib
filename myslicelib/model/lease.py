@@ -8,7 +8,7 @@ class Lease(Entity):
     _type = "lease"
     _collection = "Leases"
 
-    _generator = ['start_time', 'end_time', 'duration']
+    _generator = ['start_time', 'end_time', 'duration', 'testbed']
 
     def __init__(self, data = {}):
         super().__init__(data)

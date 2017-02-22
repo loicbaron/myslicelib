@@ -36,5 +36,4 @@ class Iotlab(SfaBuilder):
             rspec += '</lease>'
 
         rspec += '</rspec>'
-        print(rspec)
         return rspec
