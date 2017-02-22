@@ -1,4 +1,3 @@
-from pprint import pprint
 from myslicelib import setup as s, Setup
 from myslicelib.api import Api
 from myslicelib.util.sfa import hrn_to_urn, urn_to_hrn
@@ -30,7 +29,6 @@ class Entity(object):
                 getattr(self, 'get'+ camelName)()
             return getattr(self, 'get' + camelName)(True)
         except:
-            #print("get attr {}".format(name))
             #import traceback
             #traceback.print_exc()
             return self.getAttribute(name)
@@ -44,7 +42,6 @@ class Entity(object):
             camelName = ''.join(x for x in name.replace('_',' ').title() if not x.isspace())
             getattr(self, 'set' + camelName)(value)
         except:
-            #print("set attr {} = {}".format(name,value))
             #import traceback
             #traceback.print_exc()
             self.setAttribute(name, value)
@@ -100,9 +97,8 @@ class Entity(object):
                     raise Exception('id must be specified')
                 value = self.getAttribute('id')
             except Exception as e:
-                pprint(self)
-                import traceback
-                traceback.print_exc()
+                #import traceback
+                #traceback.print_exc()
                 raise AttributeError('Could not set id attribute')
 
         # Set other parameters accordingly
