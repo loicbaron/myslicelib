@@ -85,6 +85,8 @@ class Slice(Entity):
 
     def addLease(self, lease):
         self.appendAttribute('leases', lease.getAttributes())
+        if lease.getAttribute('testbed') not in self.getAttribute('testbeds'):
+            self.appendAttribute('testbeds', lease.getAttribute('testbed'))
         self.setAttribute('run_am', True)
         return self
 
