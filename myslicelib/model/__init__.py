@@ -168,15 +168,18 @@ class Entity(object):
             self.setAttribute('id', hrn_to_urn(hrn, self._type))
 
     def setAuthority(self, value):
-        self.setAttribute('authority', value)
-        auth_hrn = urn_to_hrn(value)[0]
+        if 'urn:publicid:IDN+' in value:
+            auth_hrn = urn_to_hrn(value)[0]
+        else:
+            auth_hrn = value
+        self.setAttribute('authority', auth_hrn)
 
         if self.hasAttribute('shortname'):
-            hrn = value + '.' + self.shortname
+            hrn = auth_hrn + '.' + self.shortname
             self.setHrn(hrn)
         elif self.hasAttribute('hrn'):
             shortname = self.getAttribute('hrn').split('.')[-1]
-            hrn = value + '.' + self.shortname
+            hrn = auth_hrn + '.' + self.shortname
             self.setHrn(hrn)
 
     def setAttribute(self, name, value):
